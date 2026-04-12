@@ -1,0 +1,84 @@
+/* Dark mode overrides */
+body.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+body.dark-mode .panel {
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+body.dark-mode .section-group {
+    background: #0f172a;
+    border-left-color: #3b82f6;
+}
+
+body.dark-mode .section-group.green-accent { border-left-color: #10b981; }
+body.dark-mode .section-group.orange-accent { border-left-color: #f59e0b; }
+body.dark-mode .section-group.red-accent { border-left-color: #ef4444; }
+
+body.dark-mode .input-group input,
+body.dark-mode .input-group select {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
+body.dark-mode .input-group input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+body.dark-mode .input-group label { color: #94a3b8; }
+body.dark-mode .input-group .unit { color: #64748b; }
+
+body.dark-mode .summary-card {
+    background: #0f172a;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .summary-card .value { color: #e2e8f0; }
+body.dark-mode .summary-card .label { color: #94a3b8; }
+body.dark-mode .summary-card .sub-text { color: #64748b; }
+
+body.dark-mode .panel h2 { color: #60a5fa; border-bottom-color: #3b82f6; }
+body.dark-mode .panel h3 { color: #e2e8f0; }
+
+body.dark-mode .inv-table thead th { background: #1e40af; }
+body.dark-mode .inv-table tbody td { border-color: #334155; }
+body.dark-mode .inv-table tbody tr:nth-child(even) { background: #0f172a; }
+body.dark-mode .inv-table input { background: #1e293b; color: #e2e8f0; border-color: #334155; }
+body.dark-mode .inv-table .total-row { background: #0f172a; }
+body.dark-mode .inv-table .total-row td { border-top-color: #3b82f6; }
+
+body.dark-mode .matrix-table th { background: #1e3a5f; color: #93c5fd; }
+body.dark-mode .matrix-table td { border-color: #334155; color: #e2e8f0; }
+body.dark-mode .matrix-card { background: #0f172a; }
+
+body.dark-mode .projection-table thead th { background: #1e40af; }
+body.dark-mode .projection-table tbody td { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+body.dark-mode .projection-table tbody tr.row-earning { background: #0a2e1a; }
+body.dark-mode .projection-table tbody tr.row-retired { background: #0c1e3a; }
+body.dark-mode .projection-table tbody tr.row-dead { background: #1e293b; }
+body.dark-mode .projection-table tbody tr.row-warning { background: #3b1010 !important; }
+
+body.dark-mode .health-indicator.good { background: #064e3b; color: #6ee7b7; }
+body.dark-mode .health-indicator.bad { background: #450a0a; color: #fca5a5; }
+
+body.dark-mode .chart-container { background: #1e293b; }
+body.dark-mode .nav-tab { color: rgba(255,255,255,0.7); }
+body.dark-mode .nav-tab.active { background: #1e293b; color: #60a5fa; }
+
+body.dark-mode .month-card { background: #1e293b; border-color: #334155; }
+body.dark-mode .month-card:hover { border-color: #3b82f6; }
+body.dark-mode .month-card.completed { background: #064e3b; border-color: #10b981; }
+body.dark-mode .month-card .month-label { color: #94a3b8; }
+body.dark-mode .month-card .month-target { color: #e2e8f0; }
+
+body.dark-mode .tracker-modal { background: #1e293b; }
+body.dark-mode .tracker-year-header { background: #0f172a; color: #e2e8f0; }
+
+body.dark-mode .category-tag.needs { background: #1e3a5f; color: #93c5fd; }
+body.dark-mode .category-tag.wants { background: #451a03; color: #fcd34d; }
+
+body.dark-mode footer { color: rgba(255,255,255,0.6); }

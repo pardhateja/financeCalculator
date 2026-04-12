@@ -1,0 +1,49 @@
+        <!-- TAB: EXPENSE TRACKER -->
+        <div class="tab-content" id="tab-exptrack">
+            <div class="panel">
+                <h2>Expense Tracker (Actual vs Budget)</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group">
+                            <h3>Enter Actual Expenses</h3>
+                            <div class="input-group">
+                                <label for="etMonth">Month</label>
+                                <input type="month" id="etMonth">
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etRent">Rent/EMI</label><input type="number" id="etRent" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etGroceries">Groceries</label><input type="number" id="etGroceries" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etUtilities">Utilities</label><input type="number" id="etUtilities" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etTransport">Transport</label><input type="number" id="etTransport" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etInsurance">Insurance</label><input type="number" id="etInsurance" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etEntertainment">Entertainment</label><input type="number" id="etEntertainment" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etShopping">Shopping</label><input type="number" id="etShopping" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etOther">Other</label><input type="number" id="etOther" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <button class="btn-primary" id="etSaveBtn" style="width:100%;">Save Month</button>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card"><div class="label">Budget</div><div class="value" id="etTotalBudget">&#8377;0</div></div>
+                            <div class="summary-card"><div class="label">Actual</div><div class="value" id="etTotalActual">-</div></div>
+                            <div class="summary-card success"><div class="label">Difference</div><div class="value" id="etDifference">-</div></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group green-accent" id="etComparison">
+                            <h3>Category Breakdown</h3>
+                            <div class="sub-text" style="padding:12px;text-align:center;color:var(--text-secondary);">Save a month to see comparison</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-group" style="margin-top:20px;">
+                    <h3>History</h3>
+                    <div id="etHistory" style="max-height:300px;overflow-y:auto;"></div>
+                </div>
+            </div>
+        </div>

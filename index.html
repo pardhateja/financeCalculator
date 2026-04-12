@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Calculator Suite</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .landing {
+            text-align: center;
+            color: white;
+            max-width: 800px;
+        }
+        .landing h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .landing p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s, background 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            background: rgba(255,255,255,0.25);
+        }
+        .card h2 { font-size: 1.3rem; margin-bottom: 8px; }
+        .card p { font-size: 0.9rem; opacity: 0.85; }
+    </style>
+</head>
+<body>
+    <div class="landing">
+        <h1>Finance Calculator Suite</h1>
+        <p>Plan your financial future with powerful, interconnected calculators</p>
+        <div class="cards">
+            <a href="retirement-planner.html" class="card">
+                <h2>FIRE Calculator</h2>
+                <p>Financial Independence, Retire Early &mdash; calculate your FIRE number</p>
+            </a>
+            <a href="multi-method-calculator.html" class="card">
+                <h2>Multi-Method FIRE</h2>
+                <p>Compare 5 different FIRE calculation methods side by side</p>
+            </a>
+            <a href="retirement-planner/index.html" class="card">
+                <h2>Retirement Planner</h2>
+                <p>Comprehensive income, expense, investment &amp; year-by-year projections</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+        <!-- TAB 2: EXPENSES -->
+        <div class="tab-content" id="tab-expenses">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Monthly Expenses</h2>
+                        <div class="section-group">
+                            <h3>Needs <span class="category-tag needs">Essential</span></h3>
+                            <div class="input-group">
+                                <label for="expRent">Rent / EMI</label>
+                                <input type="number" id="expRent" value="25000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expGroceries">Groceries &amp; Household</label>
+                                <input type="number" id="expGroceries" value="10000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expUtilities">Utilities (Electric, Water, Gas)</label>
+                                <input type="number" id="expUtilities" value="45000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expTransport">Transport / Fuel</label>
+                                <input type="number" id="expTransport" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expInsurance">Insurance Premiums</label>
+                                <input type="number" id="expInsurance" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                        </div>
+                        <div class="section-group orange-accent">
+                            <h3>Wants <span class="category-tag wants">Lifestyle</span></h3>
+                            <div class="input-group">
+                                <label for="expEntertainment">Entertainment &amp; Dining</label>
+                                <input type="number" id="expEntertainment" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expShopping">Shopping &amp; Personal</label>
+                                <input type="number" id="expShopping" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expOtherMonthly">Other Monthly Expenses</label>
+                                <input type="number" id="expOtherMonthly" value="40000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Yearly Expenses &amp; Summary</h2>
+                        <div class="section-group">
+                            <h3>Annual Expenses</h3>
+                            <div class="input-group">
+                                <label for="expVacation">Vacation / Travel</label>
+                                <input type="number" id="expVacation" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expMedical">Medical / Health Checkup</label>
+                                <input type="number" id="expMedical" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expOtherYearly">Other Yearly Expenses</label>
+                                <input type="number" id="expOtherYearly" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card">
+                                <div class="label">Total Monthly Expenses</div>
+                                <div class="value" id="totalMonthlyExpenses">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Annual Expenses</div>
+                                <div class="value" id="totalAnnualExpenses">&#8377;0</div>
+                            </div>
+                            <div class="summary-card success">
+                                <div class="label">Monthly Excess</div>
+                                <div class="value" id="monthlyExcess">&#8377;0</div>
+                            </div>
+                        </div>
+                        <div class="section-group green-accent" style="margin-top:20px;">
+                            <h3>Savings Health</h3>
+                            <div class="health-indicator good" id="healthIndicator">
+                                <span class="health-dot"></span>
+                                <span id="healthText">Calculating...</span>
+                            </div>
+                            <div class="summary-row" style="margin-top:12px;">
+                                <div class="summary-card">
+                                    <div class="label">Savings Rate</div>
+                                    <div class="value" id="savingsRate">0%</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Monthly Investment</div>
+                                    <div class="value" id="monthlyInvestment">&#8377;0</div>
+                                    <div class="sub-text">= Excess amount</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+

@@ -1,0 +1,58 @@
+/* Summary cards, health indicator, blended return badge */
+.summary-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    border-top: 3px solid var(--primary-color);
+}
+
+.summary-card.success { border-top-color: var(--secondary-color); }
+.summary-card.warning { border-top-color: var(--warning-color); }
+.summary-card.danger { border-top-color: var(--danger-color); }
+
+.summary-card .label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
+.summary-card .value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+.summary-card .sub-text { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+
+/* Health indicator */
+.health-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+.health-indicator.good { background: var(--secondary-light); color: #065f46; }
+.health-indicator.bad { background: var(--danger-light); color: #991b1b; }
+
+.health-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.health-indicator.good .health-dot { background: var(--secondary-color); }
+.health-indicator.bad .health-dot { background: var(--danger-color); }
+
+/* Blended return badge */
+.blended-return {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.blended-return .label { font-weight: 400; font-size: 0.9rem; opacity: 0.9; }

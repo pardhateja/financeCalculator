@@ -1,0 +1,106 @@
+        <!-- TAB 1: BASICS & INCOME -->
+        <div class="tab-content active" id="tab-basics">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Basic Details</h2>
+                        <div class="section-group">
+                            <h3>Age &amp; Timeline</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="currentAge">Current Age</label>
+                                    <input type="number" id="currentAge" value="27" min="18" max="100">
+                                    <span class="unit">years</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="retirementAge">Retirement Age</label>
+                                    <input type="number" id="retirementAge" value="35" min="18" max="100">
+                                    <span class="unit">years</span>
+                                </div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="lifeExpectancy">Life Expectancy</label>
+                                    <input type="number" id="lifeExpectancy" value="100" min="60" max="120">
+                                    <span class="unit">years</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="yearsToRetire">Years to Retire</label>
+                                    <input type="number" id="yearsToRetire" readonly>
+                                    <span class="unit">years</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-group green-accent">
+                            <h3>Rates</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="inflationRate">Inflation Rate</label>
+                                    <input type="number" id="inflationRate" value="6" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="taxRate">Tax Rate</label>
+                                    <input type="number" id="taxRate" value="30" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Total Monthly Income</div>
+                                <div class="value" id="totalMonthlyIncome">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Yearly Income</div>
+                                <div class="value" id="totalYearlyIncome">&#8377;0</div>
+                            </div>
+                            <div class="summary-card success">
+                                <div class="label">Grand Total (Annual)</div>
+                                <div class="value" id="grandTotalIncome">&#8377;0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Income Details</h2>
+                        <div class="section-group">
+                            <h3>Monthly Income</h3>
+                            <div class="input-group">
+                                <label for="monthlySalary">Salary / Business Income</label>
+                                <input type="number" id="monthlySalary" value="350000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyRental">Rental Income</label>
+                                <input type="number" id="monthlyRental" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyDividend">Dividend / Interest</label>
+                                <input type="number" id="monthlyDividend" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyOtherIncome">Other Monthly Income</label>
+                                <input type="number" id="monthlyOtherIncome" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                        </div>
+                        <div class="section-group orange-accent">
+                            <h3>Yearly Income</h3>
+                            <div class="input-group">
+                                <label for="yearlyBonus">Annual Bonus</label>
+                                <input type="number" id="yearlyBonus" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="yearlyOtherIncome">Other Yearly Income</label>
+                                <input type="number" id="yearlyOtherIncome" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+

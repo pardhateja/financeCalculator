@@ -1,0 +1,98 @@
+        <!-- TAB 3: INVESTMENTS -->
+        <div class="tab-content" id="tab-investments">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Asset Allocation</h2>
+                        <div class="section-group">
+                            <h3>Age-Based Split</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Safe Investments %</label>
+                                    <input type="number" id="safePercent" readonly>
+                                    <span class="unit">%</span>
+                                </div>
+                                <div class="input-group">
+                                    <label>Stock / Equity %</label>
+                                    <input type="number" id="stockPercent" readonly>
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                            <div class="sub-text" style="padding:8px;color:var(--text-secondary);">Rule: Safe% = Your Age, Stock% = 100 - Age</div>
+                        </div>
+                        <div class="section-group green-accent">
+                            <h3>Expected Returns (IRR)</h3>
+                            <div class="input-group">
+                                <label for="safeReturn">Safe / Fixed Return</label>
+                                <input type="number" id="safeReturn" value="7" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="largecapReturn">Large Cap MF Return</label>
+                                <input type="number" id="largecapReturn" value="12" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="midcapReturn">Mid Cap MF Return</label>
+                                <input type="number" id="midcapReturn" value="15" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="smallcapReturn">Small Cap MF Return</label>
+                                <input type="number" id="smallcapReturn" value="18" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="blended-return">
+                                <span class="label">Stock Blended Return:</span>
+                                <span id="stockBlendedReturn">0%</span>
+                            </div>
+                            <div class="blended-return" style="margin-top:8px;">
+                                <span class="label">Overall Blended Return:</span>
+                                <span id="blendedReturn">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Investment Matrix</h2>
+                        <div class="section-group">
+                            <h3>Mutual Fund Allocation by Age Bracket</h3>
+                            <div class="matrix-card">
+                                <table class="matrix-table">
+                                    <thead>
+                                        <tr><th>Age Bracket</th><th>Large Cap %</th><th>Mid Cap %</th><th>Small Cap %</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="bracket-20-30"><td>20-30</td><td>40</td><td>30</td><td>30</td></tr>
+                                        <tr id="bracket-30-40"><td>30-40</td><td>50</td><td>30</td><td>20</td></tr>
+                                        <tr id="bracket-40-plus"><td>40+</td><td>60</td><td>30</td><td>10</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="sub-text" style="padding:8px;color:var(--text-secondary);">Your active bracket is highlighted in green based on your current age.</div>
+                        </div>
+                        <div class="section-group green-accent" style="margin-top:20px;">
+                            <h3>Monthly SIP Breakdown</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Safe / Fixed</div>
+                                    <div class="value" id="sipSafe">&#8377;0</div>
+                                </div>
+                                <div class="summary-card success">
+                                    <div class="label">Large Cap MF</div>
+                                    <div class="value" id="sipLarge">&#8377;0</div>
+                                </div>
+                                <div class="summary-card warning">
+                                    <div class="label">Mid Cap MF</div>
+                                    <div class="value" id="sipMid">&#8377;0</div>
+                                </div>
+                                <div class="summary-card danger">
+                                    <div class="label">Small Cap MF</div>
+                                    <div class="value" id="sipSmall">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+

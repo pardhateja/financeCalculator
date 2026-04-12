@@ -1,0 +1,74 @@
+        <!-- TAB: INVESTMENT TRACKER -->
+        <div class="tab-content" id="tab-tracker">
+            <div class="panel">
+                <h2>Investment Tracker</h2>
+
+                <!-- Hero -->
+                <div class="tracker-hero">
+                    <h3>Track Your Monthly Investments</h3>
+                    <div class="tracker-progress-bar">
+                        <div class="tracker-progress-fill" id="trackerProgressFill" style="width:0%"></div>
+                    </div>
+                    <div class="tracker-progress-text">
+                        <span id="trackerDone">0</span> / <span id="trackerTotal">96</span> months completed
+                        (<span id="trackerPct">0</span>%)
+                    </div>
+                </div>
+
+                <!-- View mode toggle -->
+                <div class="view-mode-toggle">
+                    <button class="view-mode-btn active" data-mode="default">Default (Flat)</button>
+                    <button class="view-mode-btn" data-mode="upgrading">Upgrading (Step-Up)</button>
+                    <button class="view-mode-btn" data-mode="custom">Custom</button>
+                </div>
+
+                <!-- Impact summary -->
+                <div class="summary-row" style="margin-bottom:24px;">
+                    <div class="summary-card">
+                        <div class="label">Total Planned</div>
+                        <div class="value" id="trackerTotalPlanned">&#8377;0</div>
+                    </div>
+                    <div class="summary-card success">
+                        <div class="label">Total Invested</div>
+                        <div class="value" id="trackerTotalInvested">&#8377;0</div>
+                    </div>
+                    <div class="summary-card warning">
+                        <div class="label">Remaining</div>
+                        <div class="value" id="trackerRemaining">&#8377;0</div>
+                    </div>
+                    <div class="summary-card" id="trackerImpactCard1">
+                        <div class="label" id="trackerImpactLabel1">Adjusted SIP</div>
+                        <div class="value" id="trackerImpactValue1">-</div>
+                        <div class="sub-text" id="trackerImpactSub1">same timeline</div>
+                    </div>
+                    <div class="summary-card" id="trackerImpactCard2">
+                        <div class="label" id="trackerImpactLabel2">Timeline Change</div>
+                        <div class="value" id="trackerImpactValue2">-</div>
+                        <div class="sub-text" id="trackerImpactSub2">same SIP</div>
+                    </div>
+                </div>
+
+                <!-- Year grid container -->
+                <div id="trackerYearsContainer"></div>
+            </div>
+
+            <!-- Modal for month entry -->
+            <div class="tracker-modal-overlay" id="trackerModal">
+                <div class="tracker-modal">
+                    <h3 id="trackerModalTitle">Month Entry</h3>
+                    <div class="input-group">
+                        <label for="trackerModalPlanned">Planned Amount</label>
+                        <input type="number" id="trackerModalPlanned" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label for="trackerModalActual">Actual Amount Invested</label>
+                        <input type="number" id="trackerModalActual">
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn-secondary" id="trackerModalCancel">Cancel</button>
+                        <button class="btn-primary" id="trackerModalSave">Mark Complete</button>
+                    </div>
+                    <button class="btn-secondary" id="trackerModalReset" style="width:100%;margin-top:8px;font-size:0.8rem;padding:6px;">Reset This Month</button>
+                </div>
+            </div>
+        </div>

@@ -1,0 +1,66 @@
+        <!-- TAB 7: WHAT-IF SCENARIOS -->
+        <div class="tab-content" id="tab-whatif">
+            <div class="panel">
+                <h2>What-If Scenarios</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Scenario A</h3>
+                            <div class="input-group">
+                                <label for="scenARetAge">Retirement Age</label>
+                                <input type="number" id="scenARetAge" value="35">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenAMonthly">Monthly Investment</label>
+                                <input type="number" id="scenAMonthly" value="210000">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenAReturn">Pre-Ret Return %</label>
+                                <input type="number" id="scenAReturn" value="12.63" step="0.1">
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card success">
+                                    <div class="label">Corpus</div>
+                                    <div class="value" id="scenACorpus">-</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Runs Out</div>
+                                    <div class="value" id="scenARunsOut">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group orange-accent">
+                            <h3>Scenario B</h3>
+                            <div class="input-group">
+                                <label for="scenBRetAge">Retirement Age</label>
+                                <input type="number" id="scenBRetAge" value="40">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenBMonthly">Monthly Investment</label>
+                                <input type="number" id="scenBMonthly" value="210000">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenBReturn">Pre-Ret Return %</label>
+                                <input type="number" id="scenBReturn" value="12.63" step="0.1">
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card success">
+                                    <div class="label">Corpus</div>
+                                    <div class="value" id="scenBCorpus">-</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Runs Out</div>
+                                    <div class="value" id="scenBRunsOut">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top:20px;">
+                    <canvas id="whatifChart"></canvas>
+                </div>
+            </div>
+        </div>
+

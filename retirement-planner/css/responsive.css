@@ -1,0 +1,27 @@
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+    .panel-grid { grid-template-columns: 1fr; }
+    .projection-summary { grid-template-columns: 1fr 1fr; }
+    .input-row { grid-template-columns: 1fr; }
+    .input-row-3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    header h1 { font-size: 2rem; }
+    .nav-tabs { gap: 2px; }
+    .nav-tab { padding: 10px 14px; font-size: 0.8rem; }
+    .panel { padding: 20px; border-radius: 0 12px 12px 12px; }
+    .projection-summary { grid-template-columns: 1fr; }
+    .projection-table { font-size: 0.78rem; }
+    .projection-table thead th,
+    .projection-table tbody td { padding: 8px 10px; }
+    .summary-card .value { font-size: 1.2rem; }
+}
+
+@media (max-width: 480px) {
+    body { padding: 10px; }
+    header h1 { font-size: 1.6rem; }
+    .nav-tab { padding: 8px 10px; font-size: 0.75rem; }
+    .panel { padding: 15px; }
+    .section-group { padding: 14px; }
+}

@@ -1,0 +1,195 @@
+/* ==================== TRACKER ==================== */
+.tracker-hero {
+    background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+    color: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.tracker-hero h3 { font-size: 1.4rem; margin-bottom: 8px; }
+
+.tracker-progress-bar {
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    height: 12px;
+    margin: 12px 0 8px;
+    overflow: hidden;
+}
+
+.tracker-progress-fill {
+    height: 100%;
+    background: white;
+    border-radius: 8px;
+    transition: width 0.4s ease;
+}
+
+.tracker-progress-text {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* View mode toggle */
+.view-mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.view-mode-btn {
+    padding: 8px 20px;
+    border: 2px solid var(--border-color);
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    color: var(--text-secondary);
+}
+
+.view-mode-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+.view-mode-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Year sections */
+.tracker-year {
+    margin-bottom: 16px;
+}
+
+.tracker-year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg-color);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-left: 4px solid var(--primary-color);
+    transition: background 0.2s;
+}
+
+.tracker-year-header:hover { background: var(--primary-light); }
+
+.tracker-year-header .year-summary {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.tracker-year-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 12px 0;
+}
+
+/* Month cards */
+.month-card {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.month-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.month-card.completed {
+    border-color: var(--secondary-color);
+    background: var(--secondary-light);
+}
+
+.month-card.partial {
+    border-color: var(--warning-color);
+    background: var(--warning-light);
+}
+
+.month-card .month-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.month-card .month-target {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.month-card .month-actual {
+    font-size: 0.8rem;
+    margin-top: 4px;
+    color: var(--secondary-color);
+    font-weight: 500;
+}
+
+.month-card .month-status {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.9rem;
+}
+
+/* Modal overlay */
+.tracker-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.tracker-modal-overlay.active { display: flex; }
+
+.tracker-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+}
+
+.tracker-modal h3 {
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.tracker-modal .input-group { margin-bottom: 16px; }
+
+.tracker-modal .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.tracker-modal .btn-row button { flex: 1; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tracker-year-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .tracker-year-grid { grid-template-columns: repeat(2, 1fr); }
+    .month-card { padding: 8px; }
+    .month-card .month-target { font-size: 0.85rem; }
+}

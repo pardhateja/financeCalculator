@@ -1,0 +1,20 @@
+        <!-- TAB 5: PROJECTIONS -->
+        <div class="tab-content" id="tab-projections">
+            <div class="panel" style="border-radius:0 16px 16px 16px;max-width:100%;">
+                <h2>Year-by-Year Projections</h2>
+                <div class="projection-summary" id="projectionSummary">
+                    <div class="summary-card success"><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div></div>
+                    <div class="summary-card"><div class="label">Years of Earning</div><div class="value" id="yearsEarning">0</div></div>
+                    <div class="summary-card warning"><div class="label">Years in Retirement</div><div class="value" id="yearsRetired">0</div></div>
+                    <div class="summary-card danger"><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div></div>
+                </div>
+                <div class="chart-container"><canvas id="projectionChart"></canvas></div>
+                <div class="projection-table-wrapper">
+                    <table class="projection-table">
+                        <thead><tr><th>Age</th><th>Starting</th><th>Annual Savings</th><th>Growth</th><th>Ending</th><th>Status</th><th>Expenses</th></tr></thead>
+                        <tbody id="projectionTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+

@@ -1,0 +1,90 @@
+        <!-- TAB 4: FINANCIAL PLAN -->
+        <div class="tab-content" id="tab-financial-plan">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Pre-Retirement Plan</h2>
+                        <div class="section-group">
+                            <h3>Current Savings</h3>
+                            <div class="input-group">
+                                <label for="currentSavings">Current Total Savings</label>
+                                <input type="number" id="currentSavings" value="7000000">
+                                <span class="unit">&#8377;</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyInvestAmt">Monthly Investment Amount</label>
+                                <input type="number" id="monthlyInvestAmt" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="stepUpRate">Annual Step-Up Rate</label>
+                                <input type="number" id="stepUpRate" value="5" step="0.5">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Current Savings</div>
+                                <div class="value" id="savingsDisplay">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Monthly Investment</div>
+                                <div class="value" id="investDisplay">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Annual Investment</div>
+                                <div class="value" id="annualInvestDisplay">&#8377;0</div>
+                            </div>
+                            <div class="summary-card warning">
+                                <div class="label">Years to Retire</div>
+                                <div class="value" id="yearsToRetireDisplay">0</div>
+                            </div>
+                        </div>
+                        <div class="section-group green-accent">
+                            <h3>Pre-Retirement Investment Mix</h3>
+                            <table class="inv-table">
+                                <thead><tr><th>Type</th><th>Return %</th><th>Tax %</th><th>Share %</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Fixed Returns</td><td><input type="number" id="preFixedReturn" value="7" step="0.1"></td><td><input type="number" id="preFixedTax" value="30" step="0.1"></td><td><input type="number" id="preFixedShare" value="27" step="0.5"></td></tr>
+                                    <tr><td>Large Cap MF</td><td><input type="number" id="preLargeReturn" value="12" step="0.1"></td><td><input type="number" id="preLargeTax" value="20" step="0.1"></td><td><input type="number" id="preLargeShare" value="29" step="0.5"></td></tr>
+                                    <tr><td>Mid Cap MF</td><td><input type="number" id="preMidReturn" value="15" step="0.1"></td><td><input type="number" id="preMidTax" value="20" step="0.1"></td><td><input type="number" id="preMidShare" value="22" step="0.5"></td></tr>
+                                    <tr><td>Small Cap MF</td><td><input type="number" id="preSmallReturn" value="18" step="0.1"></td><td><input type="number" id="preSmallTax" value="20" step="0.1"></td><td><input type="number" id="preSmallShare" value="22" step="0.5"></td></tr>
+                                    <tr class="total-row"><td>Blended</td><td id="preBlendedReturn">-</td><td id="preBlendedTax">-</td><td id="preShareTotal">100</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Post-Retirement Plan</h2>
+                        <div class="section-group orange-accent">
+                            <h3>Post-Retirement Investment Mix</h3>
+                            <table class="inv-table">
+                                <thead><tr><th>Type</th><th>Return %</th><th>Tax %</th><th>Share %</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Fixed Returns</td><td><input type="number" id="postFixedReturn" value="7" step="0.1"></td><td><input type="number" id="postFixedTax" value="30" step="0.1"></td><td><input type="number" id="postFixedShare" value="50" step="0.5"></td></tr>
+                                    <tr><td>Large Cap MF</td><td><input type="number" id="postLargeReturn" value="12" step="0.1"></td><td><input type="number" id="postLargeTax" value="20" step="0.1"></td><td><input type="number" id="postLargeShare" value="50" step="0.5"></td></tr>
+                                    <tr><td>Mid Cap MF</td><td><input type="number" id="postMidReturn" value="15" step="0.1"></td><td><input type="number" id="postMidTax" value="20" step="0.1"></td><td><input type="number" id="postMidShare" value="0" step="0.5"></td></tr>
+                                    <tr><td>Small Cap MF</td><td><input type="number" id="postSmallReturn" value="18" step="0.1"></td><td><input type="number" id="postSmallTax" value="20" step="0.1"></td><td><input type="number" id="postSmallShare" value="0" step="0.5"></td></tr>
+                                    <tr class="total-row"><td>Blended</td><td id="postBlendedReturn">-</td><td id="postBlendedTax">-</td><td id="postShareTotal">100</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="section-group red-accent">
+                            <h3>Post-Retirement Monthly Need</h3>
+                            <div class="input-group">
+                                <label for="postRetireMonthly">Monthly Expense (today's value)</label>
+                                <input type="number" id="postRetireMonthly" value="100000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card warning">
+                                    <div class="label">Inflation-Adjusted (at retirement)</div>
+                                    <div class="value" id="inflationAdjustedExpense">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+

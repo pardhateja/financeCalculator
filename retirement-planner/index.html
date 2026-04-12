@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Financial Planner</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/cards.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/tracker.css">
+</head>
+<body>
+    <div class="container">
+        <header style="position:relative;">
+            <h1>Retirement Financial Planner</h1>
+            <p class="subtitle">Comprehensive Income, Expense, Investment & Projection Planning</p>
+            <button id="resetBtn" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.35)'" onfocus="this.style.background='rgba(239,68,68,0.8)'" onblur="this.style.background='rgba(0,0,0,0.35)'">Reset Defaults</button>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="basics">Basics & Income</button>
+            <button class="nav-tab" data-tab="expenses">Expenses</button>
+            <button class="nav-tab" data-tab="investments">Investments</button>
+            <button class="nav-tab" data-tab="financial-plan">Financial Plan</button>
+            <button class="nav-tab" data-tab="projections">Projections</button>
+            <button class="nav-tab" data-tab="dashboard">Dashboard</button>
+            <button class="nav-tab" data-tab="whatif">What-If</button>
+            <button class="nav-tab" data-tab="goals">Goals</button>
+            <button class="nav-tab" data-tab="emergency">Emergency Fund</button>
+            <button class="nav-tab" data-tab="sip">SIP Calculator</button>
+            <button class="nav-tab" data-tab="tracker">Tracker</button>
+        </div>
+
+        <!-- TAB 1: BASICS & INCOME -->
+        <div class="tab-content active" id="tab-basics">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Basic Details</h2>
+                        <div class="section-group">
+                            <h3>Age &amp; Timeline</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="currentAge">Current Age</label>
+                                    <input type="number" id="currentAge" value="27" min="18" max="100">
+                                    <span class="unit">years</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="retirementAge">Retirement Age</label>
+                                    <input type="number" id="retirementAge" value="35" min="18" max="100">
+                                    <span class="unit">years</span>
+                                </div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="lifeExpectancy">Life Expectancy</label>
+                                    <input type="number" id="lifeExpectancy" value="100" min="60" max="120">
+                                    <span class="unit">years</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="yearsToRetire">Years to Retire</label>
+                                    <input type="number" id="yearsToRetire" readonly>
+                                    <span class="unit">years</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-group green-accent">
+                            <h3>Rates</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="inflationRate">Inflation Rate</label>
+                                    <input type="number" id="inflationRate" value="6" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="taxRate">Tax Rate</label>
+                                    <input type="number" id="taxRate" value="30" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Total Monthly Income</div>
+                                <div class="value" id="totalMonthlyIncome">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Yearly Income</div>
+                                <div class="value" id="totalYearlyIncome">&#8377;0</div>
+                            </div>
+                            <div class="summary-card success">
+                                <div class="label">Grand Total (Annual)</div>
+                                <div class="value" id="grandTotalIncome">&#8377;0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Income Details</h2>
+                        <div class="section-group">
+                            <h3>Monthly Income</h3>
+                            <div class="input-group">
+                                <label for="monthlySalary">Salary / Business Income</label>
+                                <input type="number" id="monthlySalary" value="350000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyRental">Rental Income</label>
+                                <input type="number" id="monthlyRental" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyDividend">Dividend / Interest</label>
+                                <input type="number" id="monthlyDividend" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyOtherIncome">Other Monthly Income</label>
+                                <input type="number" id="monthlyOtherIncome" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                        </div>
+                        <div class="section-group orange-accent">
+                            <h3>Yearly Income</h3>
+                            <div class="input-group">
+                                <label for="yearlyBonus">Annual Bonus</label>
+                                <input type="number" id="yearlyBonus" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="yearlyOtherIncome">Other Yearly Income</label>
+                                <input type="number" id="yearlyOtherIncome" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 2: EXPENSES -->
+        <div class="tab-content" id="tab-expenses">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Monthly Expenses</h2>
+                        <div class="section-group">
+                            <h3>Needs <span class="category-tag needs">Essential</span></h3>
+                            <div class="input-group">
+                                <label for="expRent">Rent / EMI</label>
+                                <input type="number" id="expRent" value="25000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expGroceries">Groceries &amp; Household</label>
+                                <input type="number" id="expGroceries" value="10000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expUtilities">Utilities (Electric, Water, Gas)</label>
+                                <input type="number" id="expUtilities" value="45000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expTransport">Transport / Fuel</label>
+                                <input type="number" id="expTransport" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expInsurance">Insurance Premiums</label>
+                                <input type="number" id="expInsurance" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                        </div>
+                        <div class="section-group orange-accent">
+                            <h3>Wants <span class="category-tag wants">Lifestyle</span></h3>
+                            <div class="input-group">
+                                <label for="expEntertainment">Entertainment &amp; Dining</label>
+                                <input type="number" id="expEntertainment" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expShopping">Shopping &amp; Personal</label>
+                                <input type="number" id="expShopping" value="5000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expOtherMonthly">Other Monthly Expenses</label>
+                                <input type="number" id="expOtherMonthly" value="40000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Yearly Expenses &amp; Summary</h2>
+                        <div class="section-group">
+                            <h3>Annual Expenses</h3>
+                            <div class="input-group">
+                                <label for="expVacation">Vacation / Travel</label>
+                                <input type="number" id="expVacation" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expMedical">Medical / Health Checkup</label>
+                                <input type="number" id="expMedical" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="expOtherYearly">Other Yearly Expenses</label>
+                                <input type="number" id="expOtherYearly" value="0">
+                                <span class="unit">&#8377;/yr</span>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card">
+                                <div class="label">Total Monthly Expenses</div>
+                                <div class="value" id="totalMonthlyExpenses">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Annual Expenses</div>
+                                <div class="value" id="totalAnnualExpenses">&#8377;0</div>
+                            </div>
+                            <div class="summary-card success">
+                                <div class="label">Monthly Excess</div>
+                                <div class="value" id="monthlyExcess">&#8377;0</div>
+                            </div>
+                        </div>
+                        <div class="section-group green-accent" style="margin-top:20px;">
+                            <h3>Savings Health</h3>
+                            <div class="health-indicator good" id="healthIndicator">
+                                <span class="health-dot"></span>
+                                <span id="healthText">Calculating...</span>
+                            </div>
+                            <div class="summary-row" style="margin-top:12px;">
+                                <div class="summary-card">
+                                    <div class="label">Savings Rate</div>
+                                    <div class="value" id="savingsRate">0%</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Monthly Investment</div>
+                                    <div class="value" id="monthlyInvestment">&#8377;0</div>
+                                    <div class="sub-text">= Excess amount</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 3: INVESTMENTS -->
+        <div class="tab-content" id="tab-investments">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Asset Allocation</h2>
+                        <div class="section-group">
+                            <h3>Age-Based Split</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Safe Investments %</label>
+                                    <input type="number" id="safePercent" readonly>
+                                    <span class="unit">%</span>
+                                </div>
+                                <div class="input-group">
+                                    <label>Stock / Equity %</label>
+                                    <input type="number" id="stockPercent" readonly>
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                            <div class="sub-text" style="padding:8px;color:var(--text-secondary);">Rule: Safe% = Your Age, Stock% = 100 - Age</div>
+                        </div>
+                        <div class="section-group green-accent">
+                            <h3>Expected Returns (IRR)</h3>
+                            <div class="input-group">
+                                <label for="safeReturn">Safe / Fixed Return</label>
+                                <input type="number" id="safeReturn" value="7" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="largecapReturn">Large Cap MF Return</label>
+                                <input type="number" id="largecapReturn" value="12" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="midcapReturn">Mid Cap MF Return</label>
+                                <input type="number" id="midcapReturn" value="15" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="smallcapReturn">Small Cap MF Return</label>
+                                <input type="number" id="smallcapReturn" value="18" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="blended-return">
+                                <span class="label">Stock Blended Return:</span>
+                                <span id="stockBlendedReturn">0%</span>
+                            </div>
+                            <div class="blended-return" style="margin-top:8px;">
+                                <span class="label">Overall Blended Return:</span>
+                                <span id="blendedReturn">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Investment Matrix</h2>
+                        <div class="section-group">
+                            <h3>Mutual Fund Allocation by Age Bracket</h3>
+                            <div class="matrix-card">
+                                <table class="matrix-table">
+                                    <thead>
+                                        <tr><th>Age Bracket</th><th>Large Cap %</th><th>Mid Cap %</th><th>Small Cap %</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="bracket-20-30"><td>20-30</td><td>40</td><td>30</td><td>30</td></tr>
+                                        <tr id="bracket-30-40"><td>30-40</td><td>50</td><td>30</td><td>20</td></tr>
+                                        <tr id="bracket-40-plus"><td>40+</td><td>60</td><td>30</td><td>10</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="sub-text" style="padding:8px;color:var(--text-secondary);">Your active bracket is highlighted in green based on your current age.</div>
+                        </div>
+                        <div class="section-group green-accent" style="margin-top:20px;">
+                            <h3>Monthly SIP Breakdown</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Safe / Fixed</div>
+                                    <div class="value" id="sipSafe">&#8377;0</div>
+                                </div>
+                                <div class="summary-card success">
+                                    <div class="label">Large Cap MF</div>
+                                    <div class="value" id="sipLarge">&#8377;0</div>
+                                </div>
+                                <div class="summary-card warning">
+                                    <div class="label">Mid Cap MF</div>
+                                    <div class="value" id="sipMid">&#8377;0</div>
+                                </div>
+                                <div class="summary-card danger">
+                                    <div class="label">Small Cap MF</div>
+                                    <div class="value" id="sipSmall">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 4: FINANCIAL PLAN -->
+        <div class="tab-content" id="tab-financial-plan">
+            <div class="panel">
+                <div class="panel-grid">
+                    <div>
+                        <h2>Pre-Retirement Plan</h2>
+                        <div class="section-group">
+                            <h3>Current Savings</h3>
+                            <div class="input-group">
+                                <label for="currentSavings">Current Total Savings</label>
+                                <input type="number" id="currentSavings" value="7000000">
+                                <span class="unit">&#8377;</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="monthlyInvestAmt">Monthly Investment Amount</label>
+                                <input type="number" id="monthlyInvestAmt" value="0">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="stepUpRate">Annual Step-Up Rate</label>
+                                <input type="number" id="stepUpRate" value="5" step="0.5">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Current Savings</div>
+                                <div class="value" id="savingsDisplay">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Monthly Investment</div>
+                                <div class="value" id="investDisplay">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Annual Investment</div>
+                                <div class="value" id="annualInvestDisplay">&#8377;0</div>
+                            </div>
+                            <div class="summary-card warning">
+                                <div class="label">Years to Retire</div>
+                                <div class="value" id="yearsToRetireDisplay">0</div>
+                            </div>
+                        </div>
+                        <div class="section-group green-accent">
+                            <h3>Pre-Retirement Investment Mix</h3>
+                            <table class="inv-table">
+                                <thead><tr><th>Type</th><th>Return %</th><th>Tax %</th><th>Share %</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Fixed Returns</td><td><input type="number" id="preFixedReturn" value="7" step="0.1"></td><td><input type="number" id="preFixedTax" value="30" step="0.1"></td><td><input type="number" id="preFixedShare" value="27" step="0.5"></td></tr>
+                                    <tr><td>Large Cap MF</td><td><input type="number" id="preLargeReturn" value="12" step="0.1"></td><td><input type="number" id="preLargeTax" value="20" step="0.1"></td><td><input type="number" id="preLargeShare" value="29" step="0.5"></td></tr>
+                                    <tr><td>Mid Cap MF</td><td><input type="number" id="preMidReturn" value="15" step="0.1"></td><td><input type="number" id="preMidTax" value="20" step="0.1"></td><td><input type="number" id="preMidShare" value="22" step="0.5"></td></tr>
+                                    <tr><td>Small Cap MF</td><td><input type="number" id="preSmallReturn" value="18" step="0.1"></td><td><input type="number" id="preSmallTax" value="20" step="0.1"></td><td><input type="number" id="preSmallShare" value="22" step="0.5"></td></tr>
+                                    <tr class="total-row"><td>Blended</td><td id="preBlendedReturn">-</td><td id="preBlendedTax">-</td><td id="preShareTotal">100</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h2>Post-Retirement Plan</h2>
+                        <div class="section-group orange-accent">
+                            <h3>Post-Retirement Investment Mix</h3>
+                            <table class="inv-table">
+                                <thead><tr><th>Type</th><th>Return %</th><th>Tax %</th><th>Share %</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Fixed Returns</td><td><input type="number" id="postFixedReturn" value="7" step="0.1"></td><td><input type="number" id="postFixedTax" value="30" step="0.1"></td><td><input type="number" id="postFixedShare" value="50" step="0.5"></td></tr>
+                                    <tr><td>Large Cap MF</td><td><input type="number" id="postLargeReturn" value="12" step="0.1"></td><td><input type="number" id="postLargeTax" value="20" step="0.1"></td><td><input type="number" id="postLargeShare" value="50" step="0.5"></td></tr>
+                                    <tr><td>Mid Cap MF</td><td><input type="number" id="postMidReturn" value="15" step="0.1"></td><td><input type="number" id="postMidTax" value="20" step="0.1"></td><td><input type="number" id="postMidShare" value="0" step="0.5"></td></tr>
+                                    <tr><td>Small Cap MF</td><td><input type="number" id="postSmallReturn" value="18" step="0.1"></td><td><input type="number" id="postSmallTax" value="20" step="0.1"></td><td><input type="number" id="postSmallShare" value="0" step="0.5"></td></tr>
+                                    <tr class="total-row"><td>Blended</td><td id="postBlendedReturn">-</td><td id="postBlendedTax">-</td><td id="postShareTotal">100</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="section-group red-accent">
+                            <h3>Post-Retirement Monthly Need</h3>
+                            <div class="input-group">
+                                <label for="postRetireMonthly">Monthly Expense (today's value)</label>
+                                <input type="number" id="postRetireMonthly" value="100000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card warning">
+                                    <div class="label">Inflation-Adjusted (at retirement)</div>
+                                    <div class="value" id="inflationAdjustedExpense">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 5: PROJECTIONS -->
+        <div class="tab-content" id="tab-projections">
+            <div class="panel" style="border-radius:0 16px 16px 16px;max-width:100%;">
+                <h2>Year-by-Year Projections</h2>
+                <div class="projection-summary" id="projectionSummary">
+                    <div class="summary-card success"><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div></div>
+                    <div class="summary-card"><div class="label">Years of Earning</div><div class="value" id="yearsEarning">0</div></div>
+                    <div class="summary-card warning"><div class="label">Years in Retirement</div><div class="value" id="yearsRetired">0</div></div>
+                    <div class="summary-card danger"><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div></div>
+                </div>
+                <div class="chart-container"><canvas id="projectionChart"></canvas></div>
+                <div class="projection-table-wrapper">
+                    <table class="projection-table">
+                        <thead><tr><th>Age</th><th>Starting</th><th>Annual Savings</th><th>Growth</th><th>Ending</th><th>Status</th><th>Expenses</th></tr></thead>
+                        <tbody id="projectionTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 6: DASHBOARD -->
+        <div class="tab-content" id="tab-dashboard">
+            <div class="panel">
+                <h2>Financial Dashboard</h2>
+                <!-- Hero metrics -->
+                <div class="summary-row">
+                    <div class="summary-card success">
+                        <div class="label">FI Score</div>
+                        <div class="value" id="fiScore">0</div>
+                        <div class="sub-text" id="fiScoreText">Calculating...</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">Current Net Worth</div>
+                        <div class="value" id="dashNetWorth">&#8377;0</div>
+                    </div>
+                    <div class="summary-card warning">
+                        <div class="label">Corpus at Retirement</div>
+                        <div class="value" id="dashCorpus">&#8377;0</div>
+                    </div>
+                    <div class="summary-card danger">
+                        <div class="label">Money Lasts Until</div>
+                        <div class="value" id="dashRunsOut">-</div>
+                    </div>
+                </div>
+
+                <!-- FI Score Breakdown -->
+                <div class="section-group green-accent" style="margin-top:24px;">
+                    <h3>FI Score Breakdown</h3>
+                    <div id="fiBreakdown"></div>
+                </div>
+
+                <div class="panel-grid" style="margin-top:24px;">
+                    <div>
+                        <!-- Income & Expense Metrics -->
+                        <div class="section-group">
+                            <h3>Income &amp; Expense Metrics</h3>
+                            <div class="summary-row">
+                                <div class="summary-card success">
+                                    <div class="label">Savings Rate</div>
+                                    <div class="value" id="dashSavingsRate">0%</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Monthly Surplus</div>
+                                    <div class="value" id="dashSurplus">&#8377;0</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Needs vs Wants</div>
+                                    <div class="value" id="dashNeedsWants">-</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Annual Surplus</div>
+                                    <div class="value" id="dashAnnualSurplus">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Investment Metrics -->
+                        <div class="section-group">
+                            <h3>Investment Metrics</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Pre-Ret Return</div>
+                                    <div class="value" id="dashPreReturn">0%</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Post-Ret Return</div>
+                                    <div class="value" id="dashPostReturn">0%</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Monthly SIP</div>
+                                    <div class="value" id="dashMonthlySIP">&#8377;0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Annual SIP (w/ step-up)</div>
+                                    <div class="value" id="dashAnnualSIP">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Retirement Readiness -->
+                        <div class="section-group">
+                            <h3>Retirement Readiness</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Years to Retire</div>
+                                    <div class="value" id="dashYearsToRetire">0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Retirement Duration</div>
+                                    <div class="value" id="dashRetDuration">0 yrs</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card warning">
+                                    <div class="label">Post-Ret Monthly (inflation adj.)</div>
+                                    <div class="value" id="dashPostRetExpense">&#8377;0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Wealth Multiple</div>
+                                    <div class="value" id="dashWealthMultiple">0x</div>
+                                    <div class="sub-text">Corpus / Annual Expense</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <!-- Risk Alerts -->
+                        <div class="section-group orange-accent">
+                            <h3>Risk Alerts</h3>
+                            <div id="dashAlerts"></div>
+                        </div>
+                        <!-- Quick Actions -->
+                        <div class="section-group">
+                            <h3>Quick Actions</h3>
+                            <div id="dashActions"></div>
+                        </div>
+                        <!-- Key Ratios -->
+                        <div class="section-group red-accent">
+                            <h3>Key Ratios</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Expense Ratio</div>
+                                    <div class="value" id="dashExpenseRatio">0%</div>
+                                    <div class="sub-text">Expenses / Income</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Investment Ratio</div>
+                                    <div class="value" id="dashInvestRatio">0%</div>
+                                    <div class="sub-text">Investment / Income</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Debt-Free Income</div>
+                                    <div class="value" id="dashDebtFree">&#8377;0</div>
+                                    <div class="sub-text">Income - EMIs</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">FIRE Number</div>
+                                    <div class="value" id="dashFIRENumber">&#8377;0</div>
+                                    <div class="sub-text">Annual Expense x 25</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 7: WHAT-IF SCENARIOS -->
+        <div class="tab-content" id="tab-whatif">
+            <div class="panel">
+                <h2>What-If Scenarios</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Scenario A</h3>
+                            <div class="input-group">
+                                <label for="scenARetAge">Retirement Age</label>
+                                <input type="number" id="scenARetAge" value="35">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenAMonthly">Monthly Investment</label>
+                                <input type="number" id="scenAMonthly" value="210000">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenAReturn">Pre-Ret Return %</label>
+                                <input type="number" id="scenAReturn" value="12.63" step="0.1">
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card success">
+                                    <div class="label">Corpus</div>
+                                    <div class="value" id="scenACorpus">-</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Runs Out</div>
+                                    <div class="value" id="scenARunsOut">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group orange-accent">
+                            <h3>Scenario B</h3>
+                            <div class="input-group">
+                                <label for="scenBRetAge">Retirement Age</label>
+                                <input type="number" id="scenBRetAge" value="40">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenBMonthly">Monthly Investment</label>
+                                <input type="number" id="scenBMonthly" value="210000">
+                            </div>
+                            <div class="input-group">
+                                <label for="scenBReturn">Pre-Ret Return %</label>
+                                <input type="number" id="scenBReturn" value="12.63" step="0.1">
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card success">
+                                    <div class="label">Corpus</div>
+                                    <div class="value" id="scenBCorpus">-</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Runs Out</div>
+                                    <div class="value" id="scenBRunsOut">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-container" style="margin-top:20px;">
+                    <canvas id="whatifChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 8: GOAL PLANNING -->
+        <div class="tab-content" id="tab-goals">
+            <div class="panel">
+                <h2>Goal Planning</h2>
+                <div class="section-group">
+                    <h3>Add Financial Goals</h3>
+                    <div class="input-row-3">
+                        <div class="input-group">
+                            <label for="goalName">Goal Name</label>
+                            <input type="text" id="goalName" placeholder="e.g. House, Car, Education">
+                        </div>
+                        <div class="input-group">
+                            <label for="goalAmount">Target Amount</label>
+                            <input type="number" id="goalAmount" placeholder="e.g. 5000000">
+                        </div>
+                        <div class="input-group">
+                            <label for="goalYear">Target Year</label>
+                            <input type="number" id="goalYear" placeholder="e.g. 2030">
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="addGoalBtn" style="margin-top:8px;">Add Goal</button>
+                </div>
+                <div class="section-group green-accent">
+                    <h3>Your Goals</h3>
+                    <div id="goalsContainer">
+                        <div class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">No goals added yet. Add your first financial goal above.</div>
+                    </div>
+                </div>
+                <div class="summary-row" style="margin-top:16px;">
+                    <div class="summary-card warning">
+                        <div class="label">Total Goals Amount</div>
+                        <div class="value" id="totalGoalsAmount">&#8377;0</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">Monthly Needed for Goals</div>
+                        <div class="value" id="monthlyForGoals">&#8377;0</div>
+                    </div>
+                    <div class="summary-card danger">
+                        <div class="label">Impact on Retirement</div>
+                        <div class="value" id="goalImpact">None</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 9: EMERGENCY FUND -->
+        <div class="tab-content" id="tab-emergency">
+            <div class="panel">
+                <h2>Emergency Fund Tracker</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group">
+                            <h3>Your Emergency Fund</h3>
+                            <div class="sub-text" style="padding:4px 0 12px;color:var(--text-secondary);">Auto-calculated from Fixed Returns share. Edit to override.</div>
+                            <div class="input-group">
+                                <label for="emergencyFund">Emergency Fund Amount</label>
+                                <input type="number" id="emergencyFund" value="0">
+                                <span class="unit">&#8377;</span>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="emergencyMonths">Target Coverage (months)</label>
+                                    <input type="number" id="emergencyMonths" value="6" min="3" max="24">
+                                    <span class="unit">months</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="emMonthlyExpInput">Monthly Expenses (after job loss)</label>
+                                    <input type="number" id="emMonthlyExpInput" value="100000">
+                                    <span class="unit">&#8377;/mo</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Emergency Fund (Fixed Returns)</div>
+                                <div class="value" id="emCurrent">&#8377;0</div>
+                                <div class="sub-text" id="emFormula">-</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Normal Monthly Expenses</div>
+                                <div class="value" id="emMonthlyExp">&#8377;0</div>
+                            </div>
+                            <div class="summary-card warning">
+                                <div class="label">Target Fund</div>
+                                <div class="value" id="emTarget">&#8377;0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Fund Status</h3>
+                            <div class="health-indicator good" id="emHealthIndicator">
+                                <span class="health-dot"></span>
+                                <span id="emHealthText">Calculating...</span>
+                            </div>
+                            <div class="summary-row" style="margin-top:16px;">
+                                <div class="summary-card">
+                                    <div class="label">Months Covered</div>
+                                    <div class="value" id="emMonthsCovered">0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Gap / Surplus</div>
+                                    <div class="value" id="emGap">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-group orange-accent">
+                            <h3>Job Loss Simulator</h3>
+                            <div class="sub-text" style="padding:4px 0 8px;">If you lose your income today:</div>
+                            <div class="summary-row">
+                                <div class="summary-card danger">
+                                    <div class="label">Funds Last</div>
+                                    <div class="value" id="emJobLossMonths">0 months</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Runway Date</div>
+                                    <div class="value" id="emRunwayDate">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB 10: SIP CALCULATOR -->
+        <div class="tab-content" id="tab-sip">
+            <div class="panel">
+                <h2>SIP Calculator</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group">
+                            <h3>SIP Details</h3>
+                            <div class="input-group">
+                                <label for="sipAmount">Monthly SIP Amount</label>
+                                <input type="number" id="sipAmount" value="50000">
+                                <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="sipReturn">Expected Return</label>
+                                <input type="number" id="sipReturn" value="12" step="0.1">
+                                <span class="unit">%</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="sipYears">Investment Period</label>
+                                <input type="number" id="sipYears" value="10" min="1" max="50">
+                                <span class="unit">years</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="sipStepUp">Annual Step-Up</label>
+                                <input type="number" id="sipStepUp" value="5" step="0.5">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Total Corpus</div>
+                                <div class="value" id="sipCorpus">&#8377;0</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Invested</div>
+                                <div class="value" id="sipInvested">&#8377;0</div>
+                            </div>
+                            <div class="summary-card warning">
+                                <div class="label">Wealth Gained</div>
+                                <div class="value" id="sipGained">&#8377;0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Year-wise Growth</h3>
+                            <div class="projection-table-wrapper" style="max-height:400px;overflow-y:auto;">
+                                <table class="projection-table">
+                                    <thead><tr><th>Year</th><th>Invested</th><th>Corpus</th><th>Gain</th></tr></thead>
+                                    <tbody id="sipTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB: INVESTMENT TRACKER -->
+        <div class="tab-content" id="tab-tracker">
+            <div class="panel">
+                <h2>Investment Tracker</h2>
+
+                <!-- Hero -->
+                <div class="tracker-hero">
+                    <h3>Track Your Monthly Investments</h3>
+                    <div class="tracker-progress-bar">
+                        <div class="tracker-progress-fill" id="trackerProgressFill" style="width:0%"></div>
+                    </div>
+                    <div class="tracker-progress-text">
+                        <span id="trackerDone">0</span> / <span id="trackerTotal">96</span> months completed
+                        (<span id="trackerPct">0</span>%)
+                    </div>
+                </div>
+
+                <!-- View mode toggle -->
+                <div class="view-mode-toggle">
+                    <button class="view-mode-btn active" data-mode="default">Default (Flat)</button>
+                    <button class="view-mode-btn" data-mode="upgrading">Upgrading (Step-Up)</button>
+                    <button class="view-mode-btn" data-mode="custom">Custom</button>
+                </div>
+
+                <!-- Impact summary -->
+                <div class="summary-row" style="margin-bottom:24px;">
+                    <div class="summary-card">
+                        <div class="label">Total Planned</div>
+                        <div class="value" id="trackerTotalPlanned">&#8377;0</div>
+                    </div>
+                    <div class="summary-card success">
+                        <div class="label">Total Invested</div>
+                        <div class="value" id="trackerTotalInvested">&#8377;0</div>
+                    </div>
+                    <div class="summary-card warning">
+                        <div class="label">Remaining</div>
+                        <div class="value" id="trackerRemaining">&#8377;0</div>
+                    </div>
+                    <div class="summary-card" id="trackerImpactCard1">
+                        <div class="label" id="trackerImpactLabel1">Adjusted SIP</div>
+                        <div class="value" id="trackerImpactValue1">-</div>
+                        <div class="sub-text" id="trackerImpactSub1">same timeline</div>
+                    </div>
+                    <div class="summary-card" id="trackerImpactCard2">
+                        <div class="label" id="trackerImpactLabel2">Timeline Change</div>
+                        <div class="value" id="trackerImpactValue2">-</div>
+                        <div class="sub-text" id="trackerImpactSub2">same SIP</div>
+                    </div>
+                </div>
+
+                <!-- Year grid container -->
+                <div id="trackerYearsContainer"></div>
+            </div>
+
+            <!-- Modal for month entry -->
+            <div class="tracker-modal-overlay" id="trackerModal">
+                <div class="tracker-modal">
+                    <h3 id="trackerModalTitle">Month Entry</h3>
+                    <div class="input-group">
+                        <label for="trackerModalPlanned">Planned Amount</label>
+                        <input type="number" id="trackerModalPlanned" readonly>
+                    </div>
+                    <div class="input-group">
+                        <label for="trackerModalActual">Actual Amount Invested</label>
+                        <input type="number" id="trackerModalActual">
+                    </div>
+                    <div class="btn-row">
+                        <button class="btn-secondary" id="trackerModalCancel">Cancel</button>
+                        <button class="btn-primary" id="trackerModalSave">Mark Complete</button>
+                    </div>
+                    <button class="btn-secondary" id="trackerModalReset" style="width:100%;margin-top:8px;font-size:0.8rem;padding:6px;">Reset This Month</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Retirement Financial Planner &mdash; Plan your financial future with confidence</p>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../multi-method-calculator.html">Multi-Method Calculator</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/calc-income.js"></script>
+    <script src="js/calc-expenses.js"></script>
+    <script src="js/calc-investments.js"></script>
+    <script src="js/calc-financial-plan.js"></script>
+    <script src="js/calc-projections.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/calc-dashboard.js"></script>
+    <script src="js/calc-whatif.js"></script>
+    <script src="js/calc-goals.js"></script>
+    <script src="js/calc-emergency.js"></script>
+    <script src="js/calc-sip.js"></script>
+    <script src="js/calc-tracker.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

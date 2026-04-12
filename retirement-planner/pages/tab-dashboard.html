@@ -1,0 +1,151 @@
+        <!-- TAB 6: DASHBOARD -->
+        <div class="tab-content" id="tab-dashboard">
+            <div class="panel">
+                <h2>Financial Dashboard</h2>
+                <!-- Hero metrics -->
+                <div class="summary-row">
+                    <div class="summary-card success">
+                        <div class="label">FI Score</div>
+                        <div class="value" id="fiScore">0</div>
+                        <div class="sub-text" id="fiScoreText">Calculating...</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">Current Net Worth</div>
+                        <div class="value" id="dashNetWorth">&#8377;0</div>
+                    </div>
+                    <div class="summary-card warning">
+                        <div class="label">Corpus at Retirement</div>
+                        <div class="value" id="dashCorpus">&#8377;0</div>
+                    </div>
+                    <div class="summary-card danger">
+                        <div class="label">Money Lasts Until</div>
+                        <div class="value" id="dashRunsOut">-</div>
+                    </div>
+                </div>
+
+                <!-- FI Score Breakdown -->
+                <div class="section-group green-accent" style="margin-top:24px;">
+                    <h3>FI Score Breakdown</h3>
+                    <div id="fiBreakdown"></div>
+                </div>
+
+                <div class="panel-grid" style="margin-top:24px;">
+                    <div>
+                        <!-- Income & Expense Metrics -->
+                        <div class="section-group">
+                            <h3>Income &amp; Expense Metrics</h3>
+                            <div class="summary-row">
+                                <div class="summary-card success">
+                                    <div class="label">Savings Rate</div>
+                                    <div class="value" id="dashSavingsRate">0%</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Monthly Surplus</div>
+                                    <div class="value" id="dashSurplus">&#8377;0</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Needs vs Wants</div>
+                                    <div class="value" id="dashNeedsWants">-</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Annual Surplus</div>
+                                    <div class="value" id="dashAnnualSurplus">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Investment Metrics -->
+                        <div class="section-group">
+                            <h3>Investment Metrics</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Pre-Ret Return</div>
+                                    <div class="value" id="dashPreReturn">0%</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Post-Ret Return</div>
+                                    <div class="value" id="dashPostReturn">0%</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Monthly SIP</div>
+                                    <div class="value" id="dashMonthlySIP">&#8377;0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Annual SIP (w/ step-up)</div>
+                                    <div class="value" id="dashAnnualSIP">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Retirement Readiness -->
+                        <div class="section-group">
+                            <h3>Retirement Readiness</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Years to Retire</div>
+                                    <div class="value" id="dashYearsToRetire">0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Retirement Duration</div>
+                                    <div class="value" id="dashRetDuration">0 yrs</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card warning">
+                                    <div class="label">Post-Ret Monthly (inflation adj.)</div>
+                                    <div class="value" id="dashPostRetExpense">&#8377;0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Wealth Multiple</div>
+                                    <div class="value" id="dashWealthMultiple">0x</div>
+                                    <div class="sub-text">Corpus / Annual Expense</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <!-- Risk Alerts -->
+                        <div class="section-group orange-accent">
+                            <h3>Risk Alerts</h3>
+                            <div id="dashAlerts"></div>
+                        </div>
+                        <!-- Quick Actions -->
+                        <div class="section-group">
+                            <h3>Quick Actions</h3>
+                            <div id="dashActions"></div>
+                        </div>
+                        <!-- Key Ratios -->
+                        <div class="section-group red-accent">
+                            <h3>Key Ratios</h3>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Expense Ratio</div>
+                                    <div class="value" id="dashExpenseRatio">0%</div>
+                                    <div class="sub-text">Expenses / Income</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Investment Ratio</div>
+                                    <div class="value" id="dashInvestRatio">0%</div>
+                                    <div class="sub-text">Investment / Income</div>
+                                </div>
+                            </div>
+                            <div class="summary-row">
+                                <div class="summary-card">
+                                    <div class="label">Debt-Free Income</div>
+                                    <div class="value" id="dashDebtFree">&#8377;0</div>
+                                    <div class="sub-text">Income - EMIs</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">FIRE Number</div>
+                                    <div class="value" id="dashFIRENumber">&#8377;0</div>
+                                    <div class="sub-text">Annual Expense x 25</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+

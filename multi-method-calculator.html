@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Method FIRE Calculator - Compare Different Approaches</title>
+    <link rel="stylesheet" href="multi-method-styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 Multi-Method FIRE Calculator</h1>
+            <p class="subtitle">Compare Different FIRE Calculation Methods & Philosophies</p>
+            <div class="method-info">
+                <span class="info-badge">5 Different Methods</span>
+                <span class="info-badge">Expert Formulas</span>
+                <span class="info-badge">Side-by-Side Comparison</span>
+            </div>
+        </header>
+
+        <div class="calculator-wrapper">
+            <!-- Input Section -->
+            <div class="input-section">
+                <h2>📊 Your Financial Profile</h2>
+                
+                <div class="section-group">
+                    <h3>Basic Information</h3>
+                    <div class="input-group">
+                        <label for="currentAge">Current Age</label>
+                        <input type="number" id="currentAge" value="27" min="18" max="100">
+                        <span class="unit">years</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="retirementAge">Target Retirement Age</label>
+                        <input type="number" id="retirementAge" value="35" min="18" max="100">
+                        <span class="unit">years</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="lifeExpectancy">Life Expectancy</label>
+                        <input type="number" id="lifeExpectancy" value="85" min="60" max="120">
+                        <span class="unit">years</span>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Current Financial Status</h3>
+                    <div class="input-group">
+                        <label for="currentNetWorth">Current Net Worth</label>
+                        <input type="number" id="currentNetWorth" value="5000000" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="monthlyInvestment">Monthly Investment Amount</label>
+                        <input type="number" id="monthlyInvestment" value="140000" min="0" step="1000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="annualIncome">Annual Income (Pre-Tax)</label>
+                        <input type="number" id="annualIncome" value="3400000" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="monthlyExpenses">Monthly Living Expenses</label>
+                        <input type="number" id="monthlyExpenses" value="40000" min="0" step="1000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="annualExpenses">Annual Expenses</label>
+                        <input type="number" id="annualExpenses" value="1200000" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="annualSavings">Annual Savings</label>
+                        <input type="number" id="annualSavings" value="1680000" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="emergencyFund">Emergency Fund</label>
+                        <input type="number" id="emergencyFund" value="240000" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Investment Assumptions (Pre-Retirement)</h3>
+                    <div class="input-group">
+                        <label for="expectedReturn">Expected Annual Return (Pre-Retirement)</label>
+                        <input type="number" id="expectedReturn" value="12" min="0" max="30" step="0.5">
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="postRetirementReturn">Expected Annual Return (Post-Retirement)</label>
+                        <input type="number" id="postRetirementReturn" value="10" min="0" max="20" step="0.5">
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="inflationRate">Expected Inflation Rate</label>
+                        <input type="number" id="inflationRate" value="6" min="0" max="20" step="0.5">
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="taxRate">Effective Tax Rate</label>
+                        <input type="number" id="taxRate" value="20" min="0" max="50" step="1">
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="assetAllocation">Stock Allocation %</label>
+                        <input type="number" id="assetAllocation" value="70" min="0" max="100" step="5">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="section-group">
+                    <h3>Additional Factors</h3>
+                    <div class="input-group">
+                        <label for="pensionIncome">Annual Pension/Social Security</label>
+                        <input type="number" id="pensionIncome" value="0" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="healthcareCosts">Annual Healthcare Costs (Retirement)</label>
+                        <input type="number" id="healthcareCosts" value="120000" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="oneTimeLumpsum">One-Time Large Expenses</label>
+                        <input type="number" id="oneTimeLumpsum" value="0" min="0" step="50000">
+                        <span class="unit">₹</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="expenseGrowth">Annual Expense Growth Rate</label>
+                        <input type="number" id="expenseGrowth" value="3" min="0" max="20" step="0.5">
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="salaryGrowth">Annual Salary Growth Rate</label>
+                        <input type="number" id="salaryGrowth" value="5" min="0" max="20" step="0.5">
+                        <span class="unit">%</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="partTimeIncome">Part-Time Income in Retirement (Annual)</label>
+                        <input type="number" id="partTimeIncome" value="0" min="0" step="10000">
+                        <span class="unit">₹</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="calculateBtn" class="btn-primary">Calculate All Methods</button>
+                    <button id="resetBtn" class="btn-secondary">Reset</button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <h2>🎯 FIRE Methods Comparison</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-method="all">All Methods</button>
+                    <button class="tab-btn" data-method="traditional">Traditional 4%</button>
+                    <button class="tab-btn" data-method="trinity">Trinity Study</button>
+                    <button class="tab-btn" data-method="bengen">Bengen Method</button>
+                    <button class="tab-btn" data-method="modern">Modern Portfolio</button>
+                    <button class="tab-btn" data-method="conservative">Conservative</button>
+                </div>
+
+                <div id="resultsContainer" class="results-container">
+                    <!-- Method 1: Traditional 4% Rule -->
+                    <div class="method-card" data-method="traditional">
+                        <div class="method-header">
+                            <h3>Traditional 4% Rule</h3>
+                            <span class="method-badge">Classic</span>
+                        </div>
+                        <p class="method-description">
+                            The simplest FIRE method: Annual expenses × 25
+                        </p>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span class="result-label">FIRE Number</span>
+                                <span class="result-value" id="traditional-fire">₹0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Years to FIRE</span>
+                                <span class="result-value" id="traditional-years">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">FIRE Age</span>
+                                <span class="result-value" id="traditional-age">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Monthly Investment Needed</span>
+                                <span class="result-value" id="traditional-monthly">₹0</span>
+                            </div>
+                        </div>
+                        <div class="calculation-breakdown" id="traditional-breakdown">
+                            <strong>📊 How This Was Calculated:</strong>
+                            <div class="breakdown-steps"></div>
+                        </div>
+                    </div>
+
+                    <!-- Method 2: Trinity Study Method -->
+                    <div class="method-card" data-method="trinity">
+                        <div class="method-header">
+                            <h3>Trinity Study Method</h3>
+                            <span class="method-badge">Research-Based</span>
+                        </div>
+                        <p class="method-description">
+                            Based on 1998 Trinity University study with variable withdrawal rates
+                        </p>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span class="result-label">FIRE Number</span>
+                                <span class="result-value" id="trinity-fire">₹0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Years to FIRE</span>
+                                <span class="result-value" id="trinity-years">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">FIRE Age</span>
+                                <span class="result-value" id="trinity-age">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Monthly Investment Needed</span>
+                                <span class="result-value" id="trinity-monthly">₹0</span>
+                            </div>
+                        </div>
+                        <div class="calculation-breakdown" id="trinity-breakdown">
+                            <strong>📊 How This Was Calculated:</strong>
+                            <div class="breakdown-steps"></div>
+                        </div>
+                    </div>
+
+                    <!-- Method 3: Bengen Method -->
+                    <div class="method-card" data-method="bengen">
+                        <div class="method-header">
+                            <h3>Bengen Method (Dynamic)</h3>
+                            <span class="method-badge">Flexible</span>
+                        </div>
+                        <p class="method-description">
+                            William Bengen's original research with inflation adjustments
+                        </p>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span class="result-label">FIRE Number</span>
+                                <span class="result-value" id="bengen-fire">₹0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Years to FIRE</span>
+                                <span class="result-value" id="bengen-years">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">FIRE Age</span>
+                                <span class="result-value" id="bengen-age">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Monthly Investment Needed</span>
+                                <span class="result-value" id="bengen-monthly">₹0</span>
+                            </div>
+                        </div>
+                        <div class="calculation-breakdown" id="bengen-breakdown">
+                            <strong>📊 How This Was Calculated:</strong>
+                            <div class="breakdown-steps"></div>
+                        </div>
+                    </div>
+
+                    <!-- Method 4: Modern Portfolio Theory -->
+                    <div class="method-card" data-method="modern">
+                        <div class="method-header">
+                            <h3>Modern Portfolio Theory</h3>
+                            <span class="method-badge">Advanced</span>
+                        </div>
+                        <p class="method-description">
+                            Risk-adjusted approach considering volatility and asset allocation
+                        </p>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span class="result-label">FIRE Number</span>
+                                <span class="result-value" id="modern-fire">₹0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Years to FIRE</span>
+                                <span class="result-value" id="modern-years">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">FIRE Age</span>
+                                <span class="result-value" id="modern-age">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Monthly Investment Needed</span>
+                                <span class="result-value" id="modern-monthly">₹0</span>
+                            </div>
+                        </div>
+                        <div class="calculation-breakdown" id="modern-breakdown">
+                            <strong>📊 How This Was Calculated:</strong>
+                            <div class="breakdown-steps"></div>
+                        </div>
+                    </div>
+
+                    <!-- Method 5: Conservative/Coast FIRE -->
+                    <div class="method-card" data-method="conservative">
+                        <div class="method-header">
+                            <h3>Conservative FIRE</h3>
+                            <span class="method-badge">Safe</span>
+                        </div>
+                        <p class="method-description">
+                            Ultra-safe approach with 3% withdrawal rate and buffers
+                        </p>
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span class="result-label">FIRE Number</span>
+                                <span class="result-value" id="conservative-fire">₹0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Years to FIRE</span>
+                                <span class="result-value" id="conservative-years">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">FIRE Age</span>
+                                <span class="result-value" id="conservative-age">0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Monthly Investment Needed</span>
+                                <span class="result-value" id="conservative-monthly">₹0</span>
+                            </div>
+                        </div>
+                        <div class="calculation-breakdown" id="conservative-breakdown">
+                            <strong>📊 How This Was Calculated:</strong>
+                            <div class="breakdown-steps"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Summary -->
+                <div class="comparison-summary">
+                    <h3>📊 Methods Comparison Summary</h3>
+                    <div class="comparison-table">
+                        <table id="comparisonTable">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>FIRE Number</th>
+                                    <th>Years to FIRE</th>
+                                    <th>FIRE Age</th>
+                                    <th>Safety Level</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="recommendations-section">
+                    <h3>💡 Which Method Should You Choose?</h3>
+                    <div id="methodRecommendation" class="recommendation-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>⚠️ Disclaimer: All methods provide estimates. Actual results may vary. Consult a financial advisor for personalized advice.</p>
+            <p><a href="index.html" class="back-link">← Back to Simple FIRE Calculator</a> | <a href="retirement-planner.html" class="back-link">Retirement Planner</a></p>
+        </footer>
+    </div>
+
+    <script src="multi-method-script.js"></script>
+</body>
+</html>

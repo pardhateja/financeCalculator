@@ -1,0 +1,51 @@
+        <!-- TAB: NET WORTH TRACKER -->
+        <div class="tab-content" id="tab-networth">
+            <div class="panel">
+                <h2>Net Worth Tracker</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Log Monthly Net Worth</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="nwMonth">Month</label>
+                                    <input type="month" id="nwMonth">
+                                </div>
+                                <div class="input-group">
+                                    <label for="nwAmount">Total Net Worth</label>
+                                    <input type="number" id="nwAmount" placeholder="e.g. 7500000">
+                                    <span class="unit">&#8377;</span>
+                                </div>
+                            </div>
+                            <button class="btn-primary" id="addNwBtn" style="width:100%;">Add Entry</button>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Latest Net Worth</div>
+                                <div class="value" id="nwLatest">-</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Growth</div>
+                                <div class="value" id="nwTotalGrowth">-</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Entries</div>
+                                <div class="value" id="nwEntries">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group">
+                            <h3>Growth Chart</h3>
+                            <div class="chart-container" style="box-shadow:none;padding:10px;margin:0;">
+                                <canvas id="nwChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-group" style="margin-top:20px;">
+                    <h3>History</h3>
+                    <div id="nwLogContainer" style="max-height:300px;overflow-y:auto;"></div>
+                </div>
+            </div>
+        </div>

@@ -1,0 +1,80 @@
+        <!-- TAB 9: EMERGENCY FUND -->
+        <div class="tab-content" id="tab-emergency">
+            <div class="panel">
+                <h2>Emergency Fund Tracker</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group">
+                            <h3>Your Emergency Fund</h3>
+                            <div class="sub-text" style="padding:4px 0 12px;color:var(--text-secondary);">Auto-calculated from Fixed Returns share. Edit to override.</div>
+                            <div class="input-group">
+                                <label for="emergencyFund">Emergency Fund Amount</label>
+                                <input type="number" id="emergencyFund" value="0">
+                                <span class="unit">&#8377;</span>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="emergencyMonths">Target Coverage (months)</label>
+                                    <input type="number" id="emergencyMonths" value="6" min="3" max="24">
+                                    <span class="unit">months</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="emMonthlyExpInput">Monthly Expenses (after job loss)</label>
+                                    <input type="number" id="emMonthlyExpInput" value="100000">
+                                    <span class="unit">&#8377;/mo</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Emergency Fund (Fixed Returns)</div>
+                                <div class="value" id="emCurrent">&#8377;0</div>
+                                <div class="sub-text" id="emFormula">-</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Normal Monthly Expenses</div>
+                                <div class="value" id="emMonthlyExp">&#8377;0</div>
+                            </div>
+                            <div class="summary-card warning">
+                                <div class="label">Target Fund</div>
+                                <div class="value" id="emTarget">&#8377;0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Fund Status</h3>
+                            <div class="health-indicator good" id="emHealthIndicator">
+                                <span class="health-dot"></span>
+                                <span id="emHealthText">Calculating...</span>
+                            </div>
+                            <div class="summary-row" style="margin-top:16px;">
+                                <div class="summary-card">
+                                    <div class="label">Months Covered</div>
+                                    <div class="value" id="emMonthsCovered">0</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Gap / Surplus</div>
+                                    <div class="value" id="emGap">&#8377;0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section-group orange-accent">
+                            <h3>Job Loss Simulator</h3>
+                            <div class="sub-text" style="padding:4px 0 8px;">If you lose your income today:</div>
+                            <div class="summary-row">
+                                <div class="summary-card danger">
+                                    <div class="label">Funds Last</div>
+                                    <div class="value" id="emJobLossMonths">0 months</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="label">Runway Date</div>
+                                    <div class="value" id="emRunwayDate">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+

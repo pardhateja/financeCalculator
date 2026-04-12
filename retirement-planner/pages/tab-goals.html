@@ -1,0 +1,45 @@
+        <!-- TAB 8: GOAL PLANNING -->
+        <div class="tab-content" id="tab-goals">
+            <div class="panel">
+                <h2>Goal Planning</h2>
+                <div class="section-group">
+                    <h3>Add Financial Goals</h3>
+                    <div class="input-row-3">
+                        <div class="input-group">
+                            <label for="goalName">Goal Name</label>
+                            <input type="text" id="goalName" placeholder="e.g. House, Car, Education">
+                        </div>
+                        <div class="input-group">
+                            <label for="goalAmount">Target Amount</label>
+                            <input type="number" id="goalAmount" placeholder="e.g. 5000000">
+                        </div>
+                        <div class="input-group">
+                            <label for="goalYear">Target Year</label>
+                            <input type="number" id="goalYear" placeholder="e.g. 2030">
+                        </div>
+                    </div>
+                    <button class="btn-primary" id="addGoalBtn" style="margin-top:8px;">Add Goal</button>
+                </div>
+                <div class="section-group green-accent">
+                    <h3>Your Goals</h3>
+                    <div id="goalsContainer">
+                        <div class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">No goals added yet. Add your first financial goal above.</div>
+                    </div>
+                </div>
+                <div class="summary-row" style="margin-top:16px;">
+                    <div class="summary-card warning">
+                        <div class="label">Total Goals Amount</div>
+                        <div class="value" id="totalGoalsAmount">&#8377;0</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="label">Monthly Needed for Goals</div>
+                        <div class="value" id="monthlyForGoals">&#8377;0</div>
+                    </div>
+                    <div class="summary-card danger">
+                        <div class="label">Impact on Retirement</div>
+                        <div class="value" id="goalImpact">None</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
