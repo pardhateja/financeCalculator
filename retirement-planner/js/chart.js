@@ -179,7 +179,11 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
     const docStyle = getComputedStyle(document.documentElement);
     const phaseList = Array.isArray(phases) ? phases : [];
 
-    /* Step 1: draw shaded phase regions FIRST (behind grid + line) */
+    /* Step 1: draw shaded phase regions FIRST (behind grid + line).
+     * v1.1 audit: NO in-chart labels — with 10 overlapping phases, any in-chart
+     * label strategy (single row, staggered, clipped) collides on a narrow chart.
+     * Phase identification moves to a legend rendered BELOW the canvas (DOM, not
+     * canvas) by RP._renderMultiGoalChartLegend, called after this function returns. */
     phaseList.forEach(phase => {
         const colorName = phase.color || 'blue';
         const phaseColor = (docStyle.getPropertyValue('--phase-color-' + colorName) || '#3b82f6').trim();
@@ -195,23 +199,6 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
 
         ctx.fillStyle = hexToRgba(phaseColor, 0.10);
         ctx.fillRect(xStart, padding.top, regionWidth, chartH);
-
-        // Phase label at top of region (truncate if narrow)
-        ctx.fillStyle = phaseColor;
-        ctx.font = 'bold 11px -apple-system, sans-serif';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        const maxChars = Math.max(3, Math.floor(regionWidth / 7));
-        const label = phase.name.length > maxChars
-            ? phase.name.slice(0, maxChars - 1) + '…'
-            : phase.name;
-        // Clip label to region so it doesn't bleed into neighbor regions
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(xStart, padding.top - 12, regionWidth, 16);
-        ctx.clip();
-        ctx.fillText(label, xStart + 4, padding.top - 10);
-        ctx.restore();
     });
 
     /* Step 2: grid lines (matches RP.renderChart) */
@@ -278,4 +265,36 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
         ctx.fillText(data[i].age, ageToX(data[i].age), H - padding.bottom + 18);
     }
     ctx.fillText(data[data.length - 1].age, ageToX(maxAge), H - padding.bottom + 18);
+
+    /* Step 7 (v1.1 audit): render the phase legend BELOW the canvas as DOM
+     * chips. With 10 overlapping phases, in-canvas labels collided no matter
+     * how we laid them out — the legend pattern is what every charting library
+     * does for this case. Each chip = colored dot + phase name + age range. */
+    if (typeof RP._renderMultiGoalChartLegend === 'function') {
+        RP._renderMultiGoalChartLegend(phaseList);
+    }
+};
+
+RP._renderMultiGoalChartLegend = function (phaseList) {
+    const host = document.getElementById('multigoalChartLegend');
+    if (!host) return;
+    host.innerHTML = '';
+    if (!Array.isArray(phaseList) || phaseList.length === 0) return;
+
+    phaseList.forEach(phase => {
+        const chip = document.createElement('span');
+        chip.className = 'phase-legend-chip';
+
+        const dot = document.createElement('span');
+        dot.className = 'phase-legend-dot';
+        dot.style.background = 'var(--phase-color-' + (phase.color || 'blue') + ')';
+        chip.appendChild(dot);
+
+        const label = document.createElement('span');
+        label.className = 'phase-legend-label';
+        label.textContent = phase.name + ' (' + phase.startAge + '–' + phase.endAge + ')';
+        chip.appendChild(label);
+
+        host.appendChild(chip);
+    });
 };

@@ -503,3 +503,44 @@ body.dark-mode .alert-info {
 body.dark-mode .per-phase-balance-item {
     color: var(--text-primary, #f1f5f9);
 }
+
+/* v1.1 audit: phase legend below corpus projection chart. Replaces in-canvas
+ * labels which collided when 10 overlapping phases shared the same x-range. */
+.phase-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    margin-top: 12px;
+    padding: 8px 4px 4px;
+    border-top: 1px solid var(--border-color, #e2e8f0);
+}
+
+.phase-legend-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-secondary, #64748b);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.phase-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.phase-legend-label {
+    font-weight: 500;
+}
+
+body.dark-mode .phase-chart-legend {
+    border-top-color: rgba(148, 163, 184, 0.20);
+}
+
+body.dark-mode .phase-legend-chip {
+    color: var(--text-primary, #f1f5f9);
+}

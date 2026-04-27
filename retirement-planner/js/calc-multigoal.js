@@ -41,13 +41,14 @@ RP._phaseColorNames = ['blue', 'emerald', 'amber', 'purple', 'teal', 'pink'];
 RP._phaseExampleTemplate = [
     // Always-on baseline (no kids — IS the empty-nest baseline too).
     { name: 'Base (no kids)',     shortName: 'Base',      startAge: 27, endAge: 100, baseMonthlyExpense: 50000, inflationRate: 6  },
-    // Kid 1: born ~age 28; at home until college (kid age 17 → Pardha 45)
-    { name: 'Kid 1 at home',      shortName: 'K1 home',   startAge: 28, endAge: 45,  baseMonthlyExpense: 10000, inflationRate: 6  },
+    // Kid 1: born ~age 28; at home until college starts (Pardha feedback:
+    // "home" ends the year BEFORE "college" starts so phases don't double-bill).
+    { name: 'Kid 1 at home',      shortName: 'K1 home',   startAge: 28, endAge: 44,  baseMonthlyExpense: 10000, inflationRate: 6  },
     { name: 'Kid 1 college fees', shortName: 'K1 fees',   startAge: 45, endAge: 49,  baseMonthlyExpense: 8333,  inflationRate: 10 },
     { name: 'Kid 1 hostel',       shortName: 'K1 hostel', startAge: 45, endAge: 49,  baseMonthlyExpense: 8333,  inflationRate: 7  },
     { name: 'Kid 1 pocket money', shortName: 'K1 pocket', startAge: 45, endAge: 49,  baseMonthlyExpense: 15000, inflationRate: 6  },
-    // Kid 2: born ~age 35
-    { name: 'Kid 2 at home',      shortName: 'K2 home',   startAge: 35, endAge: 52,  baseMonthlyExpense: 10000, inflationRate: 6  },
+    // Kid 2: born ~age 35; same "home ends before college" pattern.
+    { name: 'Kid 2 at home',      shortName: 'K2 home',   startAge: 35, endAge: 51,  baseMonthlyExpense: 10000, inflationRate: 6  },
     { name: 'Kid 2 college fees', shortName: 'K2 fees',   startAge: 52, endAge: 56,  baseMonthlyExpense: 8333,  inflationRate: 10 },
     { name: 'Kid 2 hostel',       shortName: 'K2 hostel', startAge: 52, endAge: 56,  baseMonthlyExpense: 8333,  inflationRate: 7  },
     { name: 'Kid 2 pocket money', shortName: 'K2 pocket', startAge: 52, endAge: 56,  baseMonthlyExpense: 15000, inflationRate: 6  },
@@ -1149,6 +1150,34 @@ RP._multigoal._parseShortCurrency = function (text) {
     return num;
 };
 
+/* v1.1 audit fix (corpus filter): phases that end before retirement consume
+ * pre-retirement income, NOT the retirement corpus. Phases that straddle
+ * retirement (e.g. Base 27→100 with retirementAge=35) get clipped to the
+ * post-retirement window (35→100) so their corpus PV reflects only what the
+ * retirement corpus actually has to fund.
+ *
+ * Returns a NEW phase array (originals untouched). Phases entirely
+ * pre-retirement are dropped. The clipped phase keeps its original id/name/
+ * color/inflation/baseMonthlyExpense — only startAge moves.
+ */
+RP._multigoal._phasesForCorpus = function (phases, retirementAge) {
+    if (!Array.isArray(phases)) return [];
+    if (!Number.isFinite(retirementAge) || retirementAge <= 0) return phases;
+    const result = [];
+    for (const p of phases) {
+        if (!p || !Number.isInteger(p.endAge) || !Number.isInteger(p.startAge)) continue;
+        if (p.endAge < retirementAge) continue; // entirely pre-retirement → drop
+        if (p.startAge >= retirementAge) {
+            // Already entirely post-retirement → pass through
+            result.push(p);
+        } else {
+            // Straddles retirement → clip startAge to retirementAge
+            result.push(Object.assign({}, p, { startAge: retirementAge }));
+        }
+    }
+    return result;
+};
+
 /* Main entry point — re-renders the allocation table, bar, and deficit banner.
  * Idempotent: safe to call repeatedly. */
 RP._multigoal.renderAllocation = function () {
@@ -1186,7 +1215,22 @@ RP._multigoal.renderAllocation = function () {
     emptyEl.style.display = 'none';
     contentEl.style.display = '';
 
-    const allocation = RP._multigoal.calculateAllocation(phases, corpus, retAge, curAge, postReturn);
+    // v1.1 audit fix: feed the corpus math only the post-retirement view of phases.
+    // Pre-retirement phases (entirely before retirementAge) are dropped; straddling
+    // phases (e.g. Base 27→100 with retirementAge 35) are clipped to start at
+    // retirementAge. Pre-retirement spend lives in the Expense Profile dashboard
+    // and is funded from current income, not corpus.
+    const corpusPhases = RP._multigoal._phasesForCorpus(phases, retAge);
+
+    if (corpusPhases.length === 0) {
+        emptyEl.style.display = '';
+        emptyEl.textContent = 'All phases end before retirement. Add a phase that runs into retirement to see corpus allocation.';
+        contentEl.style.display = 'none';
+        RP._lastAllocationData = null;
+        return;
+    }
+
+    const allocation = RP._multigoal.calculateAllocation(corpusPhases, corpus, retAge, curAge, postReturn);
 
     // Cache for fe-005 to read without recomputing.
     RP._lastAllocationData = allocation;
@@ -1438,7 +1482,12 @@ RP._multigoal.renderProjection = function () {
         ? RP._postReturn
         : 0.08;
 
-    const rows = RP._multigoal.runProjection(phases, allocation, retAge, lifeExp, curAge, postReturn);
+    // v1.1 audit fix: same corpus filter as renderAllocation. The projection
+    // walks year-by-year and decides which buckets are "active" by phase
+    // startAge/endAge — feeding raw pre-retirement phases would make them
+    // active during years their PV wasn't allocated for, double-counting.
+    const corpusPhases = RP._multigoal._phasesForCorpus(phases, retAge);
+    const rows = RP._multigoal.runProjection(corpusPhases, allocation, retAge, lifeExp, curAge, postReturn);
 
     // Cache for downstream consumers (e.g. fe-007 sharelink debug, fe-009 mobile)
     RP._multiGoalProjectionRows = rows;
@@ -1448,8 +1497,8 @@ RP._multigoal.renderProjection = function () {
     chartEmpty.style.display = 'none';
     chartContent.style.display = '';
 
-    RP._multigoal._renderProjectionTable(rows, phases);
-    RP._multigoal._renderProjectionChart(rows, phases, canvas);
+    RP._multigoal._renderProjectionTable(rows, corpusPhases);
+    RP._multigoal._renderProjectionChart(rows, corpusPhases, canvas);
 };
 
 RP._multigoal._renderProjectionTable = function (rows, phases) {
