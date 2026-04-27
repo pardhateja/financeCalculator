@@ -1,0 +1,160 @@
+/* Multi-Goal Planner styles (fe-002)
+ * Phase color palette per 03-data-contracts.md (color rotation rule)
+ * Card pattern extends .summary-card per cards.css
+ */
+
+:root {
+    --phase-color-blue: #3b82f6;
+    --phase-color-emerald: #10b981;
+    --phase-color-amber: #f59e0b;
+    --phase-color-purple: #a855f7;
+    --phase-color-teal: #14b8a6;
+    --phase-color-pink: #ec4899;
+}
+
+/* --- Form grid: 5 columns desktop, stack mobile --- */
+.phase-form-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.4fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .phase-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Inline validation errors --- */
+.phase-error {
+    color: var(--danger-color, #ef4444);
+    font-size: 0.78rem;
+    margin-top: 4px;
+    min-height: 1em;
+    line-height: 1.2;
+}
+
+.input-group input.phase-input-invalid {
+    border-color: var(--danger-color, #ef4444);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+/* --- Phase cards --- */
+.phase-card {
+    background: var(--card-bg, #ffffff);
+    padding: 14px 18px;
+    border-radius: 12px;
+    border-top: 3px solid var(--phase-color, #3b82f6);
+    border-left: 4px solid var(--phase-color, #3b82f6);
+    box-shadow: var(--shadow-default, 0 1px 3px rgba(0, 0, 0, 0.08));
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    text-align: left;
+}
+
+.phase-card .phase-card-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.phase-card .phase-card-name {
+    font-weight: 700;
+    color: var(--text-primary, #111827);
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.phase-card .phase-card-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #6b7280);
+    line-height: 1.5;
+}
+
+.phase-card .phase-card-meta .phase-color-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--phase-color, #3b82f6);
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.phase-card .phase-card-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.phase-card .phase-card-actions button {
+    background: var(--danger-color, #ef4444);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.phase-card .phase-card-actions button:focus {
+    outline: 2px solid var(--primary-color, #3b82f6);
+    outline-offset: 2px;
+}
+
+/* --- Toast (delete-undo) --- */
+.phase-toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.phase-toast {
+    background: #1f2937;
+    color: #ffffff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
+    font-size: 0.9rem;
+    min-width: 240px;
+    animation: phase-toast-slide-in 0.18s ease-out;
+}
+
+.phase-toast button {
+    background: transparent;
+    color: #fbbf24;
+    border: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.phase-toast button:focus {
+    outline: 2px solid #fbbf24;
+    outline-offset: 2px;
+}
+
+@keyframes phase-toast-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -19,6 +19,7 @@ cat > "$OUT" << 'HEAD'
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/tracker.css">
+    <link rel="stylesheet" href="css/multigoal.css">
     <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>

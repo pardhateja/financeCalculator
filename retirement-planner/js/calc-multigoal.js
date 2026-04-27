@@ -21,12 +21,24 @@
  * call RP._multigoal._save() after mutating RP._multigoal.phases so changes
  * survive a reload. RP._multigoal.loadExample() populates 4 India-default phases.
  *
+ * Phase CRUD (fe-002): RP._multigoal.addPhase, removePhase, renderPhases,
+ * validatePhase + form-handler glue. Mutators call RP._multigoal._save().
+ *
  * Math sources: 01-tech-spec.md Appendix A (PV allocation), Appendix B (projection loop)
  * Data shapes: 03-data-contracts.md §1 (Phase), §2 (Allocation), §3 (Projection row)
  */
-RP._multigoal = {
-    phases: []
-};
+RP._multigoal = RP._multigoal || { phases: [] };
+
+/* Color rotation per 03-data-contracts.md (index mod 6). */
+RP._phaseColorNames = ['blue', 'emerald', 'amber', 'purple', 'teal', 'pink'];
+
+/* India FIRE example template per fe-002 spec. */
+RP._phaseExampleTemplate = [
+    { name: 'Kids at Home', startAge: 35, endAge: 50, baseMonthlyExpense: 80000, inflationRate: 6 },
+    { name: 'Kids in College', startAge: 50, endAge: 55, baseMonthlyExpense: 120000, inflationRate: 10 },
+    { name: 'Empty Nest', startAge: 55, endAge: 70, baseMonthlyExpense: 50000, inflationRate: 6 },
+    { name: 'Medical / Late Retirement', startAge: 70, endAge: 100, baseMonthlyExpense: 70000, inflationRate: 12 }
+];
 
 /**
  * Validate a phase object against 03-data-contracts.md Section 1.
@@ -571,6 +583,278 @@ RP._multigoal.testScenarios = [
     }
 ];
 
-// Run init at script-load so the scaffold is observable in the console
-// without requiring app.js wiring (that's fe-002's responsibility).
-RP.initMultiGoal();
+// fe-002 redefines RP.initMultiGoal below to wire up CRUD form buttons.
+// We keep the call here so initialization runs at script-load.
+
+RP.initMultiGoal = function () {
+    const addBtn = document.getElementById('addPhaseBtn');
+    const exampleBtn = document.getElementById('loadPhaseExampleBtn');
+    if (addBtn) addBtn.addEventListener('click', () => RP.addPhase());
+    if (exampleBtn) exampleBtn.addEventListener('click', () => RP.loadPhaseExample());
+    if (typeof RP._multigoal._load === 'function') RP._multigoal._load();
+    RP.renderPhases();
+};
+
+/* ---------- Validation ---------- */
+
+/**
+ * Validates a phase object against contract constraints (per 03-data-contracts.md §1).
+ * Used for both UI form submission and (later) sharelink/localStorage import.
+ */
+RP.validatePhase = function (phase, retirementAge, lifeExpectancy) {
+    if (!phase || typeof phase !== 'object') return false;
+    if (!phase.id || typeof phase.id !== 'string') return false;
+    if (!phase.name || typeof phase.name !== 'string') return false;
+    if (phase.name.trim().length < 1 || phase.name.trim().length > 60) return false;
+    if (!Number.isInteger(phase.startAge) || phase.startAge < retirementAge || phase.startAge > lifeExpectancy) return false;
+    if (!Number.isInteger(phase.endAge) || phase.endAge <= phase.startAge || phase.endAge > lifeExpectancy) return false;
+    if (typeof phase.baseMonthlyExpense !== 'number' || phase.baseMonthlyExpense <= 0) return false;
+    if (typeof phase.inflationRate !== 'number' || phase.inflationRate < 0 || phase.inflationRate > 25) return false;
+    return true;
+};
+
+/**
+ * Reads the form, returns { ok, phase, errors } where errors is { fieldId: message }.
+ * Per 03-data-contracts.md §6 validation error messages table.
+ */
+RP._readPhaseForm = function () {
+    const retAge = parseInt(document.getElementById('retirementAge') ? document.getElementById('retirementAge').value : '0', 10) || 0;
+    const lifeExp = parseInt(document.getElementById('lifeExpectancy') ? document.getElementById('lifeExpectancy').value : '0', 10) || 120;
+
+    const nameRaw = (document.getElementById('phaseName').value || '').trim();
+    const startRaw = document.getElementById('phaseStartAge').value;
+    const endRaw = document.getElementById('phaseEndAge').value;
+    const expenseRaw = document.getElementById('phaseMonthlyExpense').value;
+    const inflRaw = document.getElementById('phaseInflationRate').value;
+
+    const startAge = startRaw === '' ? NaN : parseInt(startRaw, 10);
+    const endAge = endRaw === '' ? NaN : parseInt(endRaw, 10);
+    const baseMonthlyExpense = expenseRaw === '' ? NaN : parseFloat(expenseRaw);
+    const inflationRate = inflRaw === '' ? NaN : parseFloat(inflRaw);
+
+    const errors = {};
+    if (nameRaw.length < 1) errors.phaseName = 'Phase name cannot be empty';
+    else if (nameRaw.length > 60) errors.phaseName = 'Phase name too long (max 60 characters)';
+
+    if (!Number.isFinite(startAge) || !Number.isInteger(startAge)) {
+        errors.phaseStartAge = 'Start age is required';
+    } else if (retAge && startAge < retAge) {
+        errors.phaseStartAge = 'Phase cannot start before retirement (age ' + retAge + ')';
+    } else if (lifeExp && startAge > lifeExp) {
+        errors.phaseStartAge = 'Phase cannot start after life expectancy (age ' + lifeExp + ')';
+    }
+
+    if (!Number.isFinite(endAge) || !Number.isInteger(endAge)) {
+        errors.phaseEndAge = 'End age is required';
+    } else if (Number.isFinite(startAge) && endAge <= startAge) {
+        errors.phaseEndAge = 'Phase end age must be after start age';
+    } else if (lifeExp && endAge > lifeExp) {
+        errors.phaseEndAge = 'Phase cannot extend beyond life expectancy (age ' + lifeExp + ')';
+    }
+
+    if (!Number.isFinite(baseMonthlyExpense) || baseMonthlyExpense <= 0) {
+        errors.phaseMonthlyExpense = 'Monthly expense must be greater than zero';
+    }
+
+    if (!Number.isFinite(inflationRate)) {
+        errors.phaseInflationRate = 'Inflation rate is required';
+    } else if (inflationRate < 0) {
+        errors.phaseInflationRate = 'Inflation rate cannot be negative';
+    } else if (inflationRate > 25) {
+        errors.phaseInflationRate = 'Inflation rate too high (max 25%)';
+    }
+
+    if (Object.keys(errors).length > 0) {
+        return { ok: false, errors: errors };
+    }
+
+    const idx = (RP._multigoal.phases || []).length;
+    const phase = {
+        id: 'phase-' + Date.now(),
+        name: nameRaw,
+        startAge: startAge,
+        endAge: endAge,
+        baseMonthlyExpense: baseMonthlyExpense,
+        inflationRate: inflationRate,
+        color: RP._phaseColorNames[idx % 6]
+    };
+    return { ok: true, phase: phase };
+};
+
+RP._clearPhaseFormErrors = function () {
+    ['phaseName', 'phaseStartAge', 'phaseEndAge', 'phaseMonthlyExpense', 'phaseInflationRate'].forEach(id => {
+        const errEl = document.getElementById(id + 'Error');
+        if (errEl) errEl.textContent = '';
+        const inputEl = document.getElementById(id);
+        if (inputEl) inputEl.classList.remove('phase-input-invalid');
+    });
+};
+
+RP._showPhaseFormErrors = function (errors) {
+    Object.keys(errors).forEach(id => {
+        const errEl = document.getElementById(id + 'Error');
+        if (errEl) errEl.textContent = errors[id];
+        const inputEl = document.getElementById(id);
+        if (inputEl) inputEl.classList.add('phase-input-invalid');
+    });
+};
+
+RP._clearPhaseFormInputs = function () {
+    ['phaseName', 'phaseStartAge', 'phaseEndAge', 'phaseMonthlyExpense', 'phaseInflationRate'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+};
+
+/* ---------- CRUD ---------- */
+
+RP.addPhase = function () {
+    RP._clearPhaseFormErrors();
+    const result = RP._readPhaseForm();
+    if (!result.ok) {
+        RP._showPhaseFormErrors(result.errors);
+        return;
+    }
+    RP._multigoal.phases.push(result.phase);
+    RP._sortPhases();
+    RP._clearPhaseFormInputs();
+    RP.renderPhases();
+};
+
+RP.removePhase = function (phaseId) {
+    const idx = RP._multigoal.phases.findIndex(p => p.id === phaseId);
+    if (idx === -1) return;
+    const removed = RP._multigoal.phases[idx];
+    RP._multigoal.phases.splice(idx, 1);
+    RP.renderPhases();
+    RP._showPhaseToast('Phase "' + removed.name + '" deleted', () => {
+        RP._multigoal.phases.push(removed);
+        RP._sortPhases();
+        RP.renderPhases();
+    });
+};
+
+RP.loadPhaseExample = function () {
+    const existing = RP._multigoal.phases.length;
+    if (existing > 0) {
+        const ok = window.confirm('Load Example Template? This will replace your ' + existing + ' existing phase' + (existing === 1 ? '' : 's') + '.');
+        if (!ok) return;
+    }
+    RP._multigoal.phases = RP._phaseExampleTemplate.map((p, i) => ({
+        id: 'phase-' + Date.now() + '-' + i,
+        name: p.name,
+        startAge: p.startAge,
+        endAge: p.endAge,
+        baseMonthlyExpense: p.baseMonthlyExpense,
+        inflationRate: p.inflationRate,
+        color: RP._phaseColorNames[i % 6]
+    }));
+    RP._sortPhases();
+    RP.renderPhases();
+};
+
+/* Sort by startAge ascending. Per data contract §1: existing phase colors are
+ * preserved on delete (no re-assignment); however on initial add/load we assign
+ * by current insertion index, then sorting may shuffle visual order while
+ * keeping each phase's assigned color. */
+RP._sortPhases = function () {
+    RP._multigoal.phases.sort((a, b) => a.startAge - b.startAge);
+};
+
+/* ---------- Render ---------- */
+
+RP.renderPhases = function () {
+    const container = document.getElementById('phasesContainer');
+    const countEl = document.getElementById('phaseCount');
+    if (!container) return;
+
+    const phases = RP._multigoal.phases;
+    if (countEl) countEl.textContent = String(phases.length);
+
+    if (phases.length === 0) {
+        container.innerHTML = '<div class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">No phases added yet. Add your first life phase above or click "Load Example".</div>';
+        return;
+    }
+
+    /* Build cards via DOM (textContent, not innerHTML, for user-supplied name — no XSS). */
+    container.innerHTML = '';
+    phases.forEach(phase => {
+        const card = document.createElement('div');
+        card.className = 'phase-card';
+        const colorVar = 'var(--phase-color-' + phase.color + ')';
+        card.style.setProperty('--phase-color', colorVar);
+
+        const body = document.createElement('div');
+        body.className = 'phase-card-body';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'phase-card-name';
+        nameEl.textContent = phase.name;
+
+        const years = phase.endAge - phase.startAge;
+        const ageEl = document.createElement('div');
+        ageEl.className = 'phase-card-meta';
+        const dot = document.createElement('span');
+        dot.className = 'phase-color-dot';
+        ageEl.appendChild(dot);
+        ageEl.appendChild(document.createTextNode('Age ' + phase.startAge + '-' + phase.endAge + ' (' + years + ' year' + (years === 1 ? '' : 's') + ')'));
+
+        const exprEl = document.createElement('div');
+        exprEl.className = 'phase-card-meta';
+        exprEl.textContent = RP.formatCurrency(phase.baseMonthlyExpense) + '/mo · ' + phase.inflationRate + '% inflation';
+
+        body.appendChild(nameEl);
+        body.appendChild(ageEl);
+        body.appendChild(exprEl);
+
+        const actions = document.createElement('div');
+        actions.className = 'phase-card-actions';
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.textContent = 'Delete';
+        delBtn.setAttribute('aria-label', 'Delete phase ' + phase.name);
+        delBtn.addEventListener('click', () => RP.removePhase(phase.id));
+        actions.appendChild(delBtn);
+
+        card.appendChild(body);
+        card.appendChild(actions);
+        container.appendChild(card);
+    });
+};
+
+/* ---------- Toast (delete-undo, per A15) ---------- */
+
+RP._showPhaseToast = function (message, undoFn) {
+    const container = document.getElementById('phaseToastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = 'phase-toast';
+    toast.setAttribute('role', 'status');
+
+    const msg = document.createElement('span');
+    msg.textContent = message;
+    toast.appendChild(msg);
+
+    const undoBtn = document.createElement('button');
+    undoBtn.type = 'button';
+    undoBtn.textContent = 'Undo';
+    toast.appendChild(undoBtn);
+
+    const dismiss = () => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+    };
+    undoBtn.addEventListener('click', () => {
+        try { undoFn(); } finally { dismiss(); }
+    });
+    container.appendChild(toast);
+    setTimeout(dismiss, 5000);
+};
+
+/* Run init at script-load so the scaffold is observable in the console
+ * even before app.js wires it. Once app.js is updated (fe-008) to call
+ * RP.initMultiGoal(), this becomes a no-op safety net. */
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => RP.initMultiGoal());
+} else {
+    RP.initMultiGoal();
+}

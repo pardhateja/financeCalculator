@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/tracker.css">
+    <link rel="stylesheet" href="css/multigoal.css">
     <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>
@@ -746,13 +747,43 @@
                 <p class="subtitle" style="color:var(--text-secondary);font-size:0.9rem;margin-top:-8px;margin-bottom:16px;">Plan multiple life-phase expenses with per-phase inflation</p>
                 <div class="section-group">
                     <h3>Add Life Phase</h3>
-                    <!-- Phase input form (fe-002) -->
-                    <!-- Load Example button (fe-006) -->
-                    <button type="button" id="multigoalLoadExampleBtn" class="btn-secondary" style="margin-top:8px;">Load Example</button>
+                    <div class="phase-form-grid">
+                        <div class="input-group">
+                            <label for="phaseName">Phase Name</label>
+                            <input type="text" id="phaseName" maxlength="60" placeholder="e.g. Kids in college">
+                            <div class="phase-error" id="phaseNameError"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="phaseStartAge">Start Age</label>
+                            <input type="number" id="phaseStartAge" min="18" max="120" placeholder="e.g. 50">
+                            <div class="phase-error" id="phaseStartAgeError"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="phaseEndAge">End Age</label>
+                            <input type="number" id="phaseEndAge" min="18" max="120" placeholder="e.g. 54">
+                            <div class="phase-error" id="phaseEndAgeError"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="phaseMonthlyExpense">Monthly Expense (&#8377;)</label>
+                            <input type="number" id="phaseMonthlyExpense" min="0" placeholder="e.g. 80000">
+                            <div class="phase-error" id="phaseMonthlyExpenseError"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="phaseInflationRate">Inflation %</label>
+                            <input type="number" id="phaseInflationRate" min="0" max="25" step="0.1" placeholder="e.g. 6">
+                            <div class="phase-error" id="phaseInflationRateError"></div>
+                        </div>
+                    </div>
+                    <div class="btn-group" style="justify-content:flex-start;">
+                        <button class="btn-primary" id="addPhaseBtn">Add Phase</button>
+                        <button class="btn-secondary" id="loadPhaseExampleBtn">Load Example</button>
+                    </div>
                 </div>
                 <div class="section-group green-accent">
-                    <h3>Your Life Phases</h3>
-                    <!-- Phase list (fe-002) -->
+                    <h3>Your Life Phases (<span id="phaseCount">0</span>)</h3>
+                    <div id="phasesContainer">
+                        <div class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">No phases added yet. Add your first life phase above or click "Load Example".</div>
+                    </div>
                 </div>
                 <div class="section-group">
                     <h3>Allocation Pre-Flight</h3>
@@ -767,6 +798,7 @@
                     <!-- Projection table (fe-005) -->
                 </div>
             </div>
+            <div id="phaseToastContainer" class="phase-toast-container" aria-live="polite"></div>
         </div>
 
         <!-- TAB 9: EMERGENCY FUND -->
