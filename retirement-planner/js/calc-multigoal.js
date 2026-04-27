@@ -41,19 +41,18 @@ RP._phaseColorNames = ['blue', 'emerald', 'amber', 'purple', 'teal', 'pink'];
 RP._phaseExampleTemplate = [
     // Always-on baseline (no kids — IS the empty-nest baseline too).
     { name: 'Base (no kids)',     shortName: 'Base',      startAge: 27, endAge: 100, baseMonthlyExpense: 50000, inflationRate: 6  },
-    // Kid 1: born ~age 28. Pardha rule: "at home 17 yrs, college 4 yrs from kid age 18".
-    //   home  = your 28-44 (17 inclusive years, kid age 0-16)
-    //   college start = kid age 18 = your 46 → 4 yrs to your 49 (kid age 18-21)
-    //   year 45 (kid age 17) is gap-year: covered by Base only
-    { name: 'Kid 1 at home',      shortName: 'K1 home',   startAge: 28, endAge: 44,  baseMonthlyExpense: 10000, inflationRate: 6  },
+    // Kid 1: born ~age 28. Continuous coverage — kid is at home through age 17,
+    // college from age 18 (4 years).
+    //   home    = your 28-45 (18 years, kid age 0-17)
+    //   college = your 46-49 (4 years, kid age 18-21)
+    { name: 'Kid 1 at home',      shortName: 'K1 home',   startAge: 28, endAge: 45,  baseMonthlyExpense: 10000, inflationRate: 6  },
     { name: 'Kid 1 college fees', shortName: 'K1 fees',   startAge: 46, endAge: 49,  baseMonthlyExpense: 8333,  inflationRate: 10 },
     { name: 'Kid 1 hostel',       shortName: 'K1 hostel', startAge: 46, endAge: 49,  baseMonthlyExpense: 8333,  inflationRate: 7  },
     { name: 'Kid 1 pocket money', shortName: 'K1 pocket', startAge: 46, endAge: 49,  baseMonthlyExpense: 15000, inflationRate: 6  },
     // Kid 2: born ~age 35; same pattern.
-    //   home  = your 35-51 (17 inclusive years, kid age 0-16)
-    //   college = your 53-56 (kid age 18-21)
-    //   year 52 (kid age 17) gap-year: Base only
-    { name: 'Kid 2 at home',      shortName: 'K2 home',   startAge: 35, endAge: 51,  baseMonthlyExpense: 10000, inflationRate: 6  },
+    //   home    = your 35-52 (18 years, kid age 0-17)
+    //   college = your 53-56 (4 years, kid age 18-21)
+    { name: 'Kid 2 at home',      shortName: 'K2 home',   startAge: 35, endAge: 52,  baseMonthlyExpense: 10000, inflationRate: 6  },
     { name: 'Kid 2 college fees', shortName: 'K2 fees',   startAge: 53, endAge: 56,  baseMonthlyExpense: 8333,  inflationRate: 10 },
     { name: 'Kid 2 hostel',       shortName: 'K2 hostel', startAge: 53, endAge: 56,  baseMonthlyExpense: 8333,  inflationRate: 7  },
     { name: 'Kid 2 pocket money', shortName: 'K2 pocket', startAge: 53, endAge: 56,  baseMonthlyExpense: 15000, inflationRate: 6  },
