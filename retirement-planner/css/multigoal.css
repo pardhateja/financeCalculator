@@ -53,6 +53,29 @@
     align-items: flex-start;
     gap: 12px;
     text-align: left;
+    position: relative;
+}
+
+/* Overlap badge — bug-001 / AC3. Small amber pill anchored top-right so it
+ * sits inside the card's safe area without overlapping the Delete action. */
+.phase-overlap-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #fef3c7;
+    color: #78350f;
+    border: 1px solid #f59e0b;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+body.dark-mode .phase-overlap-badge {
+    background: #451a03;
+    color: #fcd34d;
+    border-color: #f59e0b;
 }
 
 .phase-card .phase-card-body {
@@ -283,6 +306,15 @@
     color: #78350f;
 }
 
+/* Info variant — used for the multi-goal overlap banner (bug-001 / AC3).
+ * Amber tint kept consistent with .alert-warning so colour vocabulary stays
+ * "this needs your attention" without escalating to a full warning. */
+.alert-info {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    color: #78350f;
+}
+
 .alert-icon {
     font-size: 1.1rem;
     margin-right: 8px;
@@ -331,6 +363,12 @@ body.dark-mode .alloc-bar {
 }
 
 body.dark-mode .alert-warning {
+    background: #451a03;
+    color: #fcd34d;
+    border-left-color: #f59e0b;
+}
+
+body.dark-mode .alert-info {
     background: #451a03;
     color: #fcd34d;
     border-left-color: #f59e0b;
