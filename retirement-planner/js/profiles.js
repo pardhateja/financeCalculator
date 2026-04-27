@@ -6,7 +6,7 @@ RP._allInputIds = null;
 /* v1.1: explicit allow-list for non-text/number inputs that must persist
  * (date pickers, checkboxes, and readonly-but-meaningful fields like currentAge
  * which becomes readonly when DOB is providing the value). */
-RP._extraPersistedIds = ['dateOfBirth', 'currentAgeOverride', 'currentAge'];
+RP._extraPersistedIds = ['dateOfBirth', 'currentAgeOverride', 'currentAge', 'currentSavingsSeed'];
 
 RP.getAllInputIds = function () {
     if (!RP._allInputIds) {
@@ -65,10 +65,19 @@ RP.loadProfile = function (name) {
             el.value = val;
         }
     });
+    // v1.1 Feature B backward compat: legacy profiles have `currentSavings` (typed)
+    // but no `currentSavingsSeed`. Treat the legacy value as the seed so the rollup
+    // produces the same Total the user originally typed (rollup is 0 → Total = seed).
+    if (profile.data.currentSavings != null && profile.data.currentSavingsSeed == null) {
+        const seedEl = document.getElementById('currentSavingsSeed');
+        if (seedEl) seedEl.value = profile.data.currentSavings;
+    }
     RP._investManuallySet = false;
     RP._emFundManuallySet = false;
     // v1.1: re-fire DOB→age compute after load (in case profile has new DOB but old currentAge)
     if (typeof RP._updateAgeFromDOB === 'function') RP._updateAgeFromDOB();
+    // v1.1 Feature B: refresh rollup so Total reflects loaded seed + tracker
+    if (typeof RP._computeSavingsRollup === 'function') RP._computeSavingsRollup();
     RP.calculateAll();
 };
 

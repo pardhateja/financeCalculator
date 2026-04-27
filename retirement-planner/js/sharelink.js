@@ -83,10 +83,18 @@ RP.loadFromShareLink = function () {
                     el.value = val;
                 }
             });
+            // v1.1 Feature B backward compat: legacy sharelinks have currentSavings
+            // but no currentSavingsSeed. Treat the legacy value as the seed.
+            if (data.currentSavings != null && data.currentSavingsSeed == null) {
+                const seedEl = document.getElementById('currentSavingsSeed');
+                if (seedEl) seedEl.value = data.currentSavings;
+            }
             RP._investManuallySet = true; // Don't auto-override shared values
             RP._emFundManuallySet = true;
             // v1.1: re-fire DOB→age compute after sharelink load
             if (typeof RP._updateAgeFromDOB === 'function') RP._updateAgeFromDOB();
+            // v1.1 Feature B: refresh savings rollup so Total reflects loaded state
+            if (typeof RP._computeSavingsRollup === 'function') RP._computeSavingsRollup();
             loadedSomething = true;
         } catch (e) {
             // fall through — phases may still be loadable

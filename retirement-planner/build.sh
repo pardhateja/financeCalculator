@@ -87,6 +87,7 @@ cat >> "$OUT" << 'FOOT'
     <script src="js/calc-emergency.js"></script>
     <script src="js/calc-sip.js"></script>
     <script src="js/calc-tracker.js"></script>
+    <script src="js/calc-savings-rollup.js"></script>
     <script src="js/calc-milestones.js"></script>
     <script src="js/calc-loan.js"></script>
     <script src="js/calc-exptrack.js"></script>

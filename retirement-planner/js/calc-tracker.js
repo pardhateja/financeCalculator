@@ -258,4 +258,9 @@ RP.resetTrackerMonth = function () {
 
 RP.saveTrackerToStorage = function () {
     localStorage.setItem('rp_tracker_entries', JSON.stringify(RP._trackerEntries));
+    // v1.1 Feature B: any tracker mutation flows into Current Total Savings rollup.
+    // The rollup helper guards against missing globals + DOM absence.
+    if (typeof RP._computeSavingsRollup === 'function') {
+        try { RP._computeSavingsRollup(); } catch (e) { console.warn('savings rollup failed after tracker save:', e); }
+    }
 };
