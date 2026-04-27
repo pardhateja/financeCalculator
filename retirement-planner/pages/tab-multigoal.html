@@ -96,6 +96,29 @@
                     </div>
                 </div>
                 <div class="section-group">
+                    <h3>Expense Profile (in today's rupees)</h3>
+                    <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">What your monthly expenses look like at each age, in TODAY's rupees (no inflation compounded). Useful for sanity-checking the lifestyle shape — tax/inflation views can hide what's really happening year-to-year.</p>
+                    <div id="expenseProfileEmpty" class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">Add a life phase to see your expense profile.</div>
+                    <div id="expenseProfileContent" style="display:none;">
+                        <div class="chart-container" style="position:relative;width:100%;">
+                            <canvas id="expenseProfileChart" width="800" height="280" aria-label="Monthly expense profile in today's rupees by age"></canvas>
+                        </div>
+                        <div class="projection-table-wrapper" style="margin-top:12px;">
+                            <table class="projection-table multigoal-projection-table">
+                                <caption class="visually-hidden">Per-age expense breakdown in today's rupees</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Age</th>
+                                        <th scope="col">Active Phases (today's-rupee monthly)</th>
+                                        <th scope="col">Total / mo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenseProfileTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-group">
                     <h3>Year-by-Year Projection</h3>
                     <div id="multigoalProjectionEmptyState" class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">Add a life phase to see year-by-year corpus and expenses.</div>
                     <div id="multigoalProjectionContent" style="display:none;">

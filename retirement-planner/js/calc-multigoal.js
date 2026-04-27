@@ -1593,6 +1593,202 @@ RP._multigoal._renderProjectionChart = function (rows, phases, canvas) {
 /* Public alias (matches fe-004's RP.renderAllocation pattern) */
 RP.renderMultiGoalProjection = function () { RP._multigoal.renderProjection(); };
 
+/* ---------- Expense Profile in today's rupees (v1.1) ----------
+ * Pardha v1.1 §3.2: shows the today's-rupees stair-step shape of monthly
+ * expenses by age, with per-phase breakdown. Stripping inflation lets the
+ * user sanity-check the lifestyle decisions (kids → college → empty → medical)
+ * separate from the compounding view of the inflated chart.
+ *
+ * Pure (no DOM): builds [{age, activePhases:[{phaseId, name, shortName, color, monthlyToday}], totalMonthlyToday}].
+ */
+RP._multigoal._buildExpenseProfileRows = function (phases, currentAge, lifeExpectancy) {
+    if (!Array.isArray(phases) || phases.length === 0) return [];
+    const startAge = Number.isFinite(currentAge) && currentAge > 0 ? Math.floor(currentAge) : 0;
+    const endAge = Number.isFinite(lifeExpectancy) && lifeExpectancy > 0 ? Math.floor(lifeExpectancy) : 100;
+    const rows = [];
+    for (let age = startAge; age <= endAge; age++) {
+        const activePhases = [];
+        let total = 0;
+        phases.forEach(p => {
+            if (age >= p.startAge && age <= p.endAge) {
+                const monthlyToday = Number(p.baseMonthlyExpense) || 0;
+                activePhases.push({
+                    phaseId: p.id,
+                    name: p.name,
+                    shortName: p.shortName || p.name,
+                    color: p.color,
+                    monthlyToday: monthlyToday
+                });
+                total += monthlyToday;
+            }
+        });
+        rows.push({ age: age, activePhases: activePhases, totalMonthlyToday: total });
+    }
+    return rows;
+};
+
+/* Renderer for the Expense Profile section (chart + table). */
+RP._multigoal.renderExpenseProfile = function () {
+    const emptyEl = document.getElementById('expenseProfileEmpty');
+    const contentEl = document.getElementById('expenseProfileContent');
+    const tbody = document.getElementById('expenseProfileTbody');
+    const canvas = document.getElementById('expenseProfileChart');
+    if (!emptyEl || !contentEl || !tbody) return; // section not in DOM (other tab)
+
+    const phases = (RP._multigoal && Array.isArray(RP._multigoal.phases)) ? RP._multigoal.phases : [];
+    if (phases.length === 0) {
+        emptyEl.style.display = '';
+        contentEl.style.display = 'none';
+        return;
+    }
+
+    const curAge = (typeof RP.val === 'function') ? RP.val('currentAge') : 30;
+    const lifeExp = (typeof RP.val === 'function') ? RP.val('lifeExpectancy') : 100;
+    const rows = RP._multigoal._buildExpenseProfileRows(phases, curAge, lifeExp);
+
+    // Render table
+    tbody.innerHTML = '';
+    rows.forEach(row => {
+        const tr = document.createElement('tr');
+
+        const ageTd = document.createElement('td');
+        ageTd.textContent = row.age;
+        tr.appendChild(ageTd);
+
+        const phasesTd = document.createElement('td');
+        if (row.activePhases.length === 0) {
+            phasesTd.textContent = '—';
+            phasesTd.style.color = 'var(--text-secondary, #6b7280)';
+            phasesTd.style.textAlign = 'center';
+        } else {
+            const wrap = document.createElement('span');
+            wrap.className = 'phase-badge-group';
+            row.activePhases.forEach(ap => {
+                const badge = document.createElement('span');
+                badge.className = 'phase-badge phase-badge--' + (ap.color || 'blue');
+                badge.title = ap.name + ': ₹' + ap.monthlyToday.toLocaleString('en-IN') + '/mo';
+                const dot = document.createElement('span');
+                dot.className = 'phase-badge-dot';
+                badge.appendChild(dot);
+                badge.appendChild(document.createTextNode(
+                    ap.shortName + ' ₹' + Math.round(ap.monthlyToday / 1000) + 'k'
+                ));
+                wrap.appendChild(badge);
+            });
+            phasesTd.appendChild(wrap);
+        }
+        tr.appendChild(phasesTd);
+
+        const totalTd = document.createElement('td');
+        totalTd.textContent = '₹' + row.totalMonthlyToday.toLocaleString('en-IN');
+        if (row.totalMonthlyToday === 0) {
+            totalTd.style.color = 'var(--text-secondary, #6b7280)';
+        }
+        tr.appendChild(totalTd);
+
+        tbody.appendChild(tr);
+    });
+
+    emptyEl.style.display = 'none';
+    contentEl.style.display = '';
+
+    // Render chart (single line of total in today's rupees, with phase-shaded regions)
+    if (canvas && typeof RP._multigoal._renderExpenseProfileChart === 'function') {
+        try {
+            RP._multigoal._renderExpenseProfileChart(canvas, rows, phases);
+        } catch (e) {
+            console.warn('renderExpenseProfileChart failed:', e);
+        }
+    }
+};
+
+/* Canvas chart for the Expense Profile (single line in today's rupees + phase regions). */
+RP._multigoal._renderExpenseProfileChart = function (canvas, rows, phases) {
+    if (!canvas || !canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const cssWidth = canvas.clientWidth || canvas.width || 800;
+    const cssHeight = canvas.clientHeight || canvas.height || 280;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = cssWidth * dpr;
+    canvas.height = cssHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+    if (!rows || rows.length === 0) return;
+
+    const margin = { top: 16, right: 24, bottom: 32, left: 70 };
+    const plotW = cssWidth - margin.left - margin.right;
+    const plotH = cssHeight - margin.top - margin.bottom;
+
+    const ages = rows.map(r => r.age);
+    const minAge = ages[0];
+    const maxAge = ages[ages.length - 1];
+    const ageSpan = Math.max(1, maxAge - minAge);
+
+    const maxTotal = Math.max(1, ...rows.map(r => r.totalMonthlyToday));
+    const yMax = maxTotal * 1.10; // 10% headroom
+
+    function xFor(age) { return margin.left + ((age - minAge) / ageSpan) * plotW; }
+    function yFor(val) { return margin.top + plotH - (val / yMax) * plotH; }
+
+    // Phase-shaded vertical regions (same color tints as the corpus chart pattern)
+    const phaseColorTints = {
+        blue:    'rgba(59,130,246,0.10)',
+        emerald: 'rgba(16,185,129,0.10)',
+        amber:   'rgba(245,158,11,0.10)',
+        purple:  'rgba(139,92,246,0.10)',
+        teal:    'rgba(20,184,166,0.10)',
+        pink:    'rgba(236,72,153,0.10)'
+    };
+    phases.forEach(p => {
+        const x1 = xFor(Math.max(p.startAge, minAge));
+        const x2 = xFor(Math.min(p.endAge, maxAge));
+        if (x2 > x1) {
+            ctx.fillStyle = phaseColorTints[p.color] || 'rgba(148,163,184,0.08)';
+            ctx.fillRect(x1, margin.top, x2 - x1, plotH);
+        }
+    });
+
+    // Y-axis grid + labels (in lakhs for readability)
+    ctx.strokeStyle = 'rgba(148,163,184,0.20)';
+    ctx.fillStyle = 'var(--text-secondary, #94a3b8)';
+    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const yTicks = 5;
+    for (let i = 0; i <= yTicks; i++) {
+        const v = (yMax / yTicks) * i;
+        const y = yFor(v);
+        ctx.beginPath();
+        ctx.moveTo(margin.left, y);
+        ctx.lineTo(margin.left + plotW, y);
+        ctx.stroke();
+        const label = v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : '₹' + Math.round(v / 1000) + 'k';
+        ctx.fillText(label, margin.left - 6, y);
+    }
+
+    // X-axis labels (every 10 years)
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let age = Math.ceil(minAge / 10) * 10; age <= maxAge; age += 10) {
+        const x = xFor(age);
+        ctx.fillText(age, x, margin.top + plotH + 6);
+    }
+
+    // The single line: total monthly today's-rupees expense
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    rows.forEach((r, i) => {
+        const x = xFor(r.age);
+        const y = yFor(r.totalMonthlyToday);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+};
+
 /* Wrap RP.renderPhases additively so every phase mutation also re-renders
  * allocation AND projection (fe-005). Per team-lead's guidance: do NOT modify
  * fe-002's mutator bodies; do NOT touch fe-004's renderAllocation. */
@@ -1611,6 +1807,12 @@ RP.renderMultiGoalProjection = function () { RP._multigoal.renderProjection(); }
             RP._multigoal.renderProjection();
         } catch (e) {
             console.warn('renderProjection failed:', e);
+        }
+        // v1.1 Expense Profile (in today's rupees) — independent of corpus math.
+        try {
+            RP._multigoal.renderExpenseProfile();
+        } catch (e) {
+            console.warn('renderExpenseProfile failed:', e);
         }
         return result;
     };
