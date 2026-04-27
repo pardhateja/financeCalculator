@@ -1579,9 +1579,12 @@ RP._multigoal._renderGapBanner = function () {
             console.warn('renderGapBanner failed:', e);
         }
         // If fix-bug-001's overlap banner has merged in, keep both in sync.
+        // bug-004 fix: pass phases explicitly. The original `_renderOverlapBanner(phases)`
+        // call inside RP.renderPhases ran first and showed the banner correctly; calling
+        // this with no args was overwriting it with `_detectOverlapRanges(undefined) → []`.
         if (typeof RP._multigoal._renderOverlapBanner === 'function') {
             try {
-                RP._multigoal._renderOverlapBanner();
+                RP._multigoal._renderOverlapBanner(RP._multigoal.phases || []);
             } catch (e) {
                 console.warn('renderOverlapBanner failed:', e);
             }
