@@ -1340,6 +1340,120 @@ RP.renderMultiGoalProjection = function () { RP._multigoal.renderProjection(); }
     RP.renderPhases._allocationWrapped = true;
 })();
 
+/* ---------- Gap-warning banner (bug-002 / PRD AC4) ----------
+ * Detect uncovered age ranges within [retirementAge, lifeExpectancy] and surface
+ * them as an informational (non-blocking) banner above the phase list. A "gap"
+ * is any age in the post-retirement window that no phase covers — including
+ * leading (retirementAge → first phase) and trailing (last phase → lifeExpectancy)
+ * gaps. Math (calc-multigoal.runProjection) already treats gap years as ₹0
+ * expense; this just tells the user.
+ */
+
+/**
+ * Return an array of { fromAge, toAge } gap ranges within [retirementAge, lifeExpectancy].
+ * Each range is inclusive on both ends. Empty array means full coverage (or no phases).
+ * Pure: no DOM, no localStorage. Safe to call with malformed inputs.
+ */
+RP._multigoal._detectGaps = function (phases, retirementAge, lifeExpectancy) {
+    const phaseList = Array.isArray(phases) ? phases : [];
+    const ret = (typeof retirementAge === 'number' && Number.isFinite(retirementAge)) ? retirementAge : null;
+    const life = (typeof lifeExpectancy === 'number' && Number.isFinite(lifeExpectancy)) ? lifeExpectancy : null;
+    if (ret === null || life === null || life < ret) return [];
+    if (phaseList.length === 0) return [];
+
+    // Build a covered-age set across [ret, life], honoring overlap.
+    const covered = new Set();
+    for (const p of phaseList) {
+        if (!p || !Number.isInteger(p.startAge) || !Number.isInteger(p.endAge)) continue;
+        const lo = Math.max(ret, p.startAge);
+        const hi = Math.min(life, p.endAge);
+        for (let a = lo; a <= hi; a++) covered.add(a);
+    }
+
+    // Walk [ret, life] and collapse contiguous uncovered ages into ranges.
+    const gaps = [];
+    let runStart = null;
+    for (let a = ret; a <= life; a++) {
+        if (!covered.has(a)) {
+            if (runStart === null) runStart = a;
+        } else if (runStart !== null) {
+            gaps.push({ fromAge: runStart, toAge: a - 1 });
+            runStart = null;
+        }
+    }
+    if (runStart !== null) gaps.push({ fromAge: runStart, toAge: life });
+    return gaps;
+};
+
+/**
+ * Render (or hide) the gap-warning banner in #gapBanner. Idempotent — safe
+ * to call after every phase mutation. Reads retirementAge / lifeExpectancy
+ * from the Basics tab via RP.val(); silently no-ops if either is missing.
+ */
+RP._multigoal._renderGapBanner = function () {
+    const banner = document.getElementById('gapBanner');
+    if (!banner) return; // tab fragment not on this page
+
+    const phases = RP._multigoal.phases || [];
+    const retAge = (typeof RP.val === 'function') ? RP.val('retirementAge') : NaN;
+    const lifeExp = (typeof RP.val === 'function') ? RP.val('lifeExpectancy') : NaN;
+
+    if (!Number.isFinite(retAge) || !Number.isFinite(lifeExp) || phases.length === 0) {
+        banner.style.display = 'none';
+        banner.textContent = '';
+        return;
+    }
+
+    const gaps = RP._multigoal._detectGaps(phases, retAge, lifeExp);
+    if (gaps.length === 0) {
+        banner.style.display = 'none';
+        banner.textContent = '';
+        return;
+    }
+
+    // Build "ages X-Y" / "age X" parts; join with ", " then prepend label.
+    const parts = gaps.map(g => g.fromAge === g.toAge
+        ? 'age ' + g.fromAge
+        : 'ages ' + g.fromAge + '-' + g.toAge);
+    const label = (gaps.length === 1)
+        ? 'Gap detected: ' + parts[0] + ' have no phase coverage'
+        : 'Gaps detected: ' + parts.join(', ') + ' have no phase coverage';
+
+    // textContent — gap data is numeric, no XSS risk, but keep consistent with
+    // the "no innerHTML for dynamic data" pattern used in renderPhases above.
+    banner.textContent = label;
+    banner.style.display = '';
+};
+
+/* Wrap RP.renderPhases additively (mirroring the allocation wrapper above so
+ * that the same mutation flow surfaces the gap warning). Per fix-bug-001
+ * coordination notes: do NOT modify RP.renderPhases body; just chain. */
+(function wrapRenderPhasesForGapBanner() {
+    const original = RP.renderPhases;
+    if (typeof original !== 'function' || original._gapBannerWrapped) return;
+    RP.renderPhases = function () {
+        const result = original.apply(this, arguments);
+        try {
+            RP._multigoal._renderGapBanner();
+        } catch (e) {
+            console.warn('renderGapBanner failed:', e);
+        }
+        // If fix-bug-001's overlap banner has merged in, keep both in sync.
+        if (typeof RP._multigoal._renderOverlapBanner === 'function') {
+            try {
+                RP._multigoal._renderOverlapBanner();
+            } catch (e) {
+                console.warn('renderOverlapBanner failed:', e);
+            }
+        }
+        return result;
+    };
+    RP.renderPhases._gapBannerWrapped = true;
+    // Preserve the prior _allocationWrapped flag too so the earlier wrapper
+    // still recognizes this as already-wrapped on any future re-init.
+    RP.renderPhases._allocationWrapped = true;
+})();
+
 /* Run init at script-load so the scaffold is observable in the console
  * even before app.js wires it. Once app.js is updated (fe-008) to call
  * RP.initMultiGoal(), this becomes a no-op safety net. */
