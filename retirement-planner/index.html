@@ -828,11 +828,32 @@
                 </div>
                 <div class="section-group">
                     <h3>Corpus Projection by Phase</h3>
-                    <!-- Chart (fe-005) -->
+                    <div id="multigoalChartEmptyState" class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">Add a life phase to see your corpus projection over time.</div>
+                    <div id="multigoalChartContent" class="chart-container" style="display:none;position:relative;width:100%;">
+                        <canvas id="multigoalProjectionChart" width="800" height="400" aria-label="Multi-goal corpus projection chart with shaded life-phase regions"></canvas>
+                    </div>
                 </div>
                 <div class="section-group">
                     <h3>Year-by-Year Projection</h3>
-                    <!-- Projection table (fe-005) -->
+                    <div id="multigoalProjectionEmptyState" class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">Add a life phase to see year-by-year corpus and expenses.</div>
+                    <div id="multigoalProjectionContent" style="display:none;">
+                        <div class="projection-table-wrapper">
+                            <table class="projection-table multigoal-projection-table">
+                                <caption class="visually-hidden">Year-by-year multi-goal corpus projection with active phase badges per year</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Age</th>
+                                        <th scope="col">Active Phase</th>
+                                        <th scope="col">Inflated Expense</th>
+                                        <th scope="col">Per-Phase Balances</th>
+                                        <th scope="col">Total Balance</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="multigoalProjectionTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="phaseToastContainer" class="phase-toast-container" aria-live="polite"></div>
