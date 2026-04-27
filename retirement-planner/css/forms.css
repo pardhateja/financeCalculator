@@ -32,6 +32,7 @@
 
 .input-group input[type="number"],
 .input-group input[type="text"],
+.input-group input[type="date"],
 .input-group select {
     width: 100%;
     padding: 10px 14px;
@@ -40,6 +41,71 @@
     font-size: 1rem;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     background: white;
+}
+
+/* v1.1: Date input — match the rest of the form. Native picker icon stays
+ * but we tint it to fit the design system. */
+.input-group input[type="date"] {
+    font-family: inherit;
+    color: var(--text-primary);
+    cursor: pointer;
+    min-height: 44px; /* keep height consistent with number inputs */
+}
+.input-group input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+.input-group input[type="date"]:hover::-webkit-calendar-picker-indicator {
+    opacity: 1;
+}
+
+/* v1.1: Readonly inputs (computed/derived fields) — visually distinct from editable. */
+.input-group input[readonly] {
+    background: var(--bg-color);
+    color: var(--text-secondary);
+    cursor: default;
+    border-style: dashed;
+    border-color: var(--border-color);
+}
+.input-group input[readonly]:focus {
+    box-shadow: none;
+    border-color: var(--border-color);
+}
+
+/* v1.1: Pencil-toggle button (DOB → currentAge override).
+ * Lives inline in the label, click to flip readonly state. */
+.age-override-pencil {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-left: 6px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    vertical-align: middle;
+}
+.age-override-pencil:hover {
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--primary-color);
+    border-color: rgba(37, 99, 235, 0.2);
+}
+.age-override-pencil:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 1px;
+}
+.age-override-pencil[aria-pressed="true"] {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 .input-group input:focus,

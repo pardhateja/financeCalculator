@@ -129,13 +129,22 @@ RP._computeAgeFromDOB = function (dobString) {
     return age;
 };
 
-/* Updates #currentAge from #dateOfBirth, UNLESS the override checkbox is on. */
+/* Updates #currentAge from #dateOfBirth, UNLESS the override pencil is pressed.
+ * v1.1 UI fix: override is now a button toggle (aria-pressed) instead of a
+ * checkbox, but the same semantic — pressed = user-typed mode, not pressed = DOB mode. */
+RP._isAgeOverrideOn = function () {
+    const el = document.getElementById('currentAgeOverride');
+    if (!el) return false;
+    // Button-style: aria-pressed. Checkbox-style fallback: el.checked.
+    if (el.tagName === 'BUTTON') return el.getAttribute('aria-pressed') === 'true';
+    return !!el.checked;
+};
+
 RP._updateAgeFromDOB = function () {
     const dobEl = document.getElementById('dateOfBirth');
     const ageEl = document.getElementById('currentAge');
-    const overrideEl = document.getElementById('currentAgeOverride');
     if (!dobEl || !ageEl) return;
-    if (overrideEl && overrideEl.checked) {
+    if (RP._isAgeOverrideOn()) {
         // User explicitly wants manual control. Respect it.
         ageEl.removeAttribute('readonly');
         return;
@@ -160,7 +169,15 @@ RP._wireDOBHandlers = function () {
         dobEl._dobWired = true;
     }
     if (overrideEl && !overrideEl._dobWired) {
-        overrideEl.addEventListener('change', () => RP._updateAgeFromDOB());
+        if (overrideEl.tagName === 'BUTTON') {
+            overrideEl.addEventListener('click', () => {
+                const next = overrideEl.getAttribute('aria-pressed') !== 'true';
+                overrideEl.setAttribute('aria-pressed', String(next));
+                RP._updateAgeFromDOB();
+            });
+        } else {
+            overrideEl.addEventListener('change', () => RP._updateAgeFromDOB());
+        }
         overrideEl._dobWired = true;
     }
     // Initial compute (in case profile/sharelink load already populated DOB).

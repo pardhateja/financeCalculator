@@ -35,8 +35,14 @@ RP.saveProfile = function (name) {
     RP.getAllInputIds().forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        // v1.1: checkboxes save .checked instead of .value
-        data[id] = (el.type === 'checkbox') ? el.checked : el.value;
+        // v1.1: checkboxes save .checked; button toggles save aria-pressed; everything else .value
+        if (el.type === 'checkbox') {
+            data[id] = el.checked;
+        } else if (el.tagName === 'BUTTON') {
+            data[id] = el.getAttribute('aria-pressed') === 'true';
+        } else {
+            data[id] = el.value;
+        }
     });
     profiles[name] = { data, savedAt: new Date().toISOString() };
     localStorage.setItem('rp_profiles', JSON.stringify(profiles));
@@ -50,9 +56,11 @@ RP.loadProfile = function (name) {
     Object.entries(profile.data).forEach(([id, val]) => {
         const el = document.getElementById(id);
         if (!el) return;
-        // v1.1: checkboxes restore from boolean
+        // v1.1: checkboxes restore from boolean; button toggles restore via aria-pressed
         if (el.type === 'checkbox') {
             el.checked = !!val;
+        } else if (el.tagName === 'BUTTON') {
+            el.setAttribute('aria-pressed', val ? 'true' : 'false');
         } else {
             el.value = val;
         }

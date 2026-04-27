@@ -15,8 +15,14 @@ RP.generateShareLink = function () {
     RP.getAllInputIds().forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
-        // v1.1: checkboxes encode .checked
-        data[id] = (el.type === 'checkbox') ? el.checked : el.value;
+        // v1.1: checkboxes encode .checked; button toggles encode aria-pressed
+        if (el.type === 'checkbox') {
+            data[id] = el.checked;
+        } else if (el.tagName === 'BUTTON') {
+            data[id] = el.getAttribute('aria-pressed') === 'true';
+        } else {
+            data[id] = el.value;
+        }
     });
     const encoded = btoa(JSON.stringify(data));
     let url = window.location.origin + window.location.pathname + '?plan=' + encoded;
@@ -68,9 +74,11 @@ RP.loadFromShareLink = function () {
             Object.entries(data).forEach(([id, val]) => {
                 const el = document.getElementById(id);
                 if (!el) return;
-                // v1.1: checkboxes restore .checked
+                // v1.1: checkboxes restore .checked; button toggles restore aria-pressed
                 if (el.type === 'checkbox') {
                     el.checked = !!val;
+                } else if (el.tagName === 'BUTTON') {
+                    el.setAttribute('aria-pressed', val ? 'true' : 'false');
                 } else {
                     el.value = val;
                 }

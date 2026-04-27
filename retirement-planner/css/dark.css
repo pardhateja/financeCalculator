@@ -32,6 +32,34 @@ body.dark-mode .input-group input:focus {
 body.dark-mode .input-group label { color: #94a3b8; }
 body.dark-mode .input-group .unit { color: #64748b; }
 
+/* v1.1: readonly inputs (computed/derived) — slightly darker bg + dashed border */
+body.dark-mode .input-group input[readonly] {
+    background: #0f172a;
+    color: #94a3b8;
+    border-color: #334155;
+    border-style: dashed;
+}
+
+/* v1.1: date input — invert the picker indicator so it's visible on dark bg */
+body.dark-mode .input-group input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+}
+
+/* v1.1: pencil-toggle button (DOB override) */
+body.dark-mode .age-override-pencil {
+    color: #94a3b8;
+}
+body.dark-mode .age-override-pencil:hover {
+    background: rgba(59, 130, 246, 0.18);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.35);
+}
+body.dark-mode .age-override-pencil[aria-pressed="true"] {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
 body.dark-mode .summary-card {
     background: #0f172a;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
