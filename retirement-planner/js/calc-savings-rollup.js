@@ -85,6 +85,15 @@
             totalEl.value = total;
             totalEl.dispatchEvent(new Event('change', { bubbles: true }));
             totalEl.dispatchEvent(new Event('input', { bubbles: true }));
+            // v1.1 Gate-B fix: the multi-goal renderers don't listen for
+            // currentSavings change events — they're triggered via renderPhases
+            // cascade. Force-fire it so renderAllocation re-runs with the fresh
+            // corpus, populating RP._lastAllocationData (which renderProjection
+            // depends on). Without this, projection silently shows the
+            // misleading "Run the Projections tab first" empty state.
+            if (typeof RP.renderPhases === 'function') {
+                try { RP.renderPhases(); } catch (e) { console.warn('renderPhases failed after savings rollup:', e); }
+            }
         }
     };
 
