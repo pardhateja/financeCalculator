@@ -850,6 +850,295 @@ RP._showPhaseToast = function (message, undoFn) {
     setTimeout(dismiss, 5000);
 };
 
+/* ---------- Allocation Pre-Flight (fe-004) ----------
+ * Renders the per-phase allocation table + horizontal stacked bar + deficit
+ * suggestion banner inside the existing #allocationContent placeholder.
+ *
+ * Inputs derived from current RP state (no new form fields):
+ *   - corpus       → existing planner result (RP._projectionRows / #corpusAtRetirement),
+ *                    falls back to 0 (empty state shown)
+ *   - retirementAge / currentAge / lifeExpectancy → RP.val() from Basics tab
+ *   - postReturn   → RP._postReturn (set by calc-financial-plan.js), default 0.08 (India)
+ *   - preReturn    → RP._preReturn (for deficit-suggestion SIP math), default 0.12
+ *
+ * Wired by wrapping RP.renderPhases (defined above) so every phase mutation
+ * (add / remove / load example) re-renders allocation without touching fe-002's
+ * mutator bodies — see the wrapper at the bottom of this section.
+ */
+
+/* Read corpus-at-retirement from the existing planner. Three sources, in order:
+ * 1. RP._projectionRows (set by calc-projections.js): ending balance of row at retAge-1.
+ * 2. #corpusAtRetirement element textContent (rendered by calc-projections.js too).
+ * 3. 0 — triggers empty state with helpful message.
+ */
+RP._multigoal._readCorpusAtRetirement = function () {
+    // Prefer the structured projection rows if they're populated.
+    if (Array.isArray(RP._projectionRows) && RP._projectionRows.length > 0) {
+        const retAge = (typeof RP.val === 'function') ? RP.val('retirementAge') : 0;
+        // Row at retAge-1 has the corpus arriving at retirement.
+        const row = RP._projectionRows.find(r => r.age === retAge - 1);
+        if (row && Number.isFinite(row.ending)) return Math.max(0, row.ending);
+        // Fallback: row whose status flips to Retired
+        const firstRetired = RP._projectionRows.find(r => r.status === 'Retired');
+        if (firstRetired && Number.isFinite(firstRetired.starting)) return Math.max(0, firstRetired.starting);
+    }
+    // No structured data — try parsing the text shown in the Projections tab card.
+    const el = document.getElementById('corpusAtRetirement');
+    if (el && el.textContent) {
+        const parsed = RP._multigoal._parseShortCurrency(el.textContent);
+        if (Number.isFinite(parsed) && parsed > 0) return parsed;
+    }
+    return 0;
+};
+
+/* Reverse of formatCurrencyShort: "₹5.21 Cr" → 52100000. Best-effort only;
+ * we use it only as a fallback when RP._projectionRows is empty. */
+RP._multigoal._parseShortCurrency = function (text) {
+    if (!text || typeof text !== 'string') return NaN;
+    const s = text.replace(/[₹,\s]/g, '');
+    const num = parseFloat(s);
+    if (!Number.isFinite(num)) return NaN;
+    if (/Cr/i.test(text)) return num * 10000000;
+    if (/L/i.test(text)) return num * 100000;
+    if (/K/i.test(text)) return num * 1000;
+    return num;
+};
+
+/* Main entry point — re-renders the allocation table, bar, and deficit banner.
+ * Idempotent: safe to call repeatedly. */
+RP._multigoal.renderAllocation = function () {
+    const emptyEl = document.getElementById('allocationEmptyState');
+    const contentEl = document.getElementById('allocationContent');
+    const tbody = document.getElementById('allocationTbody');
+    const bar = document.getElementById('allocBar');
+    if (!emptyEl || !contentEl || !tbody || !bar) return; // tab not in DOM
+
+    const phases = RP._multigoal.phases || [];
+
+    // Empty state: no phases → hide content, show empty message.
+    if (phases.length === 0) {
+        emptyEl.style.display = '';
+        emptyEl.textContent = 'Add a life phase to see how your retirement corpus allocates across phases.';
+        contentEl.style.display = 'none';
+        return;
+    }
+
+    const corpus = RP._multigoal._readCorpusAtRetirement();
+    const retAge = (typeof RP.val === 'function') ? RP.val('retirementAge') : 60;
+    const curAge = (typeof RP.val === 'function') ? RP.val('currentAge') : 30;
+    const postReturn = (typeof RP._postReturn === 'number' && isFinite(RP._postReturn) && RP._postReturn > 0)
+        ? RP._postReturn
+        : 0.08; // India FIRE default per 03-data-contracts.md
+
+    // Corpus = 0 → degenerate state; show empty message with a hint.
+    if (corpus <= 0) {
+        emptyEl.style.display = '';
+        emptyEl.textContent = 'Run the Projections tab first — allocation needs your retirement corpus.';
+        contentEl.style.display = 'none';
+        return;
+    }
+
+    emptyEl.style.display = 'none';
+    contentEl.style.display = '';
+
+    const allocation = RP._multigoal.calculateAllocation(phases, corpus, retAge, curAge, postReturn);
+
+    // Cache for fe-005 to read without recomputing.
+    RP._lastAllocationData = allocation;
+
+    RP._multigoal._renderAllocationTable(allocation);
+    RP._multigoal._renderAllocationBar(allocation);
+    RP._multigoal._renderDeficitSuggestion(allocation, retAge, curAge);
+};
+
+RP._multigoal._renderAllocationTable = function (allocation) {
+    const tbody = document.getElementById('allocationTbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    // Build a quick phaseId → phase color lookup so we paint dots accurately.
+    const colorById = {};
+    (RP._multigoal.phases || []).forEach(p => { colorById[p.id] = p.color; });
+
+    allocation.phases.forEach(row => {
+        const tr = document.createElement('tr');
+        if (row.deficit > 0.5) tr.classList.add('deficit');
+
+        // Phase name with colored dot
+        const nameTd = document.createElement('td');
+        const dot = document.createElement('span');
+        dot.className = 'phase-dot';
+        const colorName = colorById[row.phaseId] || 'blue';
+        dot.style.background = 'var(--phase-color-' + colorName + ')';
+        nameTd.appendChild(dot);
+        nameTd.appendChild(document.createTextNode(row.phaseName));
+
+        const ageTd = document.createElement('td');
+        ageTd.textContent = row.ageRange;
+
+        const pvTd = document.createElement('td');
+        pvTd.textContent = RP.formatCurrencyShort(row.pvRequired);
+        pvTd.title = RP.formatCurrency(row.pvRequired); // full precision on hover
+
+        const allocTd = document.createElement('td');
+        allocTd.textContent = RP.formatCurrencyShort(row.allocated);
+        allocTd.title = RP.formatCurrency(row.allocated);
+
+        const pctTd = document.createElement('td');
+        pctTd.textContent = row.percentOfCorpus.toFixed(1) + '%';
+
+        const statusTd = document.createElement('td');
+        const statusSpan = document.createElement('span');
+        const isFunded = row.deficit <= 0.5;
+        statusSpan.className = 'health-indicator ' + (isFunded ? 'good' : 'bad');
+        const statusDot = document.createElement('span');
+        statusDot.className = 'health-dot';
+        statusSpan.appendChild(statusDot);
+        const statusText = isFunded
+            ? 'Funded'
+            : 'Deficit ' + RP.formatCurrencyShort(row.deficit);
+        statusSpan.appendChild(document.createTextNode(' ' + statusText));
+        statusTd.appendChild(statusSpan);
+
+        tr.appendChild(nameTd);
+        tr.appendChild(ageTd);
+        tr.appendChild(pvTd);
+        tr.appendChild(allocTd);
+        tr.appendChild(pctTd);
+        tr.appendChild(statusTd);
+        tbody.appendChild(tr);
+    });
+
+    // Footer totals
+    const totalPvEl = document.getElementById('allocTotalPv');
+    const totalAllocEl = document.getElementById('allocTotalAllocated');
+    const totalPctEl = document.getElementById('allocTotalPercent');
+    const overallStatusEl = document.getElementById('allocOverallStatus');
+
+    if (totalPvEl) {
+        totalPvEl.textContent = RP.formatCurrencyShort(allocation.totalPV);
+        totalPvEl.title = RP.formatCurrency(allocation.totalPV);
+    }
+    if (totalAllocEl) {
+        totalAllocEl.textContent = RP.formatCurrencyShort(allocation.totalCorpus);
+        totalAllocEl.title = RP.formatCurrency(allocation.totalCorpus);
+    }
+    if (totalPctEl) totalPctEl.textContent = '100%';
+
+    if (overallStatusEl) {
+        overallStatusEl.innerHTML = '';
+        const span = document.createElement('span');
+        const hasDeficit = allocation.overallDeficit > 0.5;
+        span.className = 'health-indicator ' + (hasDeficit ? 'bad' : 'good');
+        const dot = document.createElement('span');
+        dot.className = 'health-dot';
+        span.appendChild(dot);
+        const text = hasDeficit
+            ? 'Shortfall ' + RP.formatCurrencyShort(allocation.overallDeficit)
+            : (allocation.surplus > 0.5 ? 'Surplus ' + RP.formatCurrencyShort(allocation.surplus) : 'Funded');
+        span.appendChild(document.createTextNode(' ' + text));
+        overallStatusEl.appendChild(span);
+    }
+};
+
+RP._multigoal._renderAllocationBar = function (allocation) {
+    const bar = document.getElementById('allocBar');
+    if (!bar) return;
+    bar.innerHTML = '';
+
+    const colorById = {};
+    (RP._multigoal.phases || []).forEach(p => { colorById[p.id] = p.color; });
+
+    const labelParts = [];
+    allocation.phases.forEach(row => {
+        const seg = document.createElement('div');
+        seg.className = 'alloc-bar__segment';
+        // Use flex-basis so segments size proportionally to allocation %
+        const pct = (row.percentOfCorpus || 0).toFixed(2);
+        seg.style.flexBasis = pct + '%';
+        const colorName = colorById[row.phaseId] || 'blue';
+        seg.style.background = 'var(--phase-color-' + colorName + ')';
+        // title supplies a sighted-user tooltip (a11y is via the table fallback)
+        seg.title = row.phaseName + ': ' + RP.formatCurrencyShort(row.allocated)
+            + ' (' + row.percentOfCorpus.toFixed(1) + '%)';
+        bar.appendChild(seg);
+        labelParts.push(row.phaseName + ' ' + row.percentOfCorpus.toFixed(1) + '%');
+    });
+
+    bar.setAttribute(
+        'aria-label',
+        'Retirement corpus allocation across ' + allocation.phases.length + ' phases: ' + labelParts.join(', ')
+    );
+};
+
+RP._multigoal._renderDeficitSuggestion = function (allocation, retirementAge, currentAge) {
+    const banner = document.getElementById('deficitSuggestion');
+    const message = document.getElementById('deficitMessage');
+    const dismissBtn = document.getElementById('deficitDismissBtn');
+    if (!banner || !message) return;
+
+    if (!(allocation.overallDeficit > 0.5)) {
+        banner.style.display = 'none';
+        return;
+    }
+
+    const yearsToRetirement = Math.max(0, retirementAge - currentAge);
+    const preReturn = (typeof RP._preReturn === 'number' && isFinite(RP._preReturn) && RP._preReturn > 0)
+        ? RP._preReturn
+        : 0.12;
+    const suggestions = RP._multigoal.calculateDeficitSuggestions(
+        allocation.overallDeficit, yearsToRetirement, preReturn, RP._multigoal.phases
+    );
+
+    const deficitLakhs = (allocation.overallDeficit / 100000).toFixed(1);
+    const sipText = RP.formatCurrency(Math.round(suggestions.sipIncrease));
+
+    let html = '<strong>Your plan is underfunded by &#8377;' + deficitLakhs + ' lakhs.</strong> To close the gap:<br>';
+    html += '&bull; Increase monthly SIP by ' + sipText
+        + ' (assumes ' + yearsToRetirement + ' years, ' + (preReturn * 100).toFixed(0) + '% return)';
+
+    if (suggestions.phaseReduction && suggestions.phaseReduction.phaseName) {
+        const pr = suggestions.phaseReduction;
+        // Escape phase name to avoid HTML injection from user-supplied data
+        const safeName = String(pr.phaseName).replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+        html += '<br>&bull; OR reduce "' + safeName + '" from '
+            + RP.formatCurrency(pr.currentAmount) + '/mo to '
+            + RP.formatCurrency(Math.round(pr.reducedAmount)) + '/mo ('
+            + pr.reductionPercent.toFixed(1) + '% reduction)';
+    }
+
+    message.innerHTML = html;
+    banner.style.display = '';
+
+    // Wire dismiss once
+    if (dismissBtn && !dismissBtn._wired) {
+        dismissBtn.addEventListener('click', () => { banner.style.display = 'none'; });
+        dismissBtn._wired = true;
+    }
+};
+
+/* Convenience public alias used by orchestrator (fe-005 entry point too) */
+RP.renderAllocation = function () { RP._multigoal.renderAllocation(); };
+
+/* Wrap RP.renderPhases additively so every phase mutation also re-renders
+ * allocation. Per team-lead's guidance: do NOT modify fe-002's mutator bodies. */
+(function wrapRenderPhasesForAllocation() {
+    const original = RP.renderPhases;
+    if (typeof original !== 'function' || original._allocationWrapped) return;
+    RP.renderPhases = function () {
+        const result = original.apply(this, arguments);
+        try {
+            RP._multigoal.renderAllocation();
+        } catch (e) {
+            console.warn('renderAllocation failed:', e);
+        }
+        return result;
+    };
+    RP.renderPhases._allocationWrapped = true;
+})();
+
 /* Run init at script-load so the scaffold is observable in the console
  * even before app.js wires it. Once app.js is updated (fe-008) to call
  * RP.initMultiGoal(), this becomes a no-op safety net. */

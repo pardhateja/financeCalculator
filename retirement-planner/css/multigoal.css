@@ -158,3 +158,180 @@
         transform: translateY(0);
     }
 }
+
+/* --- Allocation Pre-Flight (fe-004) --- */
+
+/* Visually-hidden caption — accessible to screen readers, off-screen visually */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Allocation table sits in a .projection-table-wrapper — extend that pattern. */
+.allocation-table-wrapper {
+    margin-bottom: 16px;
+}
+
+.allocation-table .phase-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--phase-color, #3b82f6);
+    margin-right: 8px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+/* Phase-name cell is left-aligned (vs right-aligned numerics) */
+.allocation-table tbody td:first-child,
+.allocation-table thead th:first-child,
+.allocation-table tfoot td:first-child {
+    text-align: left;
+    font-weight: 600;
+}
+
+/* Age-range column also left-aligned for readability */
+.allocation-table tbody td:nth-child(2),
+.allocation-table thead th:nth-child(2),
+.allocation-table tfoot td:nth-child(2) {
+    text-align: left;
+}
+
+/* Status column centered to host the .health-indicator pill */
+.allocation-table tbody td:last-child,
+.allocation-table thead th:last-child,
+.allocation-table tfoot td:last-child {
+    text-align: center;
+}
+
+/* Footer total row: bold + subtle top border */
+.allocation-table tfoot .alloc-total-row td {
+    background: #f8fafc;
+    border-top: 2px solid var(--border-color, #e2e8f0);
+    font-weight: 700;
+}
+
+/* Deficit row tint per design 03-component-specs.md (.deficit modifier) */
+.allocation-table tbody tr.deficit td {
+    background: var(--danger-light, #fee2e2);
+}
+
+/* Inline (smaller) variant of .health-indicator for table cells */
+.allocation-table .health-indicator {
+    display: inline-flex;
+    margin-top: 0;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    gap: 6px;
+}
+
+.allocation-table .health-indicator .health-dot {
+    width: 8px;
+    height: 8px;
+}
+
+/* Stacked horizontal allocation bar */
+.alloc-bar {
+    display: flex;
+    flex-direction: row;
+    gap: 0;
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--border-color, #e2e8f0);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+    margin-top: 4px;
+    margin-bottom: 16px;
+}
+
+.alloc-bar__segment {
+    flex-grow: 0;
+    flex-shrink: 0;
+    /* min-width keeps tiny phases visible (per 03-component-specs.md) */
+    min-width: 4px;
+    position: relative;
+    transition: filter 0.2s ease;
+}
+
+.alloc-bar__segment:hover {
+    filter: brightness(1.1);
+}
+
+/* --- Suggestion Banner (deficit alert) --- */
+.alert {
+    padding: 14px 44px 14px 20px;
+    border-radius: 12px;
+    margin-top: 16px;
+    position: relative;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.alert-warning {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    color: #78350f;
+}
+
+.alert-icon {
+    font-size: 1.1rem;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.alert-message {
+    vertical-align: middle;
+}
+
+.alert-dismiss {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: inherit;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.alert-dismiss:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.alert-dismiss:focus {
+    outline: 2px solid #f59e0b;
+    outline-offset: 2px;
+}
+
+/* Dark-mode parity for the new bits (mirrors css/dark.css conventions) */
+body.dark-mode .allocation-table tfoot .alloc-total-row td {
+    background: #0f172a;
+    border-top-color: #334155;
+}
+
+body.dark-mode .allocation-table tbody tr.deficit td {
+    background: #3b1010 !important;
+}
+
+body.dark-mode .alloc-bar {
+    background: #334155;
+}
+
+body.dark-mode .alert-warning {
+    background: #451a03;
+    color: #fcd34d;
+    border-left-color: #f59e0b;
+}

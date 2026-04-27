@@ -787,7 +787,43 @@
                 </div>
                 <div class="section-group">
                     <h3>Allocation Pre-Flight</h3>
-                    <!-- Allocation table + bar (fe-004) -->
+                    <div id="allocationEmptyState" class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">Add a life phase to see how your retirement corpus allocates across phases.</div>
+                    <div id="allocationContent" style="display:none;">
+                        <div class="projection-table-wrapper allocation-table-wrapper">
+                            <table class="projection-table allocation-table">
+                                <caption class="visually-hidden">Retirement corpus allocation across life phases</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Phase</th>
+                                        <th scope="col">Age Range</th>
+                                        <th scope="col">PV Needed</th>
+                                        <th scope="col">Allocated</th>
+                                        <th scope="col">%</th>
+                                        <th scope="col">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allocationTbody"></tbody>
+                                <tfoot>
+                                    <tr class="alloc-total-row">
+                                        <td><strong>TOTAL</strong></td>
+                                        <td></td>
+                                        <td id="allocTotalPv">&#8212;</td>
+                                        <td id="allocTotalAllocated">&#8212;</td>
+                                        <td id="allocTotalPercent">&#8212;</td>
+                                        <td id="allocOverallStatus">&#8212;</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="alloc-bar" id="allocBar" role="img" aria-label="Corpus allocation across phases"></div>
+                        <div id="deficitSuggestion" class="alert alert-warning" role="alert" style="display:none;">
+                            <span class="alert-icon" aria-hidden="true">&#9888;&#65039;</span>
+                            <span class="alert-message" id="deficitMessage"></span>
+                            <button type="button" class="alert-dismiss" id="deficitDismissBtn" aria-label="Dismiss suggestion">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="section-group">
                     <h3>Corpus Projection by Phase</h3>
