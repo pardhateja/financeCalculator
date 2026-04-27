@@ -42,6 +42,7 @@ cat > "$OUT" << 'HEAD'
             <button class="nav-tab" data-tab="dashboard">Dashboard</button>
             <button class="nav-tab" data-tab="whatif">What-If</button>
             <button class="nav-tab" data-tab="goals">Goals</button>
+            <button class="nav-tab" data-tab="multigoal">Multi-Goal</button>
             <button class="nav-tab" data-tab="emergency">Emergency Fund</button>
             <button class="nav-tab" data-tab="sip">SIP Calculator</button>
             <button class="nav-tab" data-tab="tracker">Tracker</button>
@@ -55,7 +56,7 @@ cat > "$OUT" << 'HEAD'
 HEAD
 
 # Append each tab page
-for tab in basics expenses investments financial-plan projections dashboard whatif goals emergency sip tracker milestones loan exptrack networth profiles; do
+for tab in basics expenses investments financial-plan projections dashboard whatif goals multigoal emergency sip tracker milestones loan exptrack networth profiles; do
     cat "$DIR/pages/tab-${tab}.html" >> "$OUT"
     echo "" >> "$OUT"
 done
@@ -80,6 +81,7 @@ cat >> "$OUT" << 'FOOT'
     <script src="js/calc-dashboard.js"></script>
     <script src="js/calc-whatif.js"></script>
     <script src="js/calc-goals.js"></script>
+    <script src="js/calc-multigoal.js"></script>
     <script src="js/calc-emergency.js"></script>
     <script src="js/calc-sip.js"></script>
     <script src="js/calc-tracker.js"></script>
