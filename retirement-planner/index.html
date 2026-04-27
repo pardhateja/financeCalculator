@@ -11,13 +11,18 @@
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/tracker.css">
+    <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>
     <div class="container">
         <header style="position:relative;">
             <h1>Retirement Financial Planner</h1>
             <p class="subtitle">Comprehensive Income, Expense, Investment & Projection Planning</p>
-            <button id="resetBtn" style="position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 18px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.35)'" onfocus="this.style.background='rgba(239,68,68,0.8)'" onblur="this.style.background='rgba(0,0,0,0.35)'">Reset Defaults</button>
+            <div style="position:absolute;top:20px;right:20px;display:flex;gap:8px;">
+                <button id="darkModeBtn" style="background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);">🌙 Dark</button>
+                <button id="shareLinkBtn" onclick="RP.generateShareLink()" style="background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);">Copy Share Link</button>
+                <button id="resetBtn" style="background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);" onmouseover="this.style.background='rgba(239,68,68,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.35)'" onfocus="this.style.background='rgba(239,68,68,0.8)'" onblur="this.style.background='rgba(0,0,0,0.35)'">Reset</button>
+            </div>
         </header>
 
         <div class="nav-tabs">
@@ -29,9 +34,15 @@
             <button class="nav-tab" data-tab="dashboard">Dashboard</button>
             <button class="nav-tab" data-tab="whatif">What-If</button>
             <button class="nav-tab" data-tab="goals">Goals</button>
+            <button class="nav-tab" data-tab="multigoal">Multi-Goal</button>
             <button class="nav-tab" data-tab="emergency">Emergency Fund</button>
             <button class="nav-tab" data-tab="sip">SIP Calculator</button>
             <button class="nav-tab" data-tab="tracker">Tracker</button>
+            <button class="nav-tab" data-tab="milestones">Milestones</button>
+            <button class="nav-tab" data-tab="loan">Loan/EMI</button>
+            <button class="nav-tab" data-tab="exptrack">Expense Log</button>
+            <button class="nav-tab" data-tab="networth">Net Worth</button>
+            <button class="nav-tab" data-tab="profiles">Profiles</button>
         </div>
 
         <!-- TAB 1: BASICS & INCOME -->
@@ -728,6 +739,34 @@
         </div>
 
 
+        <!-- TAB 17: MULTI-GOAL PLANNER -->
+        <div class="tab-content" id="tab-multigoal">
+            <div class="panel">
+                <h2>Multi-Goal Planner</h2>
+                <p class="subtitle" style="color:var(--text-secondary);font-size:0.9rem;margin-top:-8px;margin-bottom:16px;">Plan multiple life-phase expenses with per-phase inflation</p>
+                <div class="section-group">
+                    <h3>Add Life Phase</h3>
+                    <!-- Phase input form (fe-002) -->
+                </div>
+                <div class="section-group green-accent">
+                    <h3>Your Life Phases</h3>
+                    <!-- Phase list (fe-002) -->
+                </div>
+                <div class="section-group">
+                    <h3>Allocation Pre-Flight</h3>
+                    <!-- Allocation table + bar (fe-004) -->
+                </div>
+                <div class="section-group">
+                    <h3>Corpus Projection by Phase</h3>
+                    <!-- Chart (fe-005) -->
+                </div>
+                <div class="section-group">
+                    <h3>Year-by-Year Projection</h3>
+                    <!-- Projection table (fe-005) -->
+                </div>
+            </div>
+        </div>
+
         <!-- TAB 9: EMERGENCY FUND -->
         <div class="tab-content" id="tab-emergency">
             <div class="panel">
@@ -944,6 +983,203 @@
             </div>
         </div>
 
+        <!-- TAB: MILESTONES -->
+        <div class="tab-content" id="tab-milestones">
+            <div class="panel">
+                <h2>Milestone Alerts</h2>
+                <div class="sub-text" style="margin-bottom:20px;color:var(--text-secondary);">Based on your current projections, here's when you'll hit each milestone.</div>
+                <div id="milestonesContainer"></div>
+            </div>
+        </div>
+
+        <!-- TAB: LOAN/EMI IMPACT -->
+        <div class="tab-content" id="tab-loan">
+            <div class="panel">
+                <h2>Loan / EMI Impact</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group">
+                            <h3>Loan Details</h3>
+                            <div class="input-group">
+                                <label for="loanPrincipal">Loan Amount</label>
+                                <input type="number" id="loanPrincipal" value="5000000">
+                                <span class="unit">&#8377;</span>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="loanRate">Interest Rate</label>
+                                    <input type="number" id="loanRate" value="8.5" step="0.1">
+                                    <span class="unit">%</span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="loanTenure">Tenure</label>
+                                    <input type="number" id="loanTenure" value="20" min="1" max="30">
+                                    <span class="unit">years</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card danger">
+                                <div class="label">Monthly EMI</div>
+                                <div class="value" id="loanEMI">-</div>
+                            </div>
+                            <div class="summary-card warning">
+                                <div class="label">Total Interest</div>
+                                <div class="value" id="loanTotalInterest">-</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Payment</div>
+                                <div class="value" id="loanTotalPayment">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group red-accent">
+                            <h3>Impact on Retirement</h3>
+                            <div class="sub-text" style="margin-bottom:12px;color:var(--text-secondary);">How this EMI affects your retirement projections (reduces monthly investment during loan tenure)</div>
+                            <div class="summary-row">
+                                <div class="summary-card danger">
+                                    <div class="label">Corpus at Retirement</div>
+                                    <div class="value" id="loanImpactCorpus">-</div>
+                                </div>
+                                <div class="summary-card warning">
+                                    <div class="label">Money Lasts Until</div>
+                                    <div class="value" id="loanImpactRunsOut">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: EXPENSE TRACKER -->
+        <div class="tab-content" id="tab-exptrack">
+            <div class="panel">
+                <h2>Expense Tracker (Actual vs Budget)</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group">
+                            <h3>Enter Actual Expenses</h3>
+                            <div class="input-group">
+                                <label for="etMonth">Month</label>
+                                <input type="month" id="etMonth">
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etRent">Rent/EMI</label><input type="number" id="etRent" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etGroceries">Groceries</label><input type="number" id="etGroceries" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etUtilities">Utilities</label><input type="number" id="etUtilities" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etTransport">Transport</label><input type="number" id="etTransport" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etInsurance">Insurance</label><input type="number" id="etInsurance" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etEntertainment">Entertainment</label><input type="number" id="etEntertainment" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group"><label for="etShopping">Shopping</label><input type="number" id="etShopping" value="0"><span class="unit">&#8377;</span></div>
+                                <div class="input-group"><label for="etOther">Other</label><input type="number" id="etOther" value="0"><span class="unit">&#8377;</span></div>
+                            </div>
+                            <button class="btn-primary" id="etSaveBtn" style="width:100%;">Save Month</button>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card"><div class="label">Budget</div><div class="value" id="etTotalBudget">&#8377;0</div></div>
+                            <div class="summary-card"><div class="label">Actual</div><div class="value" id="etTotalActual">-</div></div>
+                            <div class="summary-card success"><div class="label">Difference</div><div class="value" id="etDifference">-</div></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group green-accent" id="etComparison">
+                            <h3>Category Breakdown</h3>
+                            <div class="sub-text" style="padding:12px;text-align:center;color:var(--text-secondary);">Save a month to see comparison</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-group" style="margin-top:20px;">
+                    <h3>History</h3>
+                    <div id="etHistory" style="max-height:300px;overflow-y:auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: NET WORTH TRACKER -->
+        <div class="tab-content" id="tab-networth">
+            <div class="panel">
+                <h2>Net Worth Tracker</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Log Monthly Net Worth</h3>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="nwMonth">Month</label>
+                                    <input type="month" id="nwMonth">
+                                </div>
+                                <div class="input-group">
+                                    <label for="nwAmount">Total Net Worth</label>
+                                    <input type="number" id="nwAmount" placeholder="e.g. 7500000">
+                                    <span class="unit">&#8377;</span>
+                                </div>
+                            </div>
+                            <button class="btn-primary" id="addNwBtn" style="width:100%;">Add Entry</button>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-card success">
+                                <div class="label">Latest Net Worth</div>
+                                <div class="value" id="nwLatest">-</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Total Growth</div>
+                                <div class="value" id="nwTotalGrowth">-</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="label">Entries</div>
+                                <div class="value" id="nwEntries">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group">
+                            <h3>Growth Chart</h3>
+                            <div class="chart-container" style="box-shadow:none;padding:10px;margin:0;">
+                                <canvas id="nwChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-group" style="margin-top:20px;">
+                    <h3>History</h3>
+                    <div id="nwLogContainer" style="max-height:300px;overflow-y:auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: PROFILES -->
+        <div class="tab-content" id="tab-profiles">
+            <div class="panel">
+                <h2>Save / Load Profiles</h2>
+                <div class="panel-grid">
+                    <div>
+                        <div class="section-group green-accent">
+                            <h3>Save Current Plan</h3>
+                            <div class="input-group">
+                                <label for="profileName">Profile Name</label>
+                                <input type="text" id="profileName" placeholder="e.g. Aggressive, Conservative, With House">
+                            </div>
+                            <button class="btn-primary" id="saveProfileBtn" style="width:100%;">Save Profile</button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="section-group">
+                            <h3>Saved Profiles</h3>
+                            <div id="profilesList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <footer>
             <p>Retirement Financial Planner &mdash; Plan your financial future with confidence</p>
             <div class="nav-links">
@@ -963,9 +1199,17 @@
     <script src="js/calc-dashboard.js"></script>
     <script src="js/calc-whatif.js"></script>
     <script src="js/calc-goals.js"></script>
+    <script src="js/calc-multigoal.js"></script>
     <script src="js/calc-emergency.js"></script>
     <script src="js/calc-sip.js"></script>
     <script src="js/calc-tracker.js"></script>
+    <script src="js/calc-milestones.js"></script>
+    <script src="js/calc-loan.js"></script>
+    <script src="js/calc-exptrack.js"></script>
+    <script src="js/calc-networth.js"></script>
+    <script src="js/profiles.js"></script>
+    <script src="js/sharelink.js"></script>
+    <script src="js/darkmode.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
