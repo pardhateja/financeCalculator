@@ -717,6 +717,7 @@ RP.addPhase = function () {
     }
     RP._multigoal.phases.push(result.phase);
     RP._sortPhases();
+    RP._multigoal._save();
     RP._clearPhaseFormInputs();
     RP.renderPhases();
 };
@@ -726,10 +727,12 @@ RP.removePhase = function (phaseId) {
     if (idx === -1) return;
     const removed = RP._multigoal.phases[idx];
     RP._multigoal.phases.splice(idx, 1);
+    RP._multigoal._save();
     RP.renderPhases();
     RP._showPhaseToast('Phase "' + removed.name + '" deleted', () => {
         RP._multigoal.phases.push(removed);
         RP._sortPhases();
+        RP._multigoal._save();
         RP.renderPhases();
     });
 };
@@ -750,6 +753,7 @@ RP.loadPhaseExample = function () {
         color: RP._phaseColorNames[i % 6]
     }));
     RP._sortPhases();
+    RP._multigoal._save();
     RP.renderPhases();
 };
 
