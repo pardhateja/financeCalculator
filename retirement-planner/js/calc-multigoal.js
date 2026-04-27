@@ -1122,8 +1122,203 @@ RP._multigoal._renderDeficitSuggestion = function (allocation, retirementAge, cu
 /* Convenience public alias used by orchestrator (fe-005 entry point too) */
 RP.renderAllocation = function () { RP._multigoal.renderAllocation(); };
 
+/* ---------- Year-by-Year Projection (fe-005) ----------
+ * Renders the multi-goal projection table + phase-shaded chart inside the
+ * existing #multigoalProjectionContent and #multigoalChartContent placeholders.
+ *
+ * Data flow:
+ *   phases (fe-002) → calculateAllocation (fe-003)
+ *                   → runProjection (fe-003) → projectionRows
+ *                   → table rows + chart canvas
+ *
+ * Inputs derived from current RP state:
+ *   - phases             → RP._multigoal.phases (fe-002)
+ *   - allocationResult   → RP._lastAllocationData (cached by fe-004)
+ *   - retirementAge / currentAge / lifeExpectancy → RP.val()
+ *   - postReturn         → RP._postReturn, default 0.08 (India)
+ *
+ * Wired into _save() flow via the renderPhases wrapper at the bottom of this
+ * file — every phase mutation triggers re-allocation then re-projection.
+ */
+
+/* Map projection row status to existing tables.css row classes:
+ *   'healthy'   → row-retired (blue tint matches "in plan" feel)
+ *   'depleting' → no extra class (default striped look) + amber status badge
+ *   'depleted'  → row-warning (red tint, !important)
+ * The status column always renders a status-badge for explicit color+text. */
+RP._multigoal._projectionStatusMeta = {
+    healthy:   { rowClass: 'row-retired', badge: 'retired',  label: 'Healthy' },
+    depleting: { rowClass: '',            badge: 'earning',  label: 'Depleting' },
+    depleted:  { rowClass: 'row-warning', badge: 'dead',     label: 'Depleted' }
+};
+
+RP._multigoal.renderProjection = function () {
+    const tableEmpty = document.getElementById('multigoalProjectionEmptyState');
+    const tableContent = document.getElementById('multigoalProjectionContent');
+    const tbody = document.getElementById('multigoalProjectionTbody');
+    const chartEmpty = document.getElementById('multigoalChartEmptyState');
+    const chartContent = document.getElementById('multigoalChartContent');
+    const canvas = document.getElementById('multigoalProjectionChart');
+    if (!tableEmpty || !tableContent || !tbody || !chartEmpty || !chartContent || !canvas) return; // tab not in DOM
+
+    const phases = RP._multigoal.phases || [];
+
+    // Empty: no phases → hide both, show empty messages
+    if (phases.length === 0) {
+        tableEmpty.style.display = '';
+        tableContent.style.display = 'none';
+        chartEmpty.style.display = '';
+        chartContent.style.display = 'none';
+        return;
+    }
+
+    // Need an allocation result to seed per-phase buckets. fe-004's
+    // renderAllocation caches it in RP._lastAllocationData; if it's missing
+    // (corpus = 0 or allocation hasn't run yet), show a hint.
+    const allocation = RP._lastAllocationData;
+    if (!allocation || !Array.isArray(allocation.phases) || allocation.phases.length === 0) {
+        tableEmpty.style.display = '';
+        tableEmpty.textContent = 'Run the Projections tab first — projection needs your retirement corpus.';
+        tableContent.style.display = 'none';
+        chartEmpty.style.display = '';
+        chartEmpty.textContent = 'Run the Projections tab first — projection needs your retirement corpus.';
+        chartContent.style.display = 'none';
+        return;
+    }
+
+    const retAge = (typeof RP.val === 'function') ? RP.val('retirementAge') : 60;
+    const curAge = (typeof RP.val === 'function') ? RP.val('currentAge') : 30;
+    const lifeExp = (typeof RP.val === 'function') ? RP.val('lifeExpectancy') : 85;
+    const postReturn = (typeof RP._postReturn === 'number' && isFinite(RP._postReturn) && RP._postReturn > 0)
+        ? RP._postReturn
+        : 0.08;
+
+    const rows = RP._multigoal.runProjection(phases, allocation, retAge, lifeExp, curAge, postReturn);
+
+    // Cache for downstream consumers (e.g. fe-007 sharelink debug, fe-009 mobile)
+    RP._multiGoalProjectionRows = rows;
+
+    tableEmpty.style.display = 'none';
+    tableContent.style.display = '';
+    chartEmpty.style.display = 'none';
+    chartContent.style.display = '';
+
+    RP._multigoal._renderProjectionTable(rows, phases);
+    RP._multigoal._renderProjectionChart(rows, phases, canvas);
+};
+
+RP._multigoal._renderProjectionTable = function (rows, phases) {
+    const tbody = document.getElementById('multigoalProjectionTbody');
+    if (!tbody) return;
+
+    // Quick lookup: phaseId → { name, color } for badge rendering
+    const phaseMeta = {};
+    phases.forEach(p => { phaseMeta[p.id] = { name: p.name, color: p.color || 'blue' }; });
+
+    tbody.innerHTML = '';
+    rows.forEach(row => {
+        const meta = RP._multigoal._projectionStatusMeta[row.status]
+            || { rowClass: '', badge: 'earning', label: row.status };
+        const tr = document.createElement('tr');
+        if (meta.rowClass) tr.className = meta.rowClass;
+
+        // Age
+        const ageTd = document.createElement('td');
+        ageTd.textContent = row.age;
+        tr.appendChild(ageTd);
+
+        // Active Phase(s) — colored badges, "—" if gap year
+        const phaseTd = document.createElement('td');
+        if (!row.activePhaseIds || row.activePhaseIds.length === 0) {
+            phaseTd.textContent = '—';
+            phaseTd.style.color = 'var(--text-secondary, #6b7280)';
+            phaseTd.style.textAlign = 'center';
+        } else {
+            const wrap = document.createElement('span');
+            wrap.className = 'phase-badge-group';
+            row.activePhaseIds.forEach(pid => {
+                const m = phaseMeta[pid];
+                if (!m) return;
+                const badge = document.createElement('span');
+                badge.className = 'phase-badge phase-badge--' + m.color;
+                badge.title = m.name; // full name on hover (handles truncation)
+                // Decorative dot prefix per 03-component-specs.md
+                const dot = document.createElement('span');
+                dot.className = 'phase-badge-dot';
+                badge.appendChild(dot);
+                badge.appendChild(document.createTextNode(m.name));
+                wrap.appendChild(badge);
+            });
+            phaseTd.appendChild(wrap);
+        }
+        tr.appendChild(phaseTd);
+
+        // Inflated expense for the year
+        const expTd = document.createElement('td');
+        expTd.textContent = row.expenses > 0 ? RP.formatCurrency(row.expenses) : '—';
+        tr.appendChild(expTd);
+
+        // Per-phase balances — compact: "PhaseName: ₹X" rows
+        const perTd = document.createElement('td');
+        if (Array.isArray(row.activePhases) && row.activePhases.length > 0) {
+            const list = document.createElement('div');
+            list.className = 'per-phase-balance-list';
+            row.activePhases.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'per-phase-balance-item';
+                const dot = document.createElement('span');
+                dot.className = 'phase-color-dot';
+                dot.style.background = 'var(--phase-color-' + (p.color || 'blue') + ')';
+                item.appendChild(dot);
+                const text = document.createElement('span');
+                text.textContent = RP.formatCurrencyShort(p.bucketEnding);
+                text.title = p.phaseName + ': ' + RP.formatCurrency(p.bucketEnding);
+                item.appendChild(text);
+                list.appendChild(item);
+            });
+            perTd.appendChild(list);
+        } else {
+            perTd.textContent = '—';
+            perTd.style.color = 'var(--text-secondary, #6b7280)';
+            perTd.style.textAlign = 'center';
+        }
+        tr.appendChild(perTd);
+
+        // Total balance
+        const totalTd = document.createElement('td');
+        totalTd.textContent = RP.formatCurrency(row.ending);
+        tr.appendChild(totalTd);
+
+        // Status badge
+        const statusTd = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'status-badge ' + meta.badge;
+        badge.textContent = meta.label;
+        statusTd.appendChild(badge);
+        tr.appendChild(statusTd);
+
+        tbody.appendChild(tr);
+    });
+};
+
+RP._multigoal._renderProjectionChart = function (rows, phases, canvas) {
+    if (typeof RP.renderMultiGoalChart !== 'function') {
+        console.warn('RP.renderMultiGoalChart not loaded — chart skipped.');
+        return;
+    }
+    try {
+        RP.renderMultiGoalChart(canvas, rows, phases);
+    } catch (e) {
+        console.warn('Multi-goal chart render failed:', e);
+    }
+};
+
+/* Public alias (matches fe-004's RP.renderAllocation pattern) */
+RP.renderMultiGoalProjection = function () { RP._multigoal.renderProjection(); };
+
 /* Wrap RP.renderPhases additively so every phase mutation also re-renders
- * allocation. Per team-lead's guidance: do NOT modify fe-002's mutator bodies. */
+ * allocation AND projection (fe-005). Per team-lead's guidance: do NOT modify
+ * fe-002's mutator bodies; do NOT touch fe-004's renderAllocation. */
 (function wrapRenderPhasesForAllocation() {
     const original = RP.renderPhases;
     if (typeof original !== 'function' || original._allocationWrapped) return;
@@ -1133,6 +1328,12 @@ RP.renderAllocation = function () { RP._multigoal.renderAllocation(); };
             RP._multigoal.renderAllocation();
         } catch (e) {
             console.warn('renderAllocation failed:', e);
+        }
+        // fe-005: projection depends on allocation result cached above.
+        try {
+            RP._multigoal.renderProjection();
+        } catch (e) {
+            console.warn('renderProjection failed:', e);
         }
         return result;
     };

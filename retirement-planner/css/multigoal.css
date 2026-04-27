@@ -335,3 +335,111 @@ body.dark-mode .alert-warning {
     color: #fcd34d;
     border-left-color: #f59e0b;
 }
+
+/* --- Year-by-Year Projection (fe-005) --- */
+
+/* Active-phase badge inside projection table. Per 03-component-specs.md
+ * "Active-Phase Badge": pill with white text on phase color, optional
+ * decorative dot prefix, truncate gracefully via max-width. */
+.phase-badge-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.phase-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: var(--phase-color-blue);
+    max-width: 14ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.phase-badge:hover {
+    filter: brightness(1.08);
+}
+
+.phase-badge .phase-badge-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    margin-right: 5px;
+    flex-shrink: 0;
+}
+
+.phase-badge--blue    { background: var(--phase-color-blue); }
+.phase-badge--emerald { background: var(--phase-color-emerald); }
+.phase-badge--amber   { background: var(--phase-color-amber); color: #1f2937; }
+.phase-badge--purple  { background: var(--phase-color-purple); }
+.phase-badge--teal    { background: var(--phase-color-teal); }
+.phase-badge--pink    { background: var(--phase-color-pink); }
+
+/* Amber has dark text for WCAG AA contrast — invert the dot color too */
+.phase-badge--amber .phase-badge-dot {
+    background: rgba(31, 41, 55, 0.7);
+}
+
+/* Per-phase balance cell — small stacked rows with colored dot prefix */
+.per-phase-balance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+}
+
+.per-phase-balance-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.per-phase-balance-item .phase-color-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Multi-goal projection table tweaks: Active Phase column left-aligned for badges */
+.multigoal-projection-table tbody td:nth-child(2),
+.multigoal-projection-table thead th:nth-child(2) {
+    text-align: left;
+    min-width: 140px;
+}
+
+.multigoal-projection-table tbody td:nth-child(4),
+.multigoal-projection-table thead th:nth-child(4) {
+    text-align: left;
+    min-width: 120px;
+}
+
+/* Chart container responsive sizing */
+#multigoalChartContent {
+    margin-top: 4px;
+    overflow-x: auto;
+}
+
+#multigoalProjectionChart {
+    display: block;
+    max-width: 100%;
+    height: 350px;
+}
+
+/* Dark-mode tweaks */
+body.dark-mode .per-phase-balance-item {
+    color: var(--text-primary, #f1f5f9);
+}
