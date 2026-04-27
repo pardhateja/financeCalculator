@@ -32,12 +32,27 @@ RP._multigoal = RP._multigoal || { phases: [] };
 /* Color rotation per 03-data-contracts.md (index mod 6). */
 RP._phaseColorNames = ['blue', 'emerald', 'amber', 'purple', 'teal', 'pink'];
 
-/* India FIRE example template per fe-002 spec. */
+/* India FIRE example template — Pardha v1.1 (10 overlapping phases).
+ * Decisions locked in docs/multi-goal-v1.1/00-tone-and-locked-decisions.md §3.1
+ * Math engine sums overlapping phases per year (verified by qa-003 in v1).
+ *
+ * shortName field (bug-013): used as compact label in projection table badges.
+ * Falls back to auto-derive when missing (see bug-013 fix when it lands). */
 RP._phaseExampleTemplate = [
-    { name: 'Kids at Home', startAge: 35, endAge: 50, baseMonthlyExpense: 80000, inflationRate: 6 },
-    { name: 'Kids in College', startAge: 50, endAge: 55, baseMonthlyExpense: 120000, inflationRate: 10 },
-    { name: 'Empty Nest', startAge: 55, endAge: 70, baseMonthlyExpense: 50000, inflationRate: 6 },
-    { name: 'Medical / Late Retirement', startAge: 70, endAge: 100, baseMonthlyExpense: 70000, inflationRate: 12 }
+    // Always-on baseline (no kids — IS the empty-nest baseline too).
+    { name: 'Base (no kids)',     shortName: 'Base',      startAge: 27, endAge: 100, baseMonthlyExpense: 50000, inflationRate: 6  },
+    // Kid 1: born ~age 28; at home until college (kid age 17 → Pardha 45)
+    { name: 'Kid 1 at home',      shortName: 'K1 home',   startAge: 28, endAge: 45,  baseMonthlyExpense: 10000, inflationRate: 6  },
+    { name: 'Kid 1 college fees', shortName: 'K1 fees',   startAge: 45, endAge: 49,  baseMonthlyExpense: 8333,  inflationRate: 10 },
+    { name: 'Kid 1 hostel',       shortName: 'K1 hostel', startAge: 45, endAge: 49,  baseMonthlyExpense: 8333,  inflationRate: 7  },
+    { name: 'Kid 1 pocket money', shortName: 'K1 pocket', startAge: 45, endAge: 49,  baseMonthlyExpense: 15000, inflationRate: 6  },
+    // Kid 2: born ~age 35
+    { name: 'Kid 2 at home',      shortName: 'K2 home',   startAge: 35, endAge: 52,  baseMonthlyExpense: 10000, inflationRate: 6  },
+    { name: 'Kid 2 college fees', shortName: 'K2 fees',   startAge: 52, endAge: 56,  baseMonthlyExpense: 8333,  inflationRate: 10 },
+    { name: 'Kid 2 hostel',       shortName: 'K2 hostel', startAge: 52, endAge: 56,  baseMonthlyExpense: 8333,  inflationRate: 7  },
+    { name: 'Kid 2 pocket money', shortName: 'K2 pocket', startAge: 52, endAge: 56,  baseMonthlyExpense: 15000, inflationRate: 6  },
+    // Late-life medical add-on (sums on top of Base from age 70)
+    { name: 'Medical add-on',     shortName: 'Medical',   startAge: 70, endAge: 100, baseMonthlyExpense: 20000, inflationRate: 12 }
 ];
 
 /**
@@ -927,6 +942,7 @@ RP.loadPhaseExample = function () {
     RP._multigoal.phases = RP._phaseExampleTemplate.map((p, i) => ({
         id: RP._multigoal._generateId(),
         name: p.name,
+        shortName: p.shortName, // bug-013: forward template-baked compact label
         startAge: p.startAge,
         endAge: p.endAge,
         baseMonthlyExpense: p.baseMonthlyExpense,
