@@ -235,6 +235,88 @@ RP._multigoal._phasePresentValue = function (phase, retirementAge, currentAge, p
 };
 
 // ---------------------------------------------------------------------------
+// Helper: Overlap detection (bug-001 / PRD AC3)
+// Two phases overlap when their inclusive age ranges intersect.
+// Returns per-phase overlap descriptors so renderPhases can decorate cards
+// with "Overlaps with X" badges.
+// ---------------------------------------------------------------------------
+RP._multigoal._detectOverlaps = function (phases) {
+    const list = Array.isArray(phases) ? phases : [];
+    const result = [];
+    for (let i = 0; i < list.length; i++) {
+        const a = list[i];
+        if (!a) continue;
+        const overlapsWith = [];
+        for (let j = 0; j < list.length; j++) {
+            if (i === j) continue;
+            const b = list[j];
+            if (!b) continue;
+            // Inclusive intersection: a.start <= b.end && b.start <= a.end
+            if (a.startAge <= b.endAge && b.startAge <= a.endAge) {
+                const fromAge = Math.max(a.startAge, b.startAge);
+                const toAge = Math.min(a.endAge, b.endAge);
+                overlapsWith.push({
+                    otherPhaseId: b.id,
+                    otherPhaseName: b.name,
+                    fromAge: fromAge,
+                    toAge: toAge
+                });
+            }
+        }
+        if (overlapsWith.length > 0) {
+            result.push({ phaseId: a.id, overlapsWith: overlapsWith });
+        }
+    }
+    return result;
+};
+
+// ---------------------------------------------------------------------------
+// Helper: Aggregate overlap ranges for the info banner (bug-001 / PRD AC3)
+// Walks the union of all phase ages, groups consecutive ages where 2+ phases
+// are active into contiguous ranges, and returns one entry per range with the
+// phase names involved.
+// ---------------------------------------------------------------------------
+RP._multigoal._detectOverlapRanges = function (phases) {
+    const list = Array.isArray(phases) ? phases : [];
+    if (list.length < 2) return [];
+
+    let minAge = Infinity;
+    let maxAge = -Infinity;
+    list.forEach(p => {
+        if (!p) return;
+        if (p.startAge < minAge) minAge = p.startAge;
+        if (p.endAge > maxAge) maxAge = p.endAge;
+    });
+    if (!isFinite(minAge) || !isFinite(maxAge)) return [];
+
+    const ranges = [];
+    let current = null;
+    for (let age = minAge; age <= maxAge; age++) {
+        const active = list.filter(p => p && age >= p.startAge && age <= p.endAge);
+        if (active.length >= 2) {
+            const namesKey = active.map(p => p.name).join('||');
+            if (current && current._key === namesKey && current.toAge === age - 1) {
+                current.toAge = age;
+            } else {
+                if (current) ranges.push(current);
+                current = {
+                    fromAge: age,
+                    toAge: age,
+                    phaseNames: active.map(p => p.name),
+                    _key: namesKey
+                };
+            }
+        } else if (current) {
+            ranges.push(current);
+            current = null;
+        }
+    }
+    if (current) ranges.push(current);
+    // Strip the internal _key field before returning
+    return ranges.map(r => ({ fromAge: r.fromAge, toAge: r.toAge, phaseNames: r.phaseNames }));
+};
+
+// ---------------------------------------------------------------------------
 // PV-Proportional Allocation
 //   - Compute per-phase PV (inflated → discounted)
 //   - Allocate corpus proportionally to PV share
@@ -775,10 +857,21 @@ RP.renderPhases = function () {
     const phases = RP._multigoal.phases;
     if (countEl) countEl.textContent = String(phases.length);
 
+    /* Overlap banner (bug-001 / PRD AC3) — render ABOVE the phase list so it
+     * remains visible when users scroll through cards. Cleared whenever no
+     * overlap ranges exist. */
+    RP._multigoal._renderOverlapBanner(phases);
+
     if (phases.length === 0) {
         container.innerHTML = '<div class="sub-text" style="padding:16px;text-align:center;color:var(--text-secondary);">No phases added yet. Add your first life phase above or click "Load Example".</div>';
         return;
     }
+
+    /* Per-phase overlap descriptors keyed by phaseId for badge lookup. */
+    const overlapByPhase = {};
+    RP._multigoal._detectOverlaps(phases).forEach(o => {
+        overlapByPhase[o.phaseId] = o.overlapsWith;
+    });
 
     /* Build cards via DOM (textContent, not innerHTML, for user-supplied name — no XSS). */
     container.innerHTML = '';
@@ -811,6 +904,20 @@ RP.renderPhases = function () {
         body.appendChild(ageEl);
         body.appendChild(exprEl);
 
+        /* Overlap badge per card (bug-001 / PRD AC3). One badge per overlap
+         * partner so users can see all collisions at a glance. */
+        const overlaps = overlapByPhase[phase.id];
+        if (Array.isArray(overlaps) && overlaps.length > 0) {
+            overlaps.forEach(o => {
+                const badge = document.createElement('div');
+                badge.className = 'phase-overlap-badge';
+                badge.textContent = 'Overlaps with ' + o.otherPhaseName;
+                badge.title = 'Years ' + o.fromAge + '-' + o.toAge
+                    + ' overlap with ' + o.otherPhaseName;
+                body.appendChild(badge);
+            });
+        }
+
         const actions = document.createElement('div');
         actions.className = 'phase-card-actions';
         const delBtn = document.createElement('button');
@@ -824,6 +931,35 @@ RP.renderPhases = function () {
         card.appendChild(actions);
         container.appendChild(card);
     });
+};
+
+/* ---------- Overlap banner (bug-001 / PRD AC3) ----------
+ * Aggregates overlap ranges and renders an info banner with the year ranges
+ * affected. Hidden when no overlaps exist. The fix-the-tooling principle:
+ * users get a clear visual cue that their expenses are being summed during
+ * those years (the underlying math already does this — see qa-002). */
+RP._multigoal._renderOverlapBanner = function (phases) {
+    const banner = document.getElementById('overlapBanner');
+    const message = document.getElementById('overlapBannerMessage');
+    if (!banner || !message) return;
+
+    const ranges = RP._multigoal._detectOverlapRanges(phases);
+    if (!ranges || ranges.length === 0) {
+        banner.style.display = 'none';
+        message.textContent = '';
+        return;
+    }
+
+    const parts = ranges.map(r => {
+        const yearLabel = (r.fromAge === r.toAge)
+            ? ('Year ' + r.fromAge)
+            : ('Years ' + r.fromAge + '-' + r.toAge);
+        return yearLabel + ' are covered by multiple phases. Expenses will be summed.';
+    });
+    // textContent (not innerHTML) — phase names never reach this string,
+    // but keep the safe channel out of habit per global conventions.
+    message.textContent = parts.join(' ');
+    banner.style.display = '';
 };
 
 /* ---------- Toast (delete-undo, per A15) ---------- */
