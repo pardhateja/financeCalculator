@@ -79,7 +79,10 @@ RP._multigoal._validatePhase = function (phase, retirementAge, lifeExpectancy) {
     if (!phase.name || typeof phase.name !== 'string') return false;
     const trimmedName = phase.name.trim();
     if (trimmedName.length < 1 || trimmedName.length > 60) return false;
-    if (!Number.isInteger(phase.startAge) || phase.startAge < retirementAge || phase.startAge > lifeExpectancy) return false;
+    // v1.1 (Pardha Gate-B): phases may start pre-retirement (e.g. "Base 27→100",
+    // "Kid 1 at home 28→45"). _readPhaseForm allows startAge >= 18; this loader
+    // path must match, otherwise localStorage reload silently drops them.
+    if (!Number.isInteger(phase.startAge) || phase.startAge < 18 || phase.startAge > lifeExpectancy) return false;
     if (!Number.isInteger(phase.endAge) || phase.endAge <= phase.startAge || phase.endAge > lifeExpectancy) return false;
     if (typeof phase.baseMonthlyExpense !== 'number' || phase.baseMonthlyExpense <= 0) return false;
     if (typeof phase.inflationRate !== 'number' || phase.inflationRate < 0 || phase.inflationRate > 25) return false;
@@ -157,68 +160,10 @@ RP._multigoal._load = function () {
     RP._multigoal.phases = valid;
 };
 
-/**
- * Populate RP._multigoal.phases with the 4-phase India FIRE example
- * (intake's reframed table + India inflation defaults from
- * 03-data-contracts.md Section 7). Persists immediately, then asks
- * the renderer (fe-002) to refresh if it's loaded.
- */
-RP._multigoal.loadExample = function () {
-    const startAge = (typeof RP.val === 'function') ? RP.val('retirementAge') : 35;
-    const lifeExp = (typeof RP.val === 'function') ? RP.val('lifeExpectancy') : 100;
-
-    // Confirm replacement if the user already has phases.
-    if (RP._multigoal.phases.length > 0) {
-        const ok = confirm('Load Example Template? This will replace your ' +
-            RP._multigoal.phases.length + ' existing phase(s).');
-        if (!ok) return;
-    }
-
-    RP._multigoal.phases = [
-        {
-            id: RP._multigoal._generateId(),
-            name: 'Active early retirement (kids at home)',
-            startAge: startAge,
-            endAge: 50,
-            baseMonthlyExpense: 150000,
-            inflationRate: 6,
-            color: 'blue'
-        },
-        {
-            id: RP._multigoal._generateId(),
-            name: 'Kids in college',
-            startAge: 50,
-            endAge: 54,
-            baseMonthlyExpense: 200000,
-            inflationRate: 10,
-            color: 'emerald'
-        },
-        {
-            id: RP._multigoal._generateId(),
-            name: 'Empty nest',
-            startAge: 54,
-            endAge: 70,
-            baseMonthlyExpense: 100000,
-            inflationRate: 6,
-            color: 'amber'
-        },
-        {
-            id: RP._multigoal._generateId(),
-            name: 'Late / medical',
-            startAge: 70,
-            endAge: lifeExp,
-            baseMonthlyExpense: 150000,
-            inflationRate: 12,
-            color: 'purple'
-        }
-    ];
-
-    RP._multigoal._save();
-
-    // fe-002 owns rendering. Call its renderer if it has been loaded.
-    if (typeof RP.renderPhases === 'function') RP.renderPhases();
-    if (typeof RP.calculateMultiGoal === 'function') RP.calculateMultiGoal();
-};
+// v1.1 audit: removed orphaned RP._multigoal.loadExample (formerly here).
+// It defined the old 4-phase template that pre-dated the 10-phase Pardha
+// real-life template now in RP._phaseExampleTemplate. RP.loadPhaseExample
+// (the live, button-wired one) is the single source of truth.
 
 // bug-011 fix: removed orphaned RP.initMultiGoal definition (formerly here).
 // Canonical RP.initMultiGoal lives at line ~671 below — it merges the localStorage
@@ -703,11 +648,14 @@ RP.initMultiGoal = function () {
  * Used for both UI form submission and (later) sharelink/localStorage import.
  */
 RP.validatePhase = function (phase, retirementAge, lifeExpectancy) {
+    // v1.1 (Pardha Gate-B): mirror _multigoal._validatePhase — startAge is
+    // bounded by 18, NOT retirementAge, so pre-retirement phases survive
+    // sharelink import + manual validation calls.
     if (!phase || typeof phase !== 'object') return false;
     if (!phase.id || typeof phase.id !== 'string') return false;
     if (!phase.name || typeof phase.name !== 'string') return false;
     if (phase.name.trim().length < 1 || phase.name.trim().length > 60) return false;
-    if (!Number.isInteger(phase.startAge) || phase.startAge < retirementAge || phase.startAge > lifeExpectancy) return false;
+    if (!Number.isInteger(phase.startAge) || phase.startAge < 18 || phase.startAge > lifeExpectancy) return false;
     if (!Number.isInteger(phase.endAge) || phase.endAge <= phase.startAge || phase.endAge > lifeExpectancy) return false;
     if (typeof phase.baseMonthlyExpense !== 'number' || phase.baseMonthlyExpense <= 0) return false;
     if (typeof phase.inflationRate !== 'number' || phase.inflationRate < 0 || phase.inflationRate > 25) return false;

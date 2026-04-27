@@ -18,8 +18,13 @@ RP.init = function () {
         RP._emFundManuallySet = true;
     });
 
-    // Auto-calc on any input change (debounced)
+    // Auto-calc on any input change (debounced).
+    // v1.1 audit fix: skip readonly inputs. #currentSavings and #trackerRollupAmount
+    // are programmatically updated by RP._computeSavingsRollup, which dispatches
+    // 'input' events to notify downstream readers. Subscribing to those here would
+    // cause a feedback loop (rollup → input event → calculateAll → rollup …).
     document.querySelectorAll('input[type="number"]').forEach(input => {
+        if (input.readOnly) return;
         input.addEventListener('input', () => {
             clearTimeout(RP._debounceTimer);
             RP._debounceTimer = setTimeout(() => RP.calculateAll(), 300);
@@ -48,7 +53,7 @@ RP.resetDefaults = function () {
         expInsurance: 5000, expEntertainment: 5000, expShopping: 5000, expOtherMonthly: 40000,
         expVacation: 0, expMedical: 0, expOtherYearly: 0,
         safeReturn: 7, largecapReturn: 12, midcapReturn: 15, smallcapReturn: 18,
-        currentSavings: 7000000, stepUpRate: 5,
+        currentSavings: 7000000, currentSavingsSeed: 7000000, stepUpRate: 5,
         preFixedReturn: 7, preFixedTax: 30, preFixedShare: 27,
         preLargeReturn: 12, preLargeTax: 20, preLargeShare: 29,
         preMidReturn: 15, preMidTax: 20, preMidShare: 22,
@@ -74,6 +79,11 @@ RP.resetDefaults = function () {
     RP._emFundManuallySet = false;
     if (RP._goals) RP._goals = [];
 
+    // v1.1 Feature B: refresh rollup so Total = seed + tracker (currentSavings
+    // shown above is just the visible default before rollup overrides).
+    if (typeof RP._computeSavingsRollup === 'function') {
+        try { RP._computeSavingsRollup(); } catch (e) { console.warn('rollup after reset failed:', e); }
+    }
     RP.calculateAll();
 };
 
@@ -111,6 +121,15 @@ RP.calculateAll = function () {
     if (RP.renderGoals) RP.renderGoals();
     if (RP.renderTracker) RP.renderTracker();
     if (RP.renderExpenseTracker) RP.renderExpenseTracker();
+    // v1.1 audit fix (cold-start cascade): RP.initMultiGoal() runs at script-load,
+    // BEFORE calculateAll has computed RP._projectionRows. So the initial
+    // RP.renderPhases() inside initMultiGoal sees corpus=0 and allocation/projection
+    // fall into the "Run Projections first" empty state — even though the 10 phases
+    // are loaded. Re-fire renderPhases at the end of every calculateAll so the
+    // cascade picks up the freshly computed corpus. The wrapper IIFEs are idempotent.
+    if (typeof RP.renderPhases === 'function') {
+        try { RP.renderPhases(); } catch (e) { console.warn('renderPhases at end of calculateAll failed:', e); }
+    }
 };
 
 /* ---------- v1.1 Feature A: DOB → auto current age ---------- */
@@ -234,7 +253,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (RP.loadFromShareLink) RP.loadFromShareLink();
 
     RP.init();
-    // v1.1: wire DOB after init (Basics tab DOM is loaded by then)
+    // v1.1 audit: wire DOB BEFORE calculateAll so the first projection uses
+    // the DOB-derived Current Age (not the HTML default). _wireDOBHandlers
+    // is idempotent and ends with a synchronous _updateAgeFromDOB(), which
+    // sets #currentAge before any downstream consumer reads it.
     if (RP._wireDOBHandlers) RP._wireDOBHandlers();
     RP.calculateAll();
 });

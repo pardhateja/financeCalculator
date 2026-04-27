@@ -2,7 +2,11 @@
  * Investment Tracker — 96-month grid with localStorage persistence
  * View modes: Default (flat), Upgrading (step-up), Custom
  * Impact recalculation when actual != planned
- * Birthday: April 19, 1998
+ *
+ * v1.1 audit fix: month grid is anchored at "today", not at a hardcoded
+ * birthday. The previous version had `new Date(1998, 3, 19)` literally and
+ * never read it, so the result was already today-anchored — but the comment
+ * lied. Cleaned up to make the data flow honest.
  */
 RP._trackerMode = 'default';
 RP._trackerEntries = {}; // key: "y0m3" -> {actual: 50000, completed: true, date: '2026-04-03'}
@@ -50,8 +54,10 @@ RP.getTrackerMonths = function () {
     const retAge = RP.val('retirementAge');
     const totalMonths = (retAge - curAge) * 12;
 
-    // Birthday: April 19, 1998
-    const birthday = new Date(1998, 3, 19);
+    // Tracker grid starts at the current calendar month (today). DOB is now
+    // captured separately on the Basics tab (v1.1 Feature A) and feeds
+    // Current Age, but Tracker months are about "what should you save from
+    // now until retirement," which is anchored to today.
     const today = new Date();
     const startYear = today.getFullYear();
     const startMonth = today.getMonth(); // 0-indexed
