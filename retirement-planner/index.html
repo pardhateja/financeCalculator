@@ -57,9 +57,22 @@
                             <h3>Age &amp; Timeline</h3>
                             <div class="input-row">
                                 <div class="input-group">
+                                    <label for="dateOfBirth">Date of Birth</label>
+                                    <input type="date" id="dateOfBirth" value="1998-04-19">
+                                    <span class="unit">DOB</span>
+                                </div>
+                                <div class="input-group">
                                     <label for="currentAge">Current Age</label>
-                                    <input type="number" id="currentAge" value="27" min="18" max="100">
+                                    <input type="number" id="currentAge" value="28" min="18" max="100" readonly title="Auto-computed from Date of Birth. Toggle 'Override' to edit manually.">
                                     <span class="unit">years</span>
+                                </div>
+                            </div>
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label for="currentAgeOverride" style="display:flex;align-items:center;gap:8px;font-weight:500;">
+                                        <input type="checkbox" id="currentAgeOverride" style="width:auto;margin:0;">
+                                        Override Current Age (ignore DOB, type manually)
+                                    </label>
                                 </div>
                                 <div class="input-group">
                                     <label for="retirementAge">Retirement Age</label>

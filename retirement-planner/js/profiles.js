@@ -3,11 +3,22 @@
  */
 RP._allInputIds = null;
 
+/* v1.1: explicit allow-list for non-text/number inputs that must persist
+ * (date pickers, checkboxes, and readonly-but-meaningful fields like currentAge
+ * which becomes readonly when DOB is providing the value). */
+RP._extraPersistedIds = ['dateOfBirth', 'currentAgeOverride', 'currentAge'];
+
 RP.getAllInputIds = function () {
     if (!RP._allInputIds) {
         RP._allInputIds = [];
         document.querySelectorAll('input[type="number"], input[type="text"]').forEach(el => {
             if (el.id && !el.readOnly) RP._allInputIds.push(el.id);
+        });
+        // v1.1: append the explicit extras (date, checkbox, readonly-but-persist).
+        RP._extraPersistedIds.forEach(id => {
+            if (RP._allInputIds.indexOf(id) === -1 && document.getElementById(id)) {
+                RP._allInputIds.push(id);
+            }
         });
     }
     return RP._allInputIds;
@@ -21,7 +32,12 @@ RP.saveProfile = function (name) {
     if (!name) return;
     const profiles = RP.getProfiles();
     const data = {};
-    RP.getAllInputIds().forEach(id => { data[id] = document.getElementById(id).value; });
+    RP.getAllInputIds().forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        // v1.1: checkboxes save .checked instead of .value
+        data[id] = (el.type === 'checkbox') ? el.checked : el.value;
+    });
     profiles[name] = { data, savedAt: new Date().toISOString() };
     localStorage.setItem('rp_profiles', JSON.stringify(profiles));
     RP.renderProfilesList();
@@ -33,10 +49,18 @@ RP.loadProfile = function (name) {
     if (!profile) return;
     Object.entries(profile.data).forEach(([id, val]) => {
         const el = document.getElementById(id);
-        if (el) el.value = val;
+        if (!el) return;
+        // v1.1: checkboxes restore from boolean
+        if (el.type === 'checkbox') {
+            el.checked = !!val;
+        } else {
+            el.value = val;
+        }
     });
     RP._investManuallySet = false;
     RP._emFundManuallySet = false;
+    // v1.1: re-fire DOB→age compute after load (in case profile has new DOB but old currentAge)
+    if (typeof RP._updateAgeFromDOB === 'function') RP._updateAgeFromDOB();
     RP.calculateAll();
 };
 

@@ -12,7 +12,12 @@
  */
 RP.generateShareLink = function () {
     const data = {};
-    RP.getAllInputIds().forEach(id => { data[id] = document.getElementById(id).value; });
+    RP.getAllInputIds().forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        // v1.1: checkboxes encode .checked
+        data[id] = (el.type === 'checkbox') ? el.checked : el.value;
+    });
     const encoded = btoa(JSON.stringify(data));
     let url = window.location.origin + window.location.pathname + '?plan=' + encoded;
 
@@ -62,10 +67,18 @@ RP.loadFromShareLink = function () {
             const data = JSON.parse(atob(planData));
             Object.entries(data).forEach(([id, val]) => {
                 const el = document.getElementById(id);
-                if (el) el.value = val;
+                if (!el) return;
+                // v1.1: checkboxes restore .checked
+                if (el.type === 'checkbox') {
+                    el.checked = !!val;
+                } else {
+                    el.value = val;
+                }
             });
             RP._investManuallySet = true; // Don't auto-override shared values
             RP._emFundManuallySet = true;
+            // v1.1: re-fire DOB→age compute after sharelink load
+            if (typeof RP._updateAgeFromDOB === 'function') RP._updateAgeFromDOB();
             loadedSomething = true;
         } catch (e) {
             // fall through — phases may still be loadable

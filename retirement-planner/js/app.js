@@ -113,11 +113,67 @@ RP.calculateAll = function () {
     if (RP.renderExpenseTracker) RP.renderExpenseTracker();
 };
 
+/* ---------- v1.1 Feature A: DOB → auto current age ---------- */
+
+/* Pure compute: years between DOB and today (rounded down) */
+RP._computeAgeFromDOB = function (dobString) {
+    if (!dobString) return null;
+    const dob = new Date(dobString);
+    if (isNaN(dob.getTime())) return null;
+    const now = new Date();
+    let age = now.getFullYear() - dob.getFullYear();
+    const monthDelta = now.getMonth() - dob.getMonth();
+    if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < dob.getDate())) {
+        age--;
+    }
+    return age;
+};
+
+/* Updates #currentAge from #dateOfBirth, UNLESS the override checkbox is on. */
+RP._updateAgeFromDOB = function () {
+    const dobEl = document.getElementById('dateOfBirth');
+    const ageEl = document.getElementById('currentAge');
+    const overrideEl = document.getElementById('currentAgeOverride');
+    if (!dobEl || !ageEl) return;
+    if (overrideEl && overrideEl.checked) {
+        // User explicitly wants manual control. Respect it.
+        ageEl.removeAttribute('readonly');
+        return;
+    }
+    ageEl.setAttribute('readonly', '');
+    const computed = RP._computeAgeFromDOB(dobEl.value);
+    if (computed !== null && computed >= 0) {
+        if (parseInt(ageEl.value, 10) !== computed) {
+            ageEl.value = computed;
+            ageEl.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }
+};
+
+/* Wire DOB and Override change events (idempotent — safe to re-call). */
+RP._wireDOBHandlers = function () {
+    const dobEl = document.getElementById('dateOfBirth');
+    const overrideEl = document.getElementById('currentAgeOverride');
+    if (dobEl && !dobEl._dobWired) {
+        dobEl.addEventListener('change', () => RP._updateAgeFromDOB());
+        dobEl.addEventListener('input', () => RP._updateAgeFromDOB());
+        dobEl._dobWired = true;
+    }
+    if (overrideEl && !overrideEl._dobWired) {
+        overrideEl.addEventListener('change', () => RP._updateAgeFromDOB());
+        overrideEl._dobWired = true;
+    }
+    // Initial compute (in case profile/sharelink load already populated DOB).
+    RP._updateAgeFromDOB();
+};
+
 // Boot
 document.addEventListener('DOMContentLoaded', () => {
     // Load from share link if present
     if (RP.loadFromShareLink) RP.loadFromShareLink();
 
     RP.init();
+    // v1.1: wire DOB after init (Basics tab DOM is loaded by then)
+    if (RP._wireDOBHandlers) RP._wireDOBHandlers();
     RP.calculateAll();
 });
