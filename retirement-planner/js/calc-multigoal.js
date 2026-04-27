@@ -1388,7 +1388,22 @@ RP._multigoal._renderDeficitSuggestion = function (allocation, retirementAge, cu
     const deficitLakhs = (allocation.overallDeficit / 100000).toFixed(1);
     const sipText = RP.formatCurrency(Math.round(suggestions.sipIncrease));
 
-    let html = '<strong>Your plan is underfunded by &#8377;' + deficitLakhs + ' lakhs.</strong> To close the gap:<br>';
+    // v1.1 audit: surface depletion-age inline so the user sees "underfunded by
+    // ₹X — corpus survives until age Y" together. Reads from the cached
+    // projection rows; falls back silently if projection hasn't run yet.
+    let depletionLine = '';
+    const projRows = Array.isArray(RP._multiGoalProjectionRows) ? RP._multiGoalProjectionRows : [];
+    if (projRows.length > 0) {
+        const firstDepleted = projRows.find(r => r.status === 'depleted');
+        if (firstDepleted) {
+            depletionLine = ' Corpus survives until age <strong>' + firstDepleted.age + '</strong>.';
+        } else {
+            const last = projRows[projRows.length - 1];
+            depletionLine = ' Corpus lasts through age <strong>' + last.age + '</strong>.';
+        }
+    }
+
+    let html = '<strong>Your plan is underfunded by &#8377;' + deficitLakhs + ' lakhs.</strong>' + depletionLine + ' To close the gap:<br>';
     html += '&bull; Increase monthly SIP by ' + sipText
         + ' (assumes ' + yearsToRetirement + ' years, ' + (preReturn * 100).toFixed(0) + '% return)';
 
@@ -1502,6 +1517,14 @@ RP._multigoal.renderProjection = function () {
     tableContent.style.display = '';
     chartEmpty.style.display = 'none';
     chartContent.style.display = '';
+
+    // v1.1 audit: now that projection rows exist, re-fire the deficit banner
+    // so its "Corpus survives until age X" line picks up the just-computed data.
+    // (renderAllocation runs first and caches the banner without this info.)
+    if (RP._lastAllocationData) {
+        try { RP._multigoal._renderDeficitSuggestion(RP._lastAllocationData, retAge, curAge); }
+        catch (e) { console.warn('deficit re-render failed:', e); }
+    }
 
     RP._multigoal._renderProjectionTable(rows, corpusPhases);
     RP._multigoal._renderProjectionChart(rows, corpusPhases, canvas);
