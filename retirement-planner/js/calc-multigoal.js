@@ -1122,6 +1122,17 @@ RP._showPhaseToast = function (message, undoFn) {
  * 3. 0 — triggers empty state with helpful message.
  */
 RP._multigoal._readCorpusAtRetirement = function () {
+    // Defensive recompute: when Multi-Goal renders before Projections has
+    // finished its async/debounced run (e.g. cold-start: page loads → user
+    // clicks Multi-Goal → clicks Load Example, all in <100ms), _projectionRows
+    // is stale or empty, so the corpus reads as 0 and the empty-state message
+    // says "Run the Projections tab first" — even though all inputs are valid.
+    // Force a synchronous recompute so we always read the latest corpus.
+    // Safe because calculateProjections is idempotent on identical inputs.
+    if (typeof RP.calculateProjections === 'function') {
+        try { RP.calculateProjections(); } catch (e) { /* fall through */ }
+    }
+
     // Prefer the structured projection rows if they're populated.
     if (Array.isArray(RP._projectionRows) && RP._projectionRows.length > 0) {
         const retAge = (typeof RP.val === 'function') ? RP.val('retirementAge') : 0;
