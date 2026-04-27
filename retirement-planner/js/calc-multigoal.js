@@ -798,6 +798,10 @@ RP._clearPhaseFormInputs = function () {
 
 /* ---------- CRUD ---------- */
 
+// Tracks the phase id currently being edited in the form (or null = "add" mode).
+// Set by RP.editPhase, cleared by RP.addPhase + RP.cancelEditPhase.
+RP._editingPhaseId = null;
+
 RP.addPhase = function () {
     RP._clearPhaseFormErrors();
     const result = RP._readPhaseForm();
@@ -805,10 +809,28 @@ RP.addPhase = function () {
         RP._showPhaseFormErrors(result.errors);
         return;
     }
-    RP._multigoal.phases.push(result.phase);
+
+    if (RP._editingPhaseId) {
+        // Save-Changes mode: replace the phase with the same id, preserving its color.
+        const idx = RP._multigoal.phases.findIndex(p => p.id === RP._editingPhaseId);
+        if (idx !== -1) {
+            const existingColor = RP._multigoal.phases[idx].color;
+            result.phase.id = RP._editingPhaseId;
+            result.phase.color = existingColor;
+            RP._multigoal.phases[idx] = result.phase;
+        } else {
+            // Phase was deleted while user was editing — fall back to add.
+            RP._multigoal.phases.push(result.phase);
+        }
+        RP._editingPhaseId = null;
+    } else {
+        RP._multigoal.phases.push(result.phase);
+    }
+
     RP._sortPhases();
     RP._multigoal._save();
     RP._clearPhaseFormInputs();
+    RP._restorePhaseFormButtons();
     RP.renderPhases();
 };
 
@@ -817,6 +839,14 @@ RP.removePhase = function (phaseId) {
     if (idx === -1) return;
     const removed = RP._multigoal.phases[idx];
     RP._multigoal.phases.splice(idx, 1);
+
+    // If the user was editing this phase, exit edit mode cleanly.
+    if (RP._editingPhaseId === phaseId) {
+        RP._editingPhaseId = null;
+        RP._clearPhaseFormInputs();
+        RP._restorePhaseFormButtons();
+    }
+
     RP._multigoal._save();
     RP.renderPhases();
     RP._showPhaseToast('Phase "' + removed.name + '" deleted', () => {
@@ -825,6 +855,67 @@ RP.removePhase = function (phaseId) {
         RP._multigoal._save();
         RP.renderPhases();
     });
+};
+
+// Populate the form with this phase's values + put the form in Save-Changes mode.
+RP.editPhase = function (phaseId) {
+    const phase = RP._multigoal.phases.find(p => p.id === phaseId);
+    if (!phase) return;
+
+    RP._clearPhaseFormErrors();
+    document.getElementById('phaseName').value = phase.name;
+    document.getElementById('phaseStartAge').value = phase.startAge;
+    document.getElementById('phaseEndAge').value = phase.endAge;
+    document.getElementById('phaseMonthlyExpense').value = phase.baseMonthlyExpense;
+    document.getElementById('phaseInflationRate').value = phase.inflationRate;
+
+    RP._editingPhaseId = phaseId;
+    RP._setPhaseFormButtonsToEditMode(phase.name);
+
+    // Scroll the form into view so the user knows the click did something.
+    const form = document.querySelector('.phase-form-grid');
+    if (form && typeof form.scrollIntoView === 'function') {
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+};
+
+RP.cancelEditPhase = function () {
+    RP._editingPhaseId = null;
+    RP._clearPhaseFormErrors();
+    RP._clearPhaseFormInputs();
+    RP._restorePhaseFormButtons();
+};
+
+// UI helpers: swap "Add Phase" button label to "Save Changes" + show Cancel button.
+RP._setPhaseFormButtonsToEditMode = function (phaseName) {
+    const addBtn = document.getElementById('addPhaseBtn');
+    if (addBtn) {
+        addBtn.textContent = 'Save Changes';
+        addBtn.setAttribute('aria-label', 'Save changes to phase ' + phaseName);
+    }
+    let cancelBtn = document.getElementById('cancelEditPhaseBtn');
+    if (!cancelBtn && addBtn && addBtn.parentNode) {
+        cancelBtn = document.createElement('button');
+        cancelBtn.id = 'cancelEditPhaseBtn';
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'btn-secondary';
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.setAttribute('aria-label', 'Cancel editing');
+        cancelBtn.addEventListener('click', () => RP.cancelEditPhase());
+        addBtn.parentNode.insertBefore(cancelBtn, addBtn.nextSibling);
+    } else if (cancelBtn) {
+        cancelBtn.style.display = '';
+    }
+};
+
+RP._restorePhaseFormButtons = function () {
+    const addBtn = document.getElementById('addPhaseBtn');
+    if (addBtn) {
+        addBtn.textContent = 'Add Phase';
+        addBtn.removeAttribute('aria-label');
+    }
+    const cancelBtn = document.getElementById('cancelEditPhaseBtn');
+    if (cancelBtn) cancelBtn.style.display = 'none';
 };
 
 RP.loadPhaseExample = function () {
@@ -928,6 +1019,17 @@ RP.renderPhases = function () {
 
         const actions = document.createElement('div');
         actions.className = 'phase-card-actions';
+
+        // Edit button (Gate B feedback: basic CRUD must include in-place edit,
+        // not just delete-and-re-add for typo correction).
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.className = 'btn-secondary';
+        editBtn.setAttribute('aria-label', 'Edit phase ' + phase.name);
+        editBtn.addEventListener('click', () => RP.editPhase(phase.id));
+        actions.appendChild(editBtn);
+
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.textContent = 'Delete';
