@@ -126,7 +126,32 @@ RP._computeAgeFromDOB = function (dobString) {
     if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < dob.getDate())) {
         age--;
     }
+    // v1.1 validation guard: reject impossible ages (future DOB, > 120 yrs old)
+    if (age < 0 || age > 120) return null;
     return age;
+};
+
+/* Show/hide validation error below the DOB field. */
+RP._setDOBError = function (msg) {
+    const dobEl = document.getElementById('dateOfBirth');
+    if (!dobEl) return;
+    let errEl = document.getElementById('dateOfBirthError');
+    if (!errEl) {
+        errEl = document.createElement('div');
+        errEl.id = 'dateOfBirthError';
+        errEl.className = 'dob-error';
+        errEl.setAttribute('role', 'alert');
+        dobEl.parentNode.appendChild(errEl);
+    }
+    if (msg) {
+        errEl.textContent = msg;
+        errEl.style.display = '';
+        dobEl.classList.add('input-invalid');
+    } else {
+        errEl.textContent = '';
+        errEl.style.display = 'none';
+        dobEl.classList.remove('input-invalid');
+    }
 };
 
 /* Updates #currentAge from #dateOfBirth, UNLESS the override pencil is pressed.
@@ -144,18 +169,31 @@ RP._updateAgeFromDOB = function () {
     const dobEl = document.getElementById('dateOfBirth');
     const ageEl = document.getElementById('currentAge');
     if (!dobEl || !ageEl) return;
+
     if (RP._isAgeOverrideOn()) {
-        // User explicitly wants manual control. Respect it.
+        // User explicitly wants manual control. Respect it; clear any DOB error.
         ageEl.removeAttribute('readonly');
+        RP._setDOBError(null);
         return;
     }
     ageEl.setAttribute('readonly', '');
-    const computed = RP._computeAgeFromDOB(dobEl.value);
-    if (computed !== null && computed >= 0) {
-        if (parseInt(ageEl.value, 10) !== computed) {
-            ageEl.value = computed;
-            ageEl.dispatchEvent(new Event('input', { bubbles: true }));
-        }
+
+    const dobValue = dobEl.value;
+    if (!dobValue) {
+        RP._setDOBError(null);
+        return;
+    }
+    const computed = RP._computeAgeFromDOB(dobValue);
+    if (computed === null) {
+        // Invalid: future DOB, > 120 yrs old, or unparseable
+        RP._setDOBError('Enter a valid Date of Birth (between 120 years ago and today)');
+        // Don't update Current Age — leave whatever was last valid
+        return;
+    }
+    RP._setDOBError(null);
+    if (parseInt(ageEl.value, 10) !== computed) {
+        ageEl.value = computed;
+        ageEl.dispatchEvent(new Event('input', { bubbles: true }));
     }
 };
 
@@ -164,6 +202,12 @@ RP._wireDOBHandlers = function () {
     const dobEl = document.getElementById('dateOfBirth');
     const overrideEl = document.getElementById('currentAgeOverride');
     if (dobEl && !dobEl._dobWired) {
+        // v1.1: HTML5-level validation — browser blocks future + > 120-yr-old DOBs
+        const today = new Date();
+        const todayISO = today.toISOString().slice(0, 10);
+        const minDate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate());
+        dobEl.setAttribute('max', todayISO);
+        dobEl.setAttribute('min', minDate.toISOString().slice(0, 10));
         dobEl.addEventListener('change', () => RP._updateAgeFromDOB());
         dobEl.addEventListener('input', () => RP._updateAgeFromDOB());
         dobEl._dobWired = true;
