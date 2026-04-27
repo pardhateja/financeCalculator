@@ -133,6 +133,21 @@ RP.renderChart = function () {
  *   - Corpus line + gradient fill drawn over the shaded regions, matching the
  *     existing RP.renderChart visual language (same blue, same line weight).
  */
+/**
+ * v1.1 audit (chart redesign): clean corpus chart focused on the ONE thing
+ * that matters — does your money last? Drops the noisy in-canvas phase bands
+ * (which collided with text or read as mystery rectangles when unlabeled).
+ *
+ *   • Single corpus line, floored at zero (no negative-corpus nonsense).
+ *   • Big amber/red marker at depletion age with a callout: "Depletes at age X".
+ *   • Soft green fill under the line until depletion, soft red after (visual
+ *     "you're funded vs you're not" cue).
+ *   • Phase context lives in a thin colored RIBBON below the x-axis. Each
+ *     phase gets a stripe within its age range — visible but doesn't compete
+ *     with the corpus line. Labels render INSIDE each stripe when wide enough,
+ *     truncated otherwise (the table below the chart has full names anyway).
+ *   • Concurrent phases stack vertically in the ribbon (one row each).
+ */
 RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
     if (!canvasEl || !Array.isArray(projectionRows) || projectionRows.length === 0) return;
 
@@ -140,161 +155,222 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
     const dpr = window.devicePixelRatio || 1;
     const rect = canvasEl.parentElement.getBoundingClientRect();
     const W = Math.max(rect.width, 320);
-    const H = 350;
+
+    const phaseList = Array.isArray(phases) ? phases : [];
+
+    /* Lay out concurrent phases as stacked ribbon rows. Each row holds phases
+     * whose age windows don't overlap, so a busy era (5 phases at age 47)
+     * uses 5 rows; a quiet era uses 1. */
+    const ribbonRows = [];
+    phaseList.forEach(phase => {
+        for (let i = 0; i < ribbonRows.length; i++) {
+            const row = ribbonRows[i];
+            const collides = row.some(p => !(p.endAge < phase.startAge || p.startAge > phase.endAge));
+            if (!collides) { row.push(phase); return; }
+        }
+        ribbonRows.push([phase]);
+    });
+
+    const RIBBON_ROW_H = 18;
+    const RIBBON_GAP = 4;
+    const ribbonH = ribbonRows.length === 0 ? 0 : (ribbonRows.length * RIBBON_ROW_H + (ribbonRows.length - 1) * 2 + 12);
+    const H = 280 + ribbonH;
+
     canvasEl.width = W * dpr;
     canvasEl.height = H * dpr;
     canvasEl.style.width = W + 'px';
     canvasEl.style.height = H + 'px';
     ctx.scale(dpr, dpr);
-
     ctx.clearRect(0, 0, W, H);
 
-    const padding = { top: 30, right: 30, bottom: 40, left: 80 };
+    const padding = { top: 28, right: 28, bottom: 36 + ribbonH, left: 78 };
     const chartW = W - padding.left - padding.right;
     const chartH = H - padding.top - padding.bottom;
 
     const data = projectionRows;
-    const maxVal = Math.max(...data.map(d => d.ending), 0);
-    const minVal = Math.min(...data.map(d => d.ending), 0);
-    const range = (maxVal - minVal) || 1;
+    /* Floor at zero for visual purposes — negative corpus is a math artifact
+     * (the projection keeps subtracting expenses past depletion). The "line
+     * at zero past depletion" tells the real story. */
+    const flooredData = data.map(d => ({ age: d.age, ending: Math.max(0, d.ending), exhausted: d.ending <= 0 }));
+    const maxVal = Math.max(...flooredData.map(d => d.ending), 1);
+    const range = maxVal || 1;
 
-    const minAge = data[0].age;
-    const maxAge = data[data.length - 1].age;
+    const minAge = flooredData[0].age;
+    const maxAge = flooredData[flooredData.length - 1].age;
     const ageSpan = (maxAge - minAge) || 1;
     const ageToX = (age) => padding.left + ((age - minAge) / ageSpan) * chartW;
+    const valToY = (val) => padding.top + ((maxVal - val) / range) * chartH;
 
-    /* Hex color → rgba helper (handles 3- and 6-digit hex, ignores existing alpha) */
-    const hexToRgba = (hex, alpha) => {
-        if (!hex) return 'rgba(59, 130, 246, ' + alpha + ')';
-        let h = String(hex).trim().replace('#', '');
-        if (h.length === 3) h = h.split('').map(c => c + c).join('');
-        if (h.length !== 6) return 'rgba(59, 130, 246, ' + alpha + ')';
-        const r = parseInt(h.slice(0, 2), 16);
-        const g = parseInt(h.slice(2, 4), 16);
-        const b = parseInt(h.slice(4, 6), 16);
-        return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-    };
-
-    /* Pattern 3 (fe-002): read phase colors from CSS custom properties — never hardcode */
     const docStyle = getComputedStyle(document.documentElement);
-    const phaseList = Array.isArray(phases) ? phases : [];
+    const isDark = document.body.classList.contains('dark-mode');
+    const gridColor = isDark ? 'rgba(148,163,184,0.18)' : '#e2e8f0';
+    const labelColor = isDark ? '#94a3b8' : '#64748b';
 
-    /* Step 1: draw shaded phase regions FIRST (behind grid + line).
-     * v1.1 audit: NO in-chart labels — with 10 overlapping phases, any in-chart
-     * label strategy (single row, staggered, clipped) collides on a narrow chart.
-     * Phase identification moves to a legend rendered BELOW the canvas (DOM, not
-     * canvas) by RP._renderMultiGoalChartLegend, called after this function returns. */
-    phaseList.forEach(phase => {
-        const colorName = phase.color || 'blue';
-        const phaseColor = (docStyle.getPropertyValue('--phase-color-' + colorName) || '#3b82f6').trim();
+    /* Find depletion age (first row where corpus first hits 0). Null if never depletes. */
+    let depletionAge = null;
+    for (let i = 0; i < flooredData.length; i++) {
+        if (flooredData[i].exhausted) { depletionAge = flooredData[i].age; break; }
+    }
 
-        // Clamp region to visible age window
-        const startAge = Math.max(minAge, phase.startAge);
-        const endAge = Math.min(maxAge, phase.endAge);
-        if (endAge < startAge) return;
-
-        const xStart = ageToX(startAge);
-        const xEnd = ageToX(endAge);
-        const regionWidth = Math.max(2, xEnd - xStart);
-
-        ctx.fillStyle = hexToRgba(phaseColor, 0.10);
-        ctx.fillRect(xStart, padding.top, regionWidth, chartH);
-    });
-
-    /* Step 2: grid lines (matches RP.renderChart) */
-    ctx.strokeStyle = '#e2e8f0';
+    /* Step 1: grid lines + y-axis labels */
+    ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
-    const gridLines = 5;
+    ctx.fillStyle = labelColor;
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    const gridLines = 4;
     for (let i = 0; i <= gridLines; i++) {
         const y = padding.top + (chartH / gridLines) * i;
         ctx.beginPath();
         ctx.moveTo(padding.left, y);
         ctx.lineTo(W - padding.right, y);
         ctx.stroke();
-
         const val = maxVal - (range / gridLines) * i;
-        ctx.fillStyle = '#64748b';
-        ctx.font = '11px -apple-system, sans-serif';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(RP.formatCurrencyShort(val), padding.left - 8, y + 4);
+        ctx.fillText(RP.formatCurrencyShort(val), padding.left - 8, y);
     }
 
-    /* Step 3: zero line if range crosses zero */
-    if (minVal < 0 && maxVal > 0) {
-        const zeroY = padding.top + (maxVal / range) * chartH;
-        ctx.strokeStyle = '#ef4444';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([5, 5]);
+    /* Step 2: corpus line, then a fill under it. Green tint while funded,
+     * red tint after depletion. */
+    const lineColor = '#2563eb';
+    const fillGood = isDark ? 'rgba(16,185,129,0.18)' : 'rgba(16,185,129,0.14)';
+    const fillBad  = isDark ? 'rgba(239,68,68,0.18)'  : 'rgba(239,68,68,0.14)';
+    const baselineY = valToY(0);
+
+    function drawAreaSegment(fromIdx, toIdx, fillStyle) {
+        if (toIdx <= fromIdx) return;
         ctx.beginPath();
-        ctx.moveTo(padding.left, zeroY);
-        ctx.lineTo(W - padding.right, zeroY);
-        ctx.stroke();
-        ctx.setLineDash([]);
+        ctx.moveTo(ageToX(flooredData[fromIdx].age), baselineY);
+        for (let i = fromIdx; i <= toIdx; i++) {
+            ctx.lineTo(ageToX(flooredData[i].age), valToY(flooredData[i].ending));
+        }
+        ctx.lineTo(ageToX(flooredData[toIdx].age), baselineY);
+        ctx.closePath();
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
     }
 
-    /* Step 4: corpus line over shaded regions */
+    if (depletionAge !== null) {
+        const depIdx = flooredData.findIndex(d => d.age === depletionAge);
+        drawAreaSegment(0, depIdx, fillGood);
+        drawAreaSegment(depIdx, flooredData.length - 1, fillBad);
+    } else {
+        drawAreaSegment(0, flooredData.length - 1, fillGood);
+    }
+
+    // Corpus line
     ctx.beginPath();
-    ctx.strokeStyle = '#2563eb';
+    ctx.strokeStyle = lineColor;
     ctx.lineWidth = 2.5;
-    data.forEach((d, i) => {
+    flooredData.forEach((d, i) => {
         const x = ageToX(d.age);
-        const y = padding.top + ((maxVal - d.ending) / range) * chartH;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
+        const y = valToY(d.ending);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
 
-    /* Step 5: gradient fill under curve */
-    ctx.lineTo(ageToX(maxAge), H - padding.bottom);
-    ctx.lineTo(ageToX(minAge), H - padding.bottom);
-    ctx.closePath();
-    const gradient = ctx.createLinearGradient(0, padding.top, 0, H - padding.bottom);
-    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.15)');
-    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.02)');
-    ctx.fillStyle = gradient;
-    ctx.fill();
+    /* Step 3: depletion marker — vertical dashed line + dot + callout */
+    if (depletionAge !== null) {
+        const xDep = ageToX(depletionAge);
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(xDep, padding.top);
+        ctx.lineTo(xDep, baselineY);
+        ctx.stroke();
+        ctx.setLineDash([]);
 
-    /* Step 6: x-axis age labels (every Nth age) */
-    ctx.fillStyle = '#64748b';
-    ctx.font = '11px sans-serif';
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(xDep, baselineY, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 12px -apple-system, sans-serif';
+        const calloutText = 'Depletes at age ' + depletionAge;
+        const textW = ctx.measureText(calloutText).width;
+        // Place callout left of the marker if too close to right edge
+        const calloutX = xDep + 8 + textW > W - padding.right
+            ? xDep - 8 - textW
+            : xDep + 8;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(calloutText, calloutX, padding.top + 2);
+    } else {
+        // Funded for life — soft green callout in top-right
+        ctx.fillStyle = isDark ? '#34d399' : '#059669';
+        ctx.font = 'bold 12px -apple-system, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'top';
+        ctx.fillText('Funded through age ' + maxAge, W - padding.right, padding.top + 2);
+    }
+
+    /* Step 4: x-axis age ticks */
+    ctx.fillStyle = labelColor;
+    ctx.font = '11px -apple-system, sans-serif';
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'alphabetic';
-    const step = Math.max(1, Math.floor(data.length / 10));
-    for (let i = 0; i < data.length; i += step) {
-        ctx.fillText(data[i].age, ageToX(data[i].age), H - padding.bottom + 18);
+    ctx.textBaseline = 'top';
+    const xAxisY = baselineY + 6;
+    const step = Math.max(1, Math.floor(flooredData.length / 8));
+    for (let i = 0; i < flooredData.length; i += step) {
+        ctx.fillText(flooredData[i].age, ageToX(flooredData[i].age), xAxisY);
     }
-    ctx.fillText(data[data.length - 1].age, ageToX(maxAge), H - padding.bottom + 18);
+    ctx.fillText(flooredData[flooredData.length - 1].age, ageToX(maxAge), xAxisY);
 
-    /* Step 7 (v1.1 audit): render the phase legend BELOW the canvas as DOM
-     * chips. With 10 overlapping phases, in-canvas labels collided no matter
-     * how we laid them out — the legend pattern is what every charting library
-     * does for this case. Each chip = colored dot + phase name + age range. */
-    if (typeof RP._renderMultiGoalChartLegend === 'function') {
-        RP._renderMultiGoalChartLegend(phaseList);
-    }
-};
+    /* Step 5: phase ribbon below the x-axis. One stripe per phase, stacked
+     * into rows when phases overlap in time. */
+    const ribbonTop = baselineY + 24;
+    ribbonRows.forEach((row, rowIdx) => {
+        const rowY = ribbonTop + rowIdx * (RIBBON_ROW_H + 2);
+        row.forEach(phase => {
+            const startAge = Math.max(minAge, phase.startAge);
+            const endAge = Math.min(maxAge, phase.endAge);
+            if (endAge < startAge) return;
+            const colorName = phase.color || 'blue';
+            const phaseColor = (docStyle.getPropertyValue('--phase-color-' + colorName) || '#3b82f6').trim();
 
-RP._renderMultiGoalChartLegend = function (phaseList) {
-    const host = document.getElementById('multigoalChartLegend');
-    if (!host) return;
-    host.innerHTML = '';
-    if (!Array.isArray(phaseList) || phaseList.length === 0) return;
+            const xStart = ageToX(startAge);
+            const xEnd = ageToX(endAge);
+            const w = Math.max(3, xEnd - xStart);
 
-    phaseList.forEach(phase => {
-        const chip = document.createElement('span');
-        chip.className = 'phase-legend-chip';
+            // Solid stripe
+            ctx.fillStyle = phaseColor;
+            ctx.beginPath();
+            const r = 4;
+            const x = xStart;
+            const y = rowY;
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y,     x + w, y + RIBBON_ROW_H, r);
+            ctx.arcTo(x + w, y + RIBBON_ROW_H, x,     y + RIBBON_ROW_H, r);
+            ctx.arcTo(x,     y + RIBBON_ROW_H, x,     y, r);
+            ctx.arcTo(x,     y, x + w, y, r);
+            ctx.closePath();
+            ctx.fill();
 
-        const dot = document.createElement('span');
-        dot.className = 'phase-legend-dot';
-        dot.style.background = 'var(--phase-color-' + (phase.color || 'blue') + ')';
-        chip.appendChild(dot);
-
-        const label = document.createElement('span');
-        label.className = 'phase-legend-label';
-        label.textContent = phase.name + ' (' + phase.startAge + '–' + phase.endAge + ')';
-        chip.appendChild(label);
-
-        host.appendChild(chip);
+            // Label inside stripe (truncated to fit). Skip if stripe < 36px.
+            if (w >= 36) {
+                ctx.font = 'bold 10px -apple-system, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                const shortName = phase.shortName || phase.name;
+                const maxChars = Math.max(3, Math.floor((w - 10) / 6));
+                const label = shortName.length > maxChars
+                    ? shortName.slice(0, maxChars - 1) + '…'
+                    : shortName;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(xStart + 4, rowY, w - 8, RIBBON_ROW_H);
+                ctx.clip();
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(label, xStart + 6, rowY + RIBBON_ROW_H / 2 + 1);
+                ctx.restore();
+            }
+        });
     });
+
+    /* No DOM legend below — the ribbon IS the legend now. Clear any lingering
+     * legend host from the prior design so it doesn't render an empty bar. */
+    const legendHost = document.getElementById('multigoalChartLegend');
+    if (legendHost) legendHost.innerHTML = '';
 };
