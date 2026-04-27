@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Goal Math Tests</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        h1 { color: #2563eb; margin-bottom: 4px; }
+        .subtitle { color: #64748b; margin-top: 0; font-size: 0.95rem; }
+
+        .summary {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .summary p { margin: 6px 0; }
+        .summary .headline {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 12px;
+        }
+        .summary .headline.pass { color: #10b981; }
+        .summary .headline.fail { color: #ef4444; }
+
+        .test-row {
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            padding: 14px 18px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .test-row.pass {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+        .test-row.fail {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .test-row .name {
+            font-weight: 600;
+            font-size: 1.02rem;
+        }
+        .test-row .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .test-row.pass .badge { background: #10b981; color: #fff; }
+        .test-row.fail .badge { background: #ef4444; color: #fff; }
+
+        .details {
+            margin-top: 10px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 0.82rem;
+            background: rgba(0,0,0,0.04);
+            padding: 10px 12px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .details strong { color: #475569; }
+
+        footer {
+            margin-top: 30px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        code { background: #e2e8f0; padding: 1px 5px; border-radius: 3px; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>Multi-Goal Retirement Planner — Math Tests</h1>
+    <p class="subtitle">
+        fe-010 · Validates <code>RP._multigoal.calculateAllocation</code>,
+        <code>runProjection</code>, and <code>calculateDeficitSuggestions</code>.
+        No npm, no Vitest — open this file in a browser.
+    </p>
+
+    <div class="summary" id="summary">
+        <p><strong>Running tests…</strong></p>
+    </div>
+
+    <div id="test-results"></div>
+
+    <footer>
+        Math source: <code>js/calc-multigoal.js</code> (fe-003) ·
+        Fixtures: <code>js/test-multigoal-fixtures.js</code> ·
+        Spec: <code>01-tech-spec.md#appendix-a</code>
+    </footer>
+
+    <!-- Dependencies -->
+    <script src="js/utils.js"></script>
+    <script src="js/calc-financial-plan.js"></script>
+    <script src="js/calc-multigoal.js"></script>
+    <script src="js/test-multigoal-fixtures.js"></script>
+
+    <!-- Test runner -->
+    <script>
+        (function () {
+            window.TEST_MODE = true;
+            const resultsDiv = document.getElementById('test-results');
+            const summaryDiv = document.getElementById('summary');
+            const scenarios = window.TEST_SCENARIOS || [];
+
+            let passed = 0;
+            let failed = 0;
+
+            scenarios.forEach((test, idx) => {
+                const row = document.createElement('div');
+                row.className = 'test-row';
+
+                let result;
+                let crashed = false;
+                let errMsg = '';
+                try {
+                    result = test.fn();
+                } catch (e) {
+                    crashed = true;
+                    errMsg = (e && e.stack) ? e.stack : String(e);
+                }
+
+                const ok = !crashed && result && result.pass === true;
+                row.classList.add(ok ? 'pass' : 'fail');
+                if (ok) passed++; else failed++;
+
+                const badge = ok ? 'PASS' : (crashed ? 'ERROR' : 'FAIL');
+                const header = document.createElement('div');
+                const badgeEl = document.createElement('span');
+                badgeEl.className = 'badge';
+                badgeEl.textContent = badge;
+                const nameEl = document.createElement('span');
+                nameEl.className = 'name';
+                nameEl.textContent = (idx + 1) + '. ' + test.name;
+                header.appendChild(badgeEl);
+                header.appendChild(nameEl);
+                row.appendChild(header);
+
+                if (!ok) {
+                    const det = document.createElement('div');
+                    det.className = 'details';
+                    if (crashed) {
+                        det.textContent = 'EXCEPTION:\n' + errMsg;
+                    } else if (result) {
+                        det.innerHTML =
+                            '<strong>Expected:</strong> ' +
+                            escapeHtml(JSON.stringify(result.expected, null, 2)) +
+                            '\n<strong>Actual:  </strong> ' +
+                            escapeHtml(JSON.stringify(result.actual, null, 2));
+                    } else {
+                        det.textContent = 'Test returned undefined.';
+                    }
+                    row.appendChild(det);
+                }
+
+                resultsDiv.appendChild(row);
+            });
+
+            const total = passed + failed;
+            const allOk = failed === 0;
+            summaryDiv.innerHTML = '';
+            summaryDiv.innerHTML =
+                '<p><strong>Tests:</strong> ' + total + '</p>' +
+                '<p><strong>Passed:</strong> ' + passed + '</p>' +
+                '<p><strong>Failed:</strong> ' + failed + '</p>' +
+                '<p class="headline ' + (allOk ? 'pass' : 'fail') + '">' +
+                  passed + '/' + total + ' ' + (allOk ? 'PASS' : 'PASS — fix failing math before shipping') +
+                '</p>';
+
+            // Expose results for headless smoke checks (window.__TEST_SUMMARY__)
+            window.__TEST_SUMMARY__ = { total: total, passed: passed, failed: failed };
+
+            function escapeHtml(s) {
+                return String(s)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+            }
+        })();
+    </script>
+</body>
+</html>
