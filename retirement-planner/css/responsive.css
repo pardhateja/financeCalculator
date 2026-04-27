@@ -25,3 +25,118 @@
     .panel { padding: 15px; }
     .section-group { padding: 14px; }
 }
+
+/* --- Multi-Goal Planner mobile responsive (fe-009) --- */
+@media (max-width: 768px) {
+    /* Form inputs: prevent iOS zoom on focus + larger touch target */
+    #tab-multigoal .phase-form-grid .input-group input {
+        font-size: 16px;
+        height: 48px;
+    }
+
+    /* Form buttons: full width + WCAG 2.5.5 touch target */
+    #tab-multigoal .btn-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #tab-multigoal .btn-group .btn-primary,
+    #tab-multigoal .btn-group .btn-secondary {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    /* Phase cards: stack body + actions vertically on mobile so action buttons can grow */
+    #tab-multigoal .phase-card {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 14px;
+    }
+    #tab-multigoal .phase-card .phase-card-actions {
+        justify-content: flex-end;
+    }
+    #tab-multigoal .phase-card .phase-card-actions button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px 14px;
+    }
+
+    /* Allocation + projection tables: tighter padding + sticky first column.
+     * Wrappers already have overflow-x:auto from tables.css/multigoal.css. */
+    #tab-multigoal .projection-table-wrapper {
+        -webkit-overflow-scrolling: touch;
+    }
+    #tab-multigoal .allocation-table,
+    #tab-multigoal .multigoal-projection-table {
+        min-width: 600px;
+        font-size: 0.82rem;
+    }
+    #tab-multigoal .allocation-table th,
+    #tab-multigoal .allocation-table td,
+    #tab-multigoal .multigoal-projection-table th,
+    #tab-multigoal .multigoal-projection-table td {
+        padding: 8px 10px;
+    }
+
+    /* Sticky first column (Phase / Age) for easier reading while scrolling */
+    #tab-multigoal .allocation-table thead th:first-child,
+    #tab-multigoal .allocation-table tbody td:first-child,
+    #tab-multigoal .allocation-table tfoot td:first-child,
+    #tab-multigoal .multigoal-projection-table thead th:first-child,
+    #tab-multigoal .multigoal-projection-table tbody td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        box-shadow: 2px 0 4px rgba(0, 0, 0, 0.08);
+    }
+    /* Header sticky cell needs the header bg, body sticky cells need row bg */
+    #tab-multigoal .allocation-table thead th:first-child,
+    #tab-multigoal .multigoal-projection-table thead th:first-child {
+        background: var(--primary-color);
+    }
+    #tab-multigoal .allocation-table tbody td:first-child,
+    #tab-multigoal .multigoal-projection-table tbody td:first-child {
+        background: white;
+    }
+    #tab-multigoal .allocation-table tfoot td:first-child {
+        background: #f8fafc;
+    }
+
+    /* Allocation bar: keep horizontal, full-width, slightly shorter */
+    #tab-multigoal .alloc-bar {
+        height: 32px;
+    }
+
+    /* Deficit suggestion banner: tighter padding + tappable dismiss */
+    #tab-multigoal .alert {
+        padding: 12px 44px 12px 16px;
+        font-size: 0.88rem;
+    }
+    #tab-multigoal .alert-dismiss {
+        min-width: 44px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Chart container: allow horizontal scroll if canvas exceeds viewport */
+    #tab-multigoal #multigoalChartContent {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    #tab-multigoal #multigoalProjectionChart {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* Dark-mode parity for the sticky first-column backgrounds */
+@media (max-width: 768px) {
+    body.dark-mode #tab-multigoal .allocation-table tbody td:first-child,
+    body.dark-mode #tab-multigoal .multigoal-projection-table tbody td:first-child {
+        background: #1e293b;
+    }
+    body.dark-mode #tab-multigoal .allocation-table tfoot td:first-child {
+        background: #0f172a;
+    }
+}
