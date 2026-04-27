@@ -82,3 +82,83 @@ body.dark-mode .category-tag.needs { background: #1e3a5f; color: #93c5fd; }
 body.dark-mode .category-tag.wants { background: #451a03; color: #fcd34d; }
 
 body.dark-mode footer { color: rgba(255,255,255,0.6); }
+
+/* ============================================
+   Multi-Goal Tab Dark Mode (fe-008)
+   Mirrors patterns above: descendant selector, hardcoded colors,
+   grouped per component. Phase color tokens stay bright in both modes
+   since white text on phase-colors already meets WCAG AA contrast.
+   ============================================ */
+
+/* --- Phase cards (fe-002) --- */
+body.dark-mode .phase-card {
+    background: #0f172a;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .phase-card .phase-card-name { color: #e2e8f0; }
+body.dark-mode .phase-card .phase-card-meta { color: #94a3b8; }
+
+body.dark-mode .phase-card .phase-card-actions button:focus {
+    outline-color: #60a5fa;
+}
+
+/* --- Inline form validation (fe-002) --- */
+body.dark-mode .phase-error { color: #fca5a5; }
+
+body.dark-mode .input-group input.phase-input-invalid {
+    border-color: #fca5a5;
+    box-shadow: 0 0 0 2px rgba(252, 165, 165, 0.18);
+}
+
+/* --- Toast (fe-002) keeps its dark surface in both modes; bump shadow for depth --- */
+body.dark-mode .phase-toast {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+}
+
+/* --- Allocation pre-flight table (fe-004) ---
+   .projection-table base dark rules (L58-63 above) already cover thead/tbody.
+   Override only what's allocation-specific. */
+body.dark-mode .allocation-table .phase-dot {
+    /* dot uses --phase-color which is already bright; nothing to override */
+}
+
+/* --- Stacked allocation bar (fe-004) ---
+   .alloc-bar background already overridden in multigoal.css; segments use
+   --phase-color tokens which stay bright. Add subtle inset shadow tweak
+   so segment edges read on the darker neutral fill. */
+body.dark-mode .alloc-bar {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Suggestion banner (fe-004) ---
+   .alert-warning bg/color already overridden in multigoal.css. Add focus
+   override for dismiss button so the amber ring still sits on dark amber bg. */
+body.dark-mode .alert-dismiss:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .alert-dismiss:focus {
+    outline-color: #fcd34d;
+}
+
+/* --- Active-phase badge (fe-005) ---
+   White text on phase colors meets AA contrast in dark mode (verified in
+   a11y-defaults.md). Amber variant uses dark text — keep it that way.
+   Only override the dot prefix on white-text variants for crisper edges. */
+body.dark-mode .phase-badge .phase-badge-dot {
+    background: rgba(255, 255, 255, 0.92);
+}
+
+body.dark-mode .phase-badge--amber .phase-badge-dot {
+    background: rgba(31, 41, 55, 0.85);
+}
+
+/* --- Per-phase balance list (fe-005) --- */
+body.dark-mode .per-phase-balance-list { color: #e2e8f0; }
+body.dark-mode .per-phase-balance-item { color: #e2e8f0; }
+
+/* --- Multi-goal projection table (fe-005) ---
+   Inherits .projection-table dark rules above. Add a chart container fix
+   so the canvas wrapper matches the dark panel. */
+body.dark-mode #multigoalChartContent { background: transparent; }
