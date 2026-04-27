@@ -78,6 +78,28 @@ body.dark-mode .phase-overlap-badge {
     border-color: #f59e0b;
 }
 
+/* v1.1: Pre-retirement-only badge (Pardha Gate-B). Slate-blue tint to
+ * distinguish from the amber overlap badge — this is INFO, not WARNING. */
+.phase-pre-retirement-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #dbeafe;
+    color: #1e3a8a;
+    border: 1px solid #93c5fd;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: help;
+}
+body.dark-mode .phase-pre-retirement-badge {
+    background: #172554;
+    color: #93c5fd;
+    border-color: #3b82f6;
+}
+
 .phase-card .phase-card-body {
     flex: 1;
     min-width: 0;

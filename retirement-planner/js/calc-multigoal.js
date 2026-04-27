@@ -739,11 +739,18 @@ RP._readPhaseForm = function () {
 
     if (!Number.isFinite(startAge) || !Number.isInteger(startAge)) {
         errors.phaseStartAge = 'Start age is required';
-    } else if (retAge && startAge < retAge) {
-        errors.phaseStartAge = 'Phase cannot start before retirement (age ' + retAge + ')';
+    } else if (startAge < 18) {
+        errors.phaseStartAge = 'Phase cannot start before age 18';
     } else if (lifeExp && startAge > lifeExp) {
         errors.phaseStartAge = 'Phase cannot start after life expectancy (age ' + lifeExp + ')';
     }
+    // v1.1 (Pardha Gate-B feedback): the old "startAge >= retirementAge" rule
+    // was inconsistent with Load Example (which creates pre-retirement phases like
+    // "Base 27→100" and "Kid 1 at home 28→45"). Allow any age 18 → lifeExpectancy;
+    // pre-retirement phases are honestly shown in the Expense Profile dashboard
+    // (today's-rupees view) and silently ignored by corpus allocation/projection
+    // math. The phase card surfaces this with a "Pre-retirement only" info badge
+    // when endAge < retirementAge so the user knows the math behavior.
 
     if (!Number.isFinite(endAge) || !Number.isInteger(endAge)) {
         errors.phaseEndAge = 'End age is required';
@@ -1018,6 +1025,19 @@ RP.renderPhases = function () {
         body.appendChild(nameEl);
         body.appendChild(ageEl);
         body.appendChild(exprEl);
+
+        /* v1.1: Pre-retirement-only badge (Pardha Gate-B). When a phase ends
+         * before retirement, the corpus math (allocation/projection) ignores it,
+         * but the Expense Profile dashboard still shows it. Make this honest
+         * to the user instead of silently misleading. */
+        const retAgeForBadge = (typeof RP.val === 'function') ? RP.val('retirementAge') : 0;
+        if (retAgeForBadge && phase.endAge < retAgeForBadge) {
+            const preBadge = document.createElement('div');
+            preBadge.className = 'phase-pre-retirement-badge';
+            preBadge.textContent = 'Pre-retirement only';
+            preBadge.title = 'This phase ends before retirement (age ' + retAgeForBadge + '), so it\'s shown in the Expense Profile dashboard but ignored by the corpus allocation + projection math.';
+            body.appendChild(preBadge);
+        }
 
         /* Overlap badge per card (bug-001 / PRD AC3). One badge per overlap
          * partner so users can see all collisions at a glance. */
