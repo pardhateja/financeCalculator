@@ -41,6 +41,19 @@ RP._phaseExampleTemplate = [
 ];
 
 /**
+ * Generate a collision-safe phase ID (bug-012 fix).
+ * Uses crypto.randomUUID() (available in all modern browsers + iOS Safari 15.4+).
+ * Falls back to Date.now() + random suffix for very old environments
+ * (jsdom test harness, headless tooling). Never collides under realistic load.
+ */
+RP._multigoal._generateId = function () {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return 'phase-' + crypto.randomUUID();
+    }
+    return 'phase-' + Date.now() + '-' + Math.random().toString(36).slice(2, 11);
+};
+
+/**
  * Validate a phase object against 03-data-contracts.md Section 1.
  * Used on localStorage load (and later sharelink import in fe-007).
  * Returns true if valid, false otherwise. Does NOT throw.
@@ -148,7 +161,7 @@ RP._multigoal.loadExample = function () {
 
     RP._multigoal.phases = [
         {
-            id: 'phase-' + Date.now() + '-1',
+            id: RP._multigoal._generateId(),
             name: 'Active early retirement (kids at home)',
             startAge: startAge,
             endAge: 50,
@@ -157,7 +170,7 @@ RP._multigoal.loadExample = function () {
             color: 'blue'
         },
         {
-            id: 'phase-' + Date.now() + '-2',
+            id: RP._multigoal._generateId(),
             name: 'Kids in college',
             startAge: 50,
             endAge: 54,
@@ -166,7 +179,7 @@ RP._multigoal.loadExample = function () {
             color: 'emerald'
         },
         {
-            id: 'phase-' + Date.now() + '-3',
+            id: RP._multigoal._generateId(),
             name: 'Empty nest',
             startAge: 54,
             endAge: 70,
@@ -175,7 +188,7 @@ RP._multigoal.loadExample = function () {
             color: 'amber'
         },
         {
-            id: 'phase-' + Date.now() + '-4',
+            id: RP._multigoal._generateId(),
             name: 'Late / medical',
             startAge: 70,
             endAge: lifeExp,
@@ -192,21 +205,12 @@ RP._multigoal.loadExample = function () {
     if (typeof RP.calculateMultiGoal === 'function') RP.calculateMultiGoal();
 };
 
-RP.initMultiGoal = function () {
-    // Load persisted phases (if any) before wiring the Load Example button.
-    RP._multigoal._load();
-
-    // Wire the Load Example button. The button lives in pages/tab-multigoal.html.
-    // Use querySelector so we don't crash if the fragment isn't on this page.
-    const loadExampleBtn = document.getElementById('multigoalLoadExampleBtn');
-    if (loadExampleBtn && !loadExampleBtn._wired) {
-        loadExampleBtn.addEventListener('click', () => RP._multigoal.loadExample());
-        loadExampleBtn._wired = true;
-    }
-
-    // If fe-002's renderer is already loaded, refresh it so persisted phases show.
-    if (typeof RP.renderPhases === 'function') RP.renderPhases();
-};
+// bug-011 fix: removed orphaned RP.initMultiGoal definition (formerly here).
+// Canonical RP.initMultiGoal lives at line ~671 below — it merges the localStorage
+// load (formerly the unique responsibility of this orphan) with the button wiring
+// added by fe-002. The orphan was wiring a button id "multigoalLoadExampleBtn"
+// that no longer exists in the DOM (fe-002 changed it to "loadPhaseExampleBtn"),
+// so this code path was never executing anyway.
 
 // ---------------------------------------------------------------------------
 // Helper: inflated annual expense for a phase at a given age
@@ -736,6 +740,10 @@ RP._readPhaseForm = function () {
 
     if (!Number.isFinite(baseMonthlyExpense) || baseMonthlyExpense <= 0) {
         errors.phaseMonthlyExpense = 'Monthly expense must be greater than zero';
+    } else if (baseMonthlyExpense > 100000000) {
+        // bug-005 fix: cap at ₹10 crore/month to prevent number-formatting overflow
+        // and absurd suggestion text. Even ultra-HNW Indian early retirees fit in this range.
+        errors.phaseMonthlyExpense = 'Monthly expense unrealistically high (max ₹10 crore/mo)';
     }
 
     if (!Number.isFinite(inflationRate)) {
@@ -752,7 +760,7 @@ RP._readPhaseForm = function () {
 
     const idx = (RP._multigoal.phases || []).length;
     const phase = {
-        id: 'phase-' + Date.now(),
+        id: RP._multigoal._generateId(),
         name: nameRaw,
         startAge: startAge,
         endAge: endAge,
@@ -826,7 +834,7 @@ RP.loadPhaseExample = function () {
         if (!ok) return;
     }
     RP._multigoal.phases = RP._phaseExampleTemplate.map((p, i) => ({
-        id: 'phase-' + Date.now() + '-' + i,
+        id: RP._multigoal._generateId(),
         name: p.name,
         startAge: p.startAge,
         endAge: p.endAge,

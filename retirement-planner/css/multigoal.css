@@ -302,7 +302,7 @@ body.dark-mode .phase-overlap-badge {
 
 .alert-warning {
     background: #fef3c7;
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid var(--warning-color);
     color: #78350f;
 }
 
@@ -311,7 +311,7 @@ body.dark-mode .phase-overlap-badge {
  * "this needs your attention" without escalating to a full warning. */
 .alert-info {
     background: #fef3c7;
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid var(--warning-color);
     color: #78350f;
 }
 
