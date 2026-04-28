@@ -70,10 +70,6 @@ done
 cat >> "$OUT" << 'FOOT'
         <footer>
             <p>Retirement Financial Planner &mdash; Plan your financial future with confidence</p>
-            <div class="nav-links">
-                <a href="../index.html">Home</a>
-                <a href="../multi-method-calculator.html">Multi-Method Calculator</a>
-            </div>
         </footer>
     </div>
 
