@@ -109,5 +109,28 @@ RP.calculateMilestones = function () {
         html += '<div class="summary-card" style="padding:12px 16px;color:var(--text-secondary);text-align:center;">' +
             'No milestones reached within your current projection horizon.</div>';
     }
+
+    /* v1.1 audit: "Max" anchor card at the bottom showing the peak corpus
+     * ever reached in the projection (before depletion if any) and the age
+     * at which it peaks. Gives users a clear ceiling for their plan. */
+    let peakIdx = 0;
+    for (let i = 1; i < data.length; i++) {
+        if (data[i].ending > data[peakIdx].ending) peakIdx = i;
+    }
+    const peakRow = data[peakIdx];
+    if (peakRow && peakRow.ending > 0) {
+        const peakAge = peakRow.age;
+        const peakYearsAhead = peakAge - curAge;
+        const peakTarget = new Date(nextBday.getFullYear() + peakYearsAhead, nextBday.getMonth(), nextBday.getDate());
+        peakTarget.setDate(peakTarget.getDate() - 1);
+        const peakDateStr = monthNames[peakTarget.getMonth()] + ' ' + peakTarget.getFullYear();
+        html += '<div class="summary-card" style="text-align:left;margin-bottom:8px;padding:12px 16px;border-left:4px solid var(--warning-color);">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<div><strong>Peak (Max)</strong><br>' +
+            '<span style="font-size:0.85rem;color:var(--text-secondary);">Age ' + peakAge + ' · ' + peakDateStr + ' · ' + RP.formatCurrency(peakRow.ending) + '</span></div>' +
+            '<span style="color:var(--warning-color);font-size:1.2rem;">★</span>' +
+            '</div></div>';
+    }
+
     container.innerHTML = html;
 };
