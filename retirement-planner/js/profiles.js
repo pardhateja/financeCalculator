@@ -120,9 +120,28 @@ RP.updateProfile = function (name) {
     RP.saveProfile(name); // saveProfile already overwrites + sets active
 };
 
+/* v1.1: render the "currently active profile" banner above the form so the
+ * user always knows whether they're editing a fresh plan or one they've
+ * loaded. Idempotent — called from renderProfilesList. */
+RP._renderActiveProfileBanner = function () {
+    const banner = document.getElementById('profileActiveBanner');
+    if (!banner) return;
+    const active = RP._getActiveProfileName();
+    if (active) {
+        banner.className = 'profile-active-banner profile-active-banner--loaded';
+        banner.innerHTML = '<strong>Active profile:</strong> '
+            + String(active).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+            + ' · Click <strong>Update</strong> below to save current changes back to this profile.';
+    } else {
+        banner.className = 'profile-active-banner profile-active-banner--none';
+        banner.innerHTML = '<strong>No profile loaded</strong> — you\'re editing the default plan. Use <strong>Save as new profile</strong> to capture it.';
+    }
+};
+
 RP.renderProfilesList = function () {
     const container = document.getElementById('profilesList');
     if (!container) return;
+    RP._renderActiveProfileBanner();
     const profiles = RP.getProfiles();
     const names = Object.keys(profiles);
 

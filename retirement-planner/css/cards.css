@@ -103,3 +103,33 @@ body.dark-mode .profile-row-date { color: #94a3b8; }
 body.dark-mode .profile-row--active {
     box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.45);
 }
+
+/* v1.1: active-profile banner above the Profiles tab — tells the user at
+ * a glance whether they're editing a saved profile or the defaults. */
+.profile-active-banner {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 0.88rem;
+    line-height: 1.4;
+}
+.profile-active-banner--loaded {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+.profile-active-banner--none {
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+body.dark-mode .profile-active-banner--loaded {
+    background: rgba(16, 185, 129, 0.10);
+    color: #6ee7b7;
+    border-color: rgba(16, 185, 129, 0.30);
+}
+body.dark-mode .profile-active-banner--none {
+    background: rgba(148, 163, 184, 0.08);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.20);
+}

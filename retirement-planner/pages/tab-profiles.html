@@ -2,6 +2,12 @@
         <div class="tab-content" id="tab-profiles">
             <div class="panel">
                 <h2>Save / Load Profiles</h2>
+                <div id="profileActiveBanner" class="profile-active-banner"></div>
+                <p class="sub-text" style="margin-bottom:18px;color:var(--text-secondary);line-height:1.5;">
+                    Save the current plan (every input + tracker entries + phases) under a name so you can experiment with alternatives and switch back.
+                    <br>
+                    <strong>Save as new</strong> creates a fresh profile · <strong>Load</strong> restores all inputs from a saved one · <strong>Update</strong> overwrites the active profile with current inputs · <strong>Del</strong> removes a saved profile.
+                </p>
                 <div class="panel-grid">
                     <div>
                         <div class="section-group green-accent">
@@ -10,7 +16,7 @@
                                 <label for="profileName">Profile Name</label>
                                 <input type="text" id="profileName" placeholder="e.g. Aggressive, Conservative, With House">
                             </div>
-                            <button class="btn-primary" id="saveProfileBtn" style="width:100%;">Save Profile</button>
+                            <button class="btn-primary" id="saveProfileBtn" style="width:100%;">Save as new profile</button>
                         </div>
                     </div>
                     <div>
