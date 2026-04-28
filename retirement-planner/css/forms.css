@@ -33,6 +33,7 @@
 .input-group input[type="number"],
 .input-group input[type="text"],
 .input-group input[type="date"],
+.input-group input[type="month"],
 .input-group select {
     width: 100%;
     padding: 10px 14px;
@@ -73,20 +74,23 @@
     line-height: 1.3;
 }
 
-/* v1.1: Date input — match the rest of the form. Native picker icon stays
- * but we tint it to fit the design system. */
-.input-group input[type="date"] {
+/* v1.1: Date + Month inputs — match the rest of the form. Native picker
+ * icon stays but we tint it to fit the design system. */
+.input-group input[type="date"],
+.input-group input[type="month"] {
     font-family: inherit;
     color: var(--text-primary);
     cursor: pointer;
     min-height: 44px; /* keep height consistent with number inputs */
 }
-.input-group input[type="date"]::-webkit-calendar-picker-indicator {
+.input-group input[type="date"]::-webkit-calendar-picker-indicator,
+.input-group input[type="month"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
     opacity: 0.6;
     transition: opacity 0.2s ease;
 }
-.input-group input[type="date"]:hover::-webkit-calendar-picker-indicator {
+.input-group input[type="date"]:hover::-webkit-calendar-picker-indicator,
+.input-group input[type="month"]:hover::-webkit-calendar-picker-indicator {
     opacity: 1;
 }
 
