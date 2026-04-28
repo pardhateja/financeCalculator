@@ -95,22 +95,40 @@ RP.switchTab = function (tabName) {
     // v1.1 audit: persist active tab so refresh restores the user's place
     // instead of always landing on Basics & Income.
     try { localStorage.setItem('rp_active_tab', tabName); } catch (e) {}
+    // v1.1 audit: also reflect in the URL hash so users can bookmark or
+    // share specific tabs and see where they are in the address bar.
+    // Use replaceState so the browser back-button doesn't fill with each
+    // intermediate tab visit.
+    try {
+        const newHash = '#' + tabName;
+        if (window.location.hash !== newHash) {
+            history.replaceState(null, '', window.location.pathname + window.location.search + newHash);
+        }
+    } catch (e) {}
     if (tabName === 'projections') RP.renderChart();
     if (tabName === 'whatif' && RP.renderWhatIfChart) RP.renderWhatIfChart();
     if (tabName === 'tracker' && RP.renderTracker) RP.renderTracker();
     if (tabName === 'networth' && RP.renderNetWorth) RP.renderNetWorth();
 };
 
-/* v1.1 audit: restore the previously-active tab on page load. Called from
- * the DOMContentLoaded boot sequence below. Falls back to 'basics' if
- * nothing was saved or the saved name no longer matches a real tab. */
+/* v1.1 audit: restore the previously-active tab on page load. URL hash
+ * takes precedence over localStorage so a shared link like
+ * "...#multigoal" wins over a stored other tab. Falls back to 'basics'
+ * if nothing matches. */
 RP._restoreActiveTab = function () {
     try {
-        const saved = localStorage.getItem('rp_active_tab');
-        if (!saved) return;
-        const tab = document.querySelector('.nav-tab[data-tab="' + saved + '"]');
-        const content = document.getElementById('tab-' + saved);
-        if (tab && content) RP.switchTab(saved);
+        let target = null;
+        // 1. URL hash wins (shareable / bookmarkable)
+        if (window.location.hash) {
+            const fromHash = window.location.hash.replace(/^#/, '');
+            if (document.querySelector('.nav-tab[data-tab="' + fromHash + '"]')) target = fromHash;
+        }
+        // 2. localStorage fallback
+        if (!target) {
+            const saved = localStorage.getItem('rp_active_tab');
+            if (saved && document.querySelector('.nav-tab[data-tab="' + saved + '"]')) target = saved;
+        }
+        if (target) RP.switchTab(target);
     } catch (e) { /* swallow */ }
 };
 
