@@ -104,4 +104,14 @@ cat >> "$OUT" << 'FOOT'
 </html>
 FOOT
 
-echo "Built index.html ($(wc -l < "$OUT") lines)"
+# v1.1 audit: cache-busting. Append a unique build version to every CSS/JS
+# asset URL so the browser MUST refetch each rebuild. Without this, Chrome
+# (especially) caches CSS for hours and serves stale styles after deploys.
+# Use the OUT file's mtime as the version; changes every rebuild.
+BUILD_VERSION="$(date +%Y%m%d%H%M%S)"
+# In-place append ?v=<version> to every css/js asset reference.
+# Uses macOS-compatible sed -i '' syntax (BSD sed).
+sed -i '' -E "s#(href=\"css/[a-zA-Z0-9_.-]+\.css)\"#\1?v=$BUILD_VERSION\"#g" "$OUT"
+sed -i '' -E "s#(src=\"js/[a-zA-Z0-9_.-]+\.js)\"#\1?v=$BUILD_VERSION\"#g" "$OUT"
+
+echo "Built index.html ($(wc -l < "$OUT") lines, v=$BUILD_VERSION)"
