@@ -108,7 +108,17 @@
             totalEl.value = total;
             totalEl.dispatchEvent(new Event('change', { bubbles: true }));
             totalEl.dispatchEvent(new Event('input', { bubbles: true }));
-            // v1.1 Gate-B fix: the multi-goal renderers don't listen for
+            // v1.1 audit (Pardha bug): #currentSavings is readonly + tabindex=-1,
+            // so the auto-calc input listener in app.js was made to skip readonly
+            // inputs (round-1 fix to prevent feedback loop). Result: Projections,
+            // Dashboard, Net Worth, What-If all read the STALE old #currentSavings
+            // value because no listener fires calculateAll after the late
+            // rollup. Fire it directly. Re-entry is guarded by the value-changed
+            // check above (calculateAll doesn't write to currentSavings → no loop).
+            if (typeof RP.calculateAll === 'function') {
+                try { RP.calculateAll(); } catch (e) { console.warn('calculateAll after rollup failed:', e); }
+            }
+            // v1.1 Gate-B: the multi-goal renderers don't listen for
             // currentSavings change events — they're triggered via renderPhases
             // cascade. Force-fire it so renderAllocation re-runs with the fresh
             // corpus, populating RP._lastAllocationData (which renderProjection
