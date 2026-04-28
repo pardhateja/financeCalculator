@@ -520,11 +520,37 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
         RP._renderMultiGoalChartLegend(phaseList);
     }
 
-    /* Re-render on window resize so the canvas bitmap matches CSS width.
-     * Without this, the chart is drawn at the initial-load width and the
-     * browser stretches the bitmap to fit a different container width on
-     * resize/zoom — making text and lines look proportionally too big.
-     * Idempotent: prior listener is stashed on the canvas and removed first. */
+    /* Re-render on container resize. Window 'resize' alone isn't enough —
+     * Pardha hit a real bug where after a normal refresh (not hard reload),
+     * the chart appeared stretched. Cause: late-loading content below the
+     * chart pushes page height past viewport, vertical scrollbar appears,
+     * every container shrinks by ~15-17px → my bitmap drawn at the OLD
+     * wider size gets visually squished. Window resize doesn't fire for
+     * scrollbar appearance, but ResizeObserver on the chart's parent does.
+     * Idempotent: prior observer is disconnected first. */
+    if (canvasEl._resizeObserver) {
+        canvasEl._resizeObserver.disconnect();
+    }
+    if (typeof ResizeObserver === 'function') {
+        let lastWidth = canvasEl.parentElement.getBoundingClientRect().width;
+        let pending = null;
+        canvasEl._resizeObserver = new ResizeObserver(function (entries) {
+            const newWidth = entries[0].contentRect.width;
+            if (Math.abs(newWidth - lastWidth) < 1) return; // no real change
+            lastWidth = newWidth;
+            clearTimeout(pending);
+            pending = setTimeout(function () {
+                if (typeof RP._multigoal !== 'undefined' &&
+                    typeof RP._multigoal.renderProjection === 'function') {
+                    try { RP._multigoal.renderProjection(); } catch (e) { /* swallow */ }
+                }
+            }, 100);
+        });
+        canvasEl._resizeObserver.observe(canvasEl.parentElement);
+    }
+    /* Window resize fallback for browsers without ResizeObserver (none
+     * modern, but keep the safety net). Fires on actual window resize +
+     * orientation change. */
     if (canvasEl._resizeHandler) {
         window.removeEventListener('resize', canvasEl._resizeHandler);
     }
@@ -532,8 +558,6 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
     canvasEl._resizeHandler = function () {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function () {
-            // Re-call the latest cached projection rows + phases via the
-            // multigoal renderer (it owns the cache + cascade).
             if (typeof RP._multigoal !== 'undefined' &&
                 typeof RP._multigoal.renderProjection === 'function') {
                 try { RP._multigoal.renderProjection(); } catch (e) { /* swallow */ }
