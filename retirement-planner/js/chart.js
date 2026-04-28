@@ -134,243 +134,428 @@ RP.renderChart = function () {
  *     existing RP.renderChart visual language (same blue, same line weight).
  */
 /**
- * v1.1 audit (chart redesign): clean corpus chart focused on the ONE thing
- * that matters — does your money last? Drops the noisy in-canvas phase bands
- * (which collided with text or read as mystery rectangles when unlabeled).
+ * v1.1 audit (chart v3): two-panel financial dashboard.
  *
- *   • Single corpus line, floored at zero (no negative-corpus nonsense).
- *   • Big amber/red marker at depletion age with a callout: "Depletes at age X".
- *   • Soft green fill under the line until depletion, soft red after (visual
- *     "you're funded vs you're not" cue).
- *   • Phase context lives in a thin colored RIBBON below the x-axis. Each
- *     phase gets a stripe within its age range — visible but doesn't compete
- *     with the corpus line. Labels render INSIDE each stripe when wide enough,
- *     truncated otherwise (the table below the chart has full names anyway).
- *   • Concurrent phases stack vertically in the ribbon (one row each).
+ * Panel 1 (top, ~60% of canvas): "Will my money last?"
+ *   • Clean corpus line over time, floored at zero
+ *   • Soft green fill while funded → soft red after depletion
+ *   • Vertical depletion marker + "Depletes at age X" callout
+ *
+ * Panel 2 (bottom, ~40% of canvas): "What's costing me, and when?"
+ *   • Stacked area chart of monthly outgo (today's rupees) by phase
+ *   • Each phase = colored band stacked on top of others
+ *   • Total band height at any age = total monthly burn that year
+ *   • Reads like a financial dashboard — instantly shows expense
+ *     spikes (kid college years, medical phase, etc.)
+ *
+ * Hover anywhere on the canvas:
+ *   • Vertical scrubber line spans both panels at the focused age
+ *   • Tooltip in DOM shows: age, corpus, total monthly, per-phase breakdown
+ *   • Below the canvas: clean DOM legend chip row (one per phase)
+ *
+ * Replaces the v2 ribbon design which broke down at 10+ phases — short
+ * stripes became unreadable stubs, labels collided regardless of layout.
+ * The stacked-area pattern scales: 30 phases would still read clearly
+ * because magnitude (band height), not labels, conveys the data.
  */
 RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
     if (!canvasEl || !Array.isArray(projectionRows) || projectionRows.length === 0) return;
 
     const ctx = canvasEl.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvasEl.parentElement.getBoundingClientRect();
+    /* CRITICAL: measure the canvas's ACTUAL rendered size FIRST. The browser
+     * may apply CSS rules (max-width, parent width, etc.) that override
+     * style.width. Setting style.width = '1356px' doesn't guarantee the
+     * canvas actually renders at 1356px — if the parent is narrower, CSS
+     * wins and the bitmap gets stretched/squished to fit, distorting text
+     * and lines. Solution: use the ACTUAL rendered cssWidth/cssHeight as
+     * the canvas dimensions, so bitmap-to-CSS is exactly 1:1. */
+    canvasEl.style.width = '100%';
+    canvasEl.style.height = '420px';
+    // Now read the size the browser actually allocated.
+    const rect = canvasEl.getBoundingClientRect();
     const W = Math.max(rect.width, 320);
-
-    const phaseList = Array.isArray(phases) ? phases : [];
-
-    /* Lay out concurrent phases as stacked ribbon rows. Each row holds phases
-     * whose age windows don't overlap, so a busy era (5 phases at age 47)
-     * uses 5 rows; a quiet era uses 1. */
-    const ribbonRows = [];
-    phaseList.forEach(phase => {
-        for (let i = 0; i < ribbonRows.length; i++) {
-            const row = ribbonRows[i];
-            const collides = row.some(p => !(p.endAge < phase.startAge || p.startAge > phase.endAge));
-            if (!collides) { row.push(phase); return; }
-        }
-        ribbonRows.push([phase]);
-    });
-
-    const RIBBON_ROW_H = 22;
-    const RIBBON_GAP = 6;
-    const ribbonH = ribbonRows.length === 0 ? 0 : (ribbonRows.length * RIBBON_ROW_H + (ribbonRows.length - 1) * RIBBON_GAP + 12);
-    const H = 280 + ribbonH;
-
-    canvasEl.width = W * dpr;
-    canvasEl.height = H * dpr;
-    canvasEl.style.width = W + 'px';
-    canvasEl.style.height = H + 'px';
+    const H = Math.max(rect.height, 320);
+    canvasEl.width = Math.round(W * dpr);
+    canvasEl.height = Math.round(H * dpr);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
 
-    const padding = { top: 28, right: 28, bottom: 36 + ribbonH, left: 78 };
+    const phaseList = Array.isArray(phases) ? phases : [];
+
+    /* ---------- Layout: two panels stacked vertically ---------- */
+    const padding = { top: 28, right: 24, bottom: 28, left: 78 };
     const chartW = W - padding.left - padding.right;
-    const chartH = H - padding.top - padding.bottom;
+    const PANEL_GAP = 28;
+    const X_AXIS_H = 18;
+    const usableH = H - padding.top - padding.bottom - PANEL_GAP - X_AXIS_H;
+    const corpusH = Math.round(usableH * 0.62);   // top panel ~62%
+    const expenseH = usableH - corpusH;            // bottom panel ~38%
+    const corpusTop = padding.top;
+    const expenseTop = corpusTop + corpusH + PANEL_GAP;
+    const xAxisY = expenseTop + expenseH + 4;
 
-    const data = projectionRows;
-    /* Floor at zero for visual purposes — negative corpus is a math artifact
-     * (the projection keeps subtracting expenses past depletion). The "line
-     * at zero past depletion" tells the real story. */
-    const flooredData = data.map(d => ({ age: d.age, ending: Math.max(0, d.ending), exhausted: d.ending <= 0 }));
-    const maxVal = Math.max(...flooredData.map(d => d.ending), 1);
-    const range = maxVal || 1;
+    /* ---------- Theme ---------- */
+    const docStyle = getComputedStyle(document.documentElement);
+    const isDark = document.body.classList.contains('dark-mode');
+    const gridColor = isDark ? 'rgba(148,163,184,0.18)' : 'rgba(148,163,184,0.30)';
+    const labelColor = isDark ? '#94a3b8' : '#64748b';
+    const lineColor = '#2563eb';
+    const fillGood = isDark ? 'rgba(37,99,235,0.20)' : 'rgba(37,99,235,0.14)';
+    const fillBad  = isDark ? 'rgba(239,68,68,0.18)'  : 'rgba(239,68,68,0.14)';
+    const depletionRed = '#ef4444';
 
+    /* ---------- Corpus data prep ---------- */
+    const flooredData = projectionRows.map(d => ({
+        age: d.age,
+        ending: Math.max(0, d.ending),
+        exhausted: d.ending <= 0
+    }));
     const minAge = flooredData[0].age;
     const maxAge = flooredData[flooredData.length - 1].age;
     const ageSpan = (maxAge - minAge) || 1;
     const ageToX = (age) => padding.left + ((age - minAge) / ageSpan) * chartW;
-    const valToY = (val) => padding.top + ((maxVal - val) / range) * chartH;
 
-    const docStyle = getComputedStyle(document.documentElement);
-    const isDark = document.body.classList.contains('dark-mode');
-    const gridColor = isDark ? 'rgba(148,163,184,0.18)' : '#e2e8f0';
-    const labelColor = isDark ? '#94a3b8' : '#64748b';
+    const corpusMax = Math.max(...flooredData.map(d => d.ending), 1);
+    const corpusToY = (val) => corpusTop + (1 - val / corpusMax) * corpusH;
+    const corpusBaseY = corpusTop + corpusH;
 
-    /* Find depletion age (first row where corpus first hits 0). Null if never depletes. */
+    /* Find depletion age */
     let depletionAge = null;
     for (let i = 0; i < flooredData.length; i++) {
         if (flooredData[i].exhausted) { depletionAge = flooredData[i].age; break; }
     }
 
-    /* Step 1: grid lines + y-axis labels */
+    /* ---------- Expense data prep (stacked per phase) ---------- */
+    /* For each age (column), each phase contributes its baseMonthlyExpense
+     * if the phase is active that year. Stack order = phase order in input.
+     * We use TODAY's-rupees (no inflation) so the visual reads "this is the
+     * lifestyle shape" — comparing to inflated projection corpus would be
+     * apples to oranges. */
+    const ages = flooredData.map(d => d.age);
+    const stackData = ages.map(age => {
+        const layers = phaseList.map(p => {
+            const active = age >= p.startAge && age <= p.endAge;
+            return active ? (Number(p.baseMonthlyExpense) || 0) : 0;
+        });
+        const total = layers.reduce((s, v) => s + v, 0);
+        return { age, layers, total };
+    });
+    const expenseMax = Math.max(...stackData.map(d => d.total), 1);
+    const expenseBaseY = expenseTop + expenseH;
+    const expenseToY = (val) => expenseBaseY - (val / expenseMax) * expenseH;
+
+    /* No in-canvas section titles — they scaled badly at different viewport
+     * widths and overlapped the depletion callout. The two panels are
+     * visually distinct (line + filled gradient on top, stacked color bands
+     * below) and the y-axis units (Cr vs ₹k/L) make them self-identifying.
+     * The DOM legend below the canvas + per-row hover tooltip cover any
+     * naming need. */
+
+    /* ---------- Panel 1: Corpus area + line ---------- */
+    /* grid lines + y-labels */
     ctx.strokeStyle = gridColor;
     ctx.lineWidth = 1;
     ctx.fillStyle = labelColor;
-    ctx.font = '11px -apple-system, sans-serif';
+    ctx.font = '10px -apple-system, sans-serif';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    const gridLines = 4;
-    for (let i = 0; i <= gridLines; i++) {
-        const y = padding.top + (chartH / gridLines) * i;
+    for (let i = 0; i <= 3; i++) {
+        const y = corpusTop + (corpusH / 3) * i;
         ctx.beginPath();
         ctx.moveTo(padding.left, y);
         ctx.lineTo(W - padding.right, y);
         ctx.stroke();
-        const val = maxVal - (range / gridLines) * i;
-        ctx.fillText(RP.formatCurrencyShort(val), padding.left - 8, y);
+        const val = corpusMax - (corpusMax / 3) * i;
+        ctx.fillText(RP.formatCurrencyShort(val), padding.left - 6, y);
     }
 
-    /* Step 2: corpus line, then a fill under it. Green tint while funded,
-     * red tint after depletion. */
-    const lineColor = '#2563eb';
-    const fillGood = isDark ? 'rgba(16,185,129,0.18)' : 'rgba(16,185,129,0.14)';
-    const fillBad  = isDark ? 'rgba(239,68,68,0.18)'  : 'rgba(239,68,68,0.14)';
-    const baselineY = valToY(0);
-
-    function drawAreaSegment(fromIdx, toIdx, fillStyle) {
+    /* fill under curve: green before depletion, red after */
+    function drawCorpusFill(fromIdx, toIdx, fillStyle) {
         if (toIdx <= fromIdx) return;
         ctx.beginPath();
-        ctx.moveTo(ageToX(flooredData[fromIdx].age), baselineY);
+        ctx.moveTo(ageToX(flooredData[fromIdx].age), corpusBaseY);
         for (let i = fromIdx; i <= toIdx; i++) {
-            ctx.lineTo(ageToX(flooredData[i].age), valToY(flooredData[i].ending));
+            ctx.lineTo(ageToX(flooredData[i].age), corpusToY(flooredData[i].ending));
         }
-        ctx.lineTo(ageToX(flooredData[toIdx].age), baselineY);
+        ctx.lineTo(ageToX(flooredData[toIdx].age), corpusBaseY);
         ctx.closePath();
         ctx.fillStyle = fillStyle;
         ctx.fill();
     }
-
     if (depletionAge !== null) {
         const depIdx = flooredData.findIndex(d => d.age === depletionAge);
-        drawAreaSegment(0, depIdx, fillGood);
-        drawAreaSegment(depIdx, flooredData.length - 1, fillBad);
+        drawCorpusFill(0, depIdx, fillGood);
+        drawCorpusFill(depIdx, flooredData.length - 1, fillBad);
     } else {
-        drawAreaSegment(0, flooredData.length - 1, fillGood);
+        drawCorpusFill(0, flooredData.length - 1, fillGood);
     }
 
-    // Corpus line
+    /* corpus line */
     ctx.beginPath();
     ctx.strokeStyle = lineColor;
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2.25;
     flooredData.forEach((d, i) => {
         const x = ageToX(d.age);
-        const y = valToY(d.ending);
+        const y = corpusToY(d.ending);
         if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     });
     ctx.stroke();
 
-    /* Step 3: depletion marker — vertical dashed line + dot + callout */
+    /* depletion marker (corpus panel only, dashed vertical). Callout always
+     * goes top-right of the corpus panel so it never overlaps the curve. */
     if (depletionAge !== null) {
         const xDep = ageToX(depletionAge);
-        ctx.strokeStyle = '#ef4444';
+        ctx.strokeStyle = depletionRed;
         ctx.lineWidth = 1.5;
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
-        ctx.moveTo(xDep, padding.top);
-        ctx.lineTo(xDep, baselineY);
+        ctx.moveTo(xDep, corpusTop);
+        ctx.lineTo(xDep, corpusBaseY);
         ctx.stroke();
         ctx.setLineDash([]);
-
-        ctx.fillStyle = '#ef4444';
+        ctx.fillStyle = depletionRed;
         ctx.beginPath();
-        ctx.arc(xDep, baselineY, 5, 0, Math.PI * 2);
+        ctx.arc(xDep, corpusBaseY, 4.5, 0, Math.PI * 2);
         ctx.fill();
-
-        ctx.fillStyle = '#ef4444';
-        ctx.font = 'bold 12px -apple-system, sans-serif';
-        const calloutText = 'Depletes at age ' + depletionAge;
-        const textW = ctx.measureText(calloutText).width;
-        // Place callout left of the marker if too close to right edge
-        const calloutX = xDep + 8 + textW > W - padding.right
-            ? xDep - 8 - textW
-            : xDep + 8;
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'top';
-        ctx.fillText(calloutText, calloutX, padding.top + 2);
-    } else {
-        // Funded for life — soft green callout in top-right
-        ctx.fillStyle = isDark ? '#34d399' : '#059669';
-        ctx.font = 'bold 12px -apple-system, sans-serif';
+        ctx.font = 'bold 11px -apple-system, sans-serif';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'top';
-        ctx.fillText('Funded through age ' + maxAge, W - padding.right, padding.top + 2);
+        ctx.fillText('Depletes at age ' + depletionAge, W - padding.right, corpusTop + 2);
+    } else {
+        ctx.fillStyle = isDark ? '#34d399' : '#059669';
+        ctx.font = 'bold 11px -apple-system, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'top';
+        ctx.fillText('Funded through age ' + maxAge, W - padding.right, corpusTop + 2);
     }
 
-    /* Step 4: x-axis age ticks */
-    ctx.fillStyle = labelColor;
-    ctx.font = '11px -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    const xAxisY = baselineY + 6;
-    const step = Math.max(1, Math.floor(flooredData.length / 8));
-    for (let i = 0; i < flooredData.length; i += step) {
-        ctx.fillText(flooredData[i].age, ageToX(flooredData[i].age), xAxisY);
-    }
-    ctx.fillText(flooredData[flooredData.length - 1].age, ageToX(maxAge), xAxisY);
-
-    /* Step 5: phase ribbon below the x-axis. One stripe per phase, stacked
-     * into rows when phases overlap in time. */
-    const ribbonTop = baselineY + 24;
-    ribbonRows.forEach((row, rowIdx) => {
-        const rowY = ribbonTop + rowIdx * (RIBBON_ROW_H + RIBBON_GAP);
-        row.forEach(phase => {
-            const startAge = Math.max(minAge, phase.startAge);
-            const endAge = Math.min(maxAge, phase.endAge);
-            if (endAge < startAge) return;
-            const colorName = phase.color || 'blue';
-            const phaseColor = (docStyle.getPropertyValue('--phase-color-' + colorName) || '#3b82f6').trim();
-
-            const xStart = ageToX(startAge);
-            const xEnd = ageToX(endAge);
-            const w = Math.max(3, xEnd - xStart);
-
-            // Solid stripe
-            ctx.fillStyle = phaseColor;
-            ctx.beginPath();
-            const r = 4;
-            const x = xStart;
-            const y = rowY;
-            ctx.moveTo(x + r, y);
-            ctx.arcTo(x + w, y,     x + w, y + RIBBON_ROW_H, r);
-            ctx.arcTo(x + w, y + RIBBON_ROW_H, x,     y + RIBBON_ROW_H, r);
-            ctx.arcTo(x,     y + RIBBON_ROW_H, x,     y, r);
-            ctx.arcTo(x,     y, x + w, y, r);
-            ctx.closePath();
-            ctx.fill();
-
-            // Label inside stripe (truncated to fit). Skip if stripe < 36px.
-            if (w >= 36) {
-                ctx.font = 'bold 10px -apple-system, sans-serif';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                const shortName = phase.shortName || phase.name;
-                const maxChars = Math.max(3, Math.floor((w - 10) / 6));
-                const label = shortName.length > maxChars
-                    ? shortName.slice(0, maxChars - 1) + '…'
-                    : shortName;
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(xStart + 4, rowY, w - 8, RIBBON_ROW_H);
-                ctx.clip();
-                ctx.fillStyle = '#ffffff';
-                ctx.fillText(label, xStart + 6, rowY + RIBBON_ROW_H / 2 + 1);
-                ctx.restore();
-            }
-        });
+    /* ---------- Panel 2: Stacked area expense chart ---------- */
+    /* Resolve phase colors once */
+    const phaseColors = phaseList.map(p => {
+        const colorName = p.color || 'blue';
+        return (docStyle.getPropertyValue('--phase-color-' + colorName) || '#3b82f6').trim();
     });
 
-    /* No DOM legend below — the ribbon IS the legend now. Clear any lingering
-     * legend host from the prior design so it doesn't render an empty bar. */
-    const legendHost = document.getElementById('multigoalChartLegend');
-    if (legendHost) legendHost.innerHTML = '';
+    /* y-axis labels on expense panel (₹/mo) */
+    ctx.strokeStyle = gridColor;
+    ctx.fillStyle = labelColor;
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    for (let i = 0; i <= 2; i++) {
+        const y = expenseTop + (expenseH / 2) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(W - padding.right, y);
+        ctx.stroke();
+        const val = expenseMax - (expenseMax / 2) * i;
+        const label = val >= 100000
+            ? '₹' + (val / 100000).toFixed(1) + 'L'
+            : '₹' + Math.round(val / 1000) + 'k';
+        ctx.fillText(label, padding.left - 6, y);
+    }
+
+    /* Stacked area for each phase. Build top/bottom edge polylines per
+     * phase, draw bottom-up so each layer covers the area between prior
+     * cumulative top and new cumulative top. */
+    const cumulative = ages.map(() => 0);
+    for (let p = 0; p < phaseList.length; p++) {
+        ctx.beginPath();
+        // bottom edge (going right): previous cumulative
+        for (let i = 0; i < ages.length; i++) {
+            const x = ageToX(ages[i]);
+            const y = expenseToY(cumulative[i]);
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        // top edge (going left): cumulative + this phase's value
+        for (let i = ages.length - 1; i >= 0; i--) {
+            const x = ageToX(ages[i]);
+            const newCum = cumulative[i] + stackData[i].layers[p];
+            const y = expenseToY(newCum);
+            ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = phaseColors[p];
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        // accumulate
+        for (let i = 0; i < ages.length; i++) {
+            cumulative[i] += stackData[i].layers[p];
+        }
+    }
+
+    /* ---------- X-axis age ticks (between the two panels) ---------- */
+    ctx.fillStyle = labelColor;
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    const tickStep = Math.max(1, Math.floor(ages.length / 8));
+    for (let i = 0; i < ages.length; i += tickStep) {
+        ctx.fillText(ages[i], ageToX(ages[i]), xAxisY);
+    }
+    ctx.fillText(ages[ages.length - 1], ageToX(maxAge), xAxisY);
+
+    /* ---------- Hover scrubber + tooltip ---------- */
+    /* Detach prior listeners cleanly (idempotent re-render). */
+    if (canvasEl._scrubHandlers) {
+        canvasEl.removeEventListener('mousemove', canvasEl._scrubHandlers.move);
+        canvasEl.removeEventListener('mouseleave', canvasEl._scrubHandlers.leave);
+    }
+    let tooltipEl = document.getElementById('multigoalChartTooltip');
+    if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.id = 'multigoalChartTooltip';
+        tooltipEl.className = 'mg-chart-tooltip';
+        canvasEl.parentElement.appendChild(tooltipEl);
+    }
+    tooltipEl.style.display = 'none';
+
+    /* Pre-snapshot data the handlers need (canvas variables go out of scope
+     * via closure, but we capture cleanly to avoid stale closures on re-render). */
+    const hoverCtx = {
+        canvas: canvasEl,
+        tooltipEl,
+        ages, flooredData, stackData, phaseList, phaseColors,
+        ageToX, corpusToY, corpusTop, corpusBaseY, expenseTop, expenseBaseY,
+        padding, W, chartW
+    };
+
+    function onMove(e) {
+        const rect = canvasEl.getBoundingClientRect();
+        const xRel = e.clientX - rect.left;
+        const yRel = e.clientY - rect.top;
+        if (xRel < hoverCtx.padding.left || xRel > hoverCtx.W - hoverCtx.padding.right) {
+            hoverCtx.tooltipEl.style.display = 'none';
+            redrawWithoutScrubber();
+            return;
+        }
+        // Find closest age
+        const ageFloat = hoverCtx.ages[0] + (xRel - hoverCtx.padding.left) / hoverCtx.chartW * (hoverCtx.ages[hoverCtx.ages.length - 1] - hoverCtx.ages[0]);
+        let closestIdx = 0, closestDist = Infinity;
+        for (let i = 0; i < hoverCtx.ages.length; i++) {
+            const d = Math.abs(hoverCtx.ages[i] - ageFloat);
+            if (d < closestDist) { closestDist = d; closestIdx = i; }
+        }
+        renderTooltip(closestIdx);
+        redrawWithScrubber(closestIdx);
+    }
+    function onLeave() {
+        hoverCtx.tooltipEl.style.display = 'none';
+        redrawWithoutScrubber();
+    }
+
+    canvasEl._scrubHandlers = { move: onMove, leave: onLeave };
+    canvasEl.addEventListener('mousemove', onMove);
+    canvasEl.addEventListener('mouseleave', onLeave);
+
+    /* Redraw helpers — for performance, cache the chart pixel data once and
+     * re-blit it before drawing the scrubber, instead of re-running the
+     * full render. */
+    const baseSnapshot = ctx.getImageData(0, 0, W * dpr, H * dpr);
+    function redrawWithoutScrubber() {
+        ctx.putImageData(baseSnapshot, 0, 0);
+    }
+    function redrawWithScrubber(idx) {
+        ctx.putImageData(baseSnapshot, 0, 0);
+        const x = hoverCtx.ageToX(hoverCtx.ages[idx]);
+        ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(15,23,42,0.45)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x, corpusTop);
+        ctx.lineTo(x, expenseBaseY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Dot on corpus line
+        const cy = corpusToY(flooredData[idx].ending);
+        ctx.fillStyle = lineColor;
+        ctx.beginPath();
+        ctx.arc(x, cy, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function renderTooltip(idx) {
+        const row = stackData[idx];
+        const corpusRow = flooredData[idx];
+        const activeLayers = row.layers
+            .map((v, p) => ({ v, name: phaseList[p].name, color: phaseColors[p] }))
+            .filter(x => x.v > 0)
+            .sort((a, b) => b.v - a.v);
+        let html = '<div class="mg-tt-head">Age <strong>' + row.age + '</strong></div>';
+        html += '<div class="mg-tt-row"><span>Corpus</span><strong>' + RP.formatCurrencyShort(corpusRow.ending) + '</strong></div>';
+        html += '<div class="mg-tt-row"><span>Monthly outgo (today)</span><strong>₹' + (row.total >= 100000 ? (row.total / 100000).toFixed(2) + 'L' : Math.round(row.total / 1000) + 'k') + '</strong></div>';
+        if (activeLayers.length > 0) {
+            html += '<div class="mg-tt-divider"></div>';
+            activeLayers.forEach(layer => {
+                html += '<div class="mg-tt-phase"><span class="mg-tt-dot" style="background:' + layer.color + '"></span><span class="mg-tt-name">' + escapeHtml(layer.name) + '</span><span class="mg-tt-val">₹' + Math.round(layer.v / 1000) + 'k</span></div>';
+            });
+        } else {
+            html += '<div class="mg-tt-divider"></div><div class="mg-tt-row mg-tt-muted">No active phases</div>';
+        }
+        tooltipEl.innerHTML = html;
+        // Position: prefer right of cursor, flip to left if it would overflow
+        const x = ageToX(row.age);
+        const parentRect = canvasEl.parentElement.getBoundingClientRect();
+        const ttW = 220;
+        let left = x + 12;
+        if (left + ttW > parentRect.width - 8) left = x - 12 - ttW;
+        const top = Math.max(8, Math.min(parentRect.height - 200, corpusTop));
+        tooltipEl.style.display = 'block';
+        tooltipEl.style.left = left + 'px';
+        tooltipEl.style.top = top + 'px';
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    /* ---------- DOM legend below the canvas ---------- */
+    if (typeof RP._renderMultiGoalChartLegend === 'function') {
+        RP._renderMultiGoalChartLegend(phaseList);
+    }
+
+    /* Re-render on window resize so the canvas bitmap matches CSS width.
+     * Without this, the chart is drawn at the initial-load width and the
+     * browser stretches the bitmap to fit a different container width on
+     * resize/zoom — making text and lines look proportionally too big.
+     * Idempotent: prior listener is stashed on the canvas and removed first. */
+    if (canvasEl._resizeHandler) {
+        window.removeEventListener('resize', canvasEl._resizeHandler);
+    }
+    let resizeTimer = null;
+    canvasEl._resizeHandler = function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            // Re-call the latest cached projection rows + phases via the
+            // multigoal renderer (it owns the cache + cascade).
+            if (typeof RP._multigoal !== 'undefined' &&
+                typeof RP._multigoal.renderProjection === 'function') {
+                try { RP._multigoal.renderProjection(); } catch (e) { /* swallow */ }
+            }
+        }, 150);
+    };
+    window.addEventListener('resize', canvasEl._resizeHandler);
+};
+
+RP._renderMultiGoalChartLegend = function (phaseList) {
+    const host = document.getElementById('multigoalChartLegend');
+    if (!host) return;
+    host.innerHTML = '';
+    if (!Array.isArray(phaseList) || phaseList.length === 0) return;
+    phaseList.forEach(phase => {
+        const chip = document.createElement('span');
+        chip.className = 'phase-legend-chip';
+        const dot = document.createElement('span');
+        dot.className = 'phase-legend-dot';
+        dot.style.background = 'var(--phase-color-' + (phase.color || 'blue') + ')';
+        chip.appendChild(dot);
+        const label = document.createElement('span');
+        label.className = 'phase-legend-label';
+        label.textContent = phase.name;
+        chip.appendChild(label);
+        host.appendChild(chip);
+    });
 };

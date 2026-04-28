@@ -77,7 +77,12 @@
     position: relative;
 }
 
-.chart-container canvas { width: 100% !important; height: 350px !important; }
+/* v1.1 audit: scoped to legacy projection chart only.
+ * Previously matched ALL .chart-container canvas with !important, which
+ * forced the multi-goal v3 chart into a 350px box despite its JS-set 420px.
+ * The bitmap was drawn at 420px but rendered at 350px → vertical squish →
+ * text + lines stretched. Now exempts the multi-goal canvas explicitly. */
+.chart-container canvas:not(#multigoalProjectionChart) { width: 100% !important; height: 350px !important; }
 
 .projection-table-wrapper {
     overflow-x: auto;
