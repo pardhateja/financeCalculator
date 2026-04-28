@@ -92,10 +92,26 @@ RP.switchTab = function (tabName) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelector('.nav-tab[data-tab="' + tabName + '"]').classList.add('active');
     document.getElementById('tab-' + tabName).classList.add('active');
+    // v1.1 audit: persist active tab so refresh restores the user's place
+    // instead of always landing on Basics & Income.
+    try { localStorage.setItem('rp_active_tab', tabName); } catch (e) {}
     if (tabName === 'projections') RP.renderChart();
     if (tabName === 'whatif' && RP.renderWhatIfChart) RP.renderWhatIfChart();
     if (tabName === 'tracker' && RP.renderTracker) RP.renderTracker();
     if (tabName === 'networth' && RP.renderNetWorth) RP.renderNetWorth();
+};
+
+/* v1.1 audit: restore the previously-active tab on page load. Called from
+ * the DOMContentLoaded boot sequence below. Falls back to 'basics' if
+ * nothing was saved or the saved name no longer matches a real tab. */
+RP._restoreActiveTab = function () {
+    try {
+        const saved = localStorage.getItem('rp_active_tab');
+        if (!saved) return;
+        const tab = document.querySelector('.nav-tab[data-tab="' + saved + '"]');
+        const content = document.getElementById('tab-' + saved);
+        if (tab && content) RP.switchTab(saved);
+    } catch (e) { /* swallow */ }
 };
 
 RP.calculateAll = function () {
@@ -259,4 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // sets #currentAge before any downstream consumer reads it.
     if (RP._wireDOBHandlers) RP._wireDOBHandlers();
     RP.calculateAll();
+    // v1.1 audit: restore last active tab AFTER calculateAll so any tab-switch
+    // side effects (renderChart, renderTracker, etc.) have data to work with.
+    if (RP._restoreActiveTab) RP._restoreActiveTab();
 });
