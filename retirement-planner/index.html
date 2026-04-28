@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Financial Planner</title>
-    <link rel="stylesheet" href="css/base.css?v=20260429004020">
-    <link rel="stylesheet" href="css/layout.css?v=20260429004020">
-    <link rel="stylesheet" href="css/forms.css?v=20260429004020">
-    <link rel="stylesheet" href="css/cards.css?v=20260429004020">
-    <link rel="stylesheet" href="css/tables.css?v=20260429004020">
-    <link rel="stylesheet" href="css/responsive.css?v=20260429004020">
-    <link rel="stylesheet" href="css/tracker.css?v=20260429004020">
-    <link rel="stylesheet" href="css/multigoal.css?v=20260429004020">
-    <link rel="stylesheet" href="css/dark.css?v=20260429004020">
+    <link rel="stylesheet" href="css/base.css?v=20260429005743">
+    <link rel="stylesheet" href="css/layout.css?v=20260429005743">
+    <link rel="stylesheet" href="css/forms.css?v=20260429005743">
+    <link rel="stylesheet" href="css/cards.css?v=20260429005743">
+    <link rel="stylesheet" href="css/tables.css?v=20260429005743">
+    <link rel="stylesheet" href="css/responsive.css?v=20260429005743">
+    <link rel="stylesheet" href="css/tracker.css?v=20260429005743">
+    <link rel="stylesheet" href="css/multigoal.css?v=20260429005743">
+    <link rel="stylesheet" href="css/dark.css?v=20260429005743">
 </head>
 <body>
     <div class="container">
@@ -108,12 +108,12 @@
                             <h3>Rates</h3>
                             <div class="input-row">
                                 <div class="input-group">
-                                    <label for="inflationRate">Inflation Rate</label>
+                                    <label for="inflationRate">Inflation Rate <span class="field-help" title="Average annual price inflation. India long-term ~6%. Affects how much your monthly expenses grow over time.">?</span></label>
                                     <input type="number" id="inflationRate" value="6" step="0.1">
                                     <span class="unit">%</span>
                                 </div>
                                 <div class="input-group">
-                                    <label for="taxRate">Tax Rate</label>
+                                    <label for="taxRate">Tax Rate <span class="field-help" title="Your effective tax rate (after deductions, not the highest slab). Most salaried Indians: 20–30%. The app uses this to compute post-tax investment returns.">?</span></label>
                                     <input type="number" id="taxRate" value="30" step="0.1">
                                     <span class="unit">%</span>
                                 </div>
@@ -132,6 +132,10 @@
                                 <div class="label">Grand Total (Annual)</div>
                                 <div class="value" id="grandTotalIncome">&#8377;0</div>
                             </div>
+                            <div class="summary-card">
+                                <div class="label">Savings Rate <span class="field-help" title="Monthly surplus (income − expenses) ÷ monthly income. FIRE target: 50% or higher.">?</span></div>
+                                <div class="value" id="basicsSavingsRate">0%</div>
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -142,6 +146,11 @@
                                 <label for="monthlySalary">Salary / Business Income</label>
                                 <input type="number" id="monthlySalary" value="350000">
                                 <span class="unit">&#8377;/mo</span>
+                            </div>
+                            <div class="input-group">
+                                <label for="salaryGrowthRate">Annual Salary Growth <span class="field-help" title="Expected average annual raise on salary income (compounded). Drives the SIP step-up rate in Financial Plan. E.g. 8% means salary grows ~8% per year, so monthly investment also steps up 8% per year by default.">?</span></label>
+                                <input type="number" id="salaryGrowthRate" value="8" step="0.5">
+                                <span class="unit">%</span>
                             </div>
                             <div class="input-group">
                                 <label for="monthlyRental">Rental Income</label>
@@ -1369,28 +1378,47 @@
         </footer>
     </div>
 
-    <script src="js/utils.js?v=20260429004020"></script>
-    <script src="js/calc-income.js?v=20260429004020"></script>
-    <script src="js/calc-expenses.js?v=20260429004020"></script>
-    <script src="js/calc-investments.js?v=20260429004020"></script>
-    <script src="js/calc-financial-plan.js?v=20260429004020"></script>
-    <script src="js/calc-projections.js?v=20260429004020"></script>
-    <script src="js/chart.js?v=20260429004020"></script>
-    <script src="js/calc-dashboard.js?v=20260429004020"></script>
-    <script src="js/calc-whatif.js?v=20260429004020"></script>
-    <script src="js/calc-goals.js?v=20260429004020"></script>
-    <script src="js/calc-multigoal.js?v=20260429004020"></script>
-    <script src="js/calc-emergency.js?v=20260429004020"></script>
-    <script src="js/calc-sip.js?v=20260429004020"></script>
-    <script src="js/calc-tracker.js?v=20260429004020"></script>
-    <script src="js/calc-savings-rollup.js?v=20260429004020"></script>
-    <script src="js/calc-milestones.js?v=20260429004020"></script>
-    <script src="js/calc-loan.js?v=20260429004020"></script>
-    <script src="js/calc-exptrack.js?v=20260429004020"></script>
-    <script src="js/calc-networth.js?v=20260429004020"></script>
-    <script src="js/profiles.js?v=20260429004020"></script>
-    <script src="js/sharelink.js?v=20260429004020"></script>
-    <script src="js/darkmode.js?v=20260429004020"></script>
-    <script src="js/app.js?v=20260429004020"></script>
+    <!-- v1.1 audit: sticky summary bar. Always visible at the bottom of the
+         viewport so the user sees their key numbers update as they edit any
+         input. Three metrics: Corpus at retirement, Money lasts until,
+         Savings Rate. Click jumps to Dashboard for full breakdown. -->
+    <div id="stickySummary" class="sticky-summary" role="status" aria-label="Live financial summary">
+        <button class="sticky-summary-item" onclick="RP.switchTab('dashboard')" title="Click for full breakdown">
+            <span class="sticky-label">Corpus @ Retirement</span>
+            <span class="sticky-value" id="stickyCorpus">—</span>
+        </button>
+        <button class="sticky-summary-item" onclick="RP.switchTab('projections')" title="Click for year-by-year projection">
+            <span class="sticky-label">Money lasts until</span>
+            <span class="sticky-value" id="stickyLastsUntil">—</span>
+        </button>
+        <button class="sticky-summary-item" onclick="RP.switchTab('expenses')" title="Click to adjust expenses">
+            <span class="sticky-label">Savings Rate</span>
+            <span class="sticky-value" id="stickySavingsRate">—</span>
+        </button>
+    </div>
+
+    <script src="js/utils.js?v=20260429005743"></script>
+    <script src="js/calc-income.js?v=20260429005743"></script>
+    <script src="js/calc-expenses.js?v=20260429005743"></script>
+    <script src="js/calc-investments.js?v=20260429005743"></script>
+    <script src="js/calc-financial-plan.js?v=20260429005743"></script>
+    <script src="js/calc-projections.js?v=20260429005743"></script>
+    <script src="js/chart.js?v=20260429005743"></script>
+    <script src="js/calc-dashboard.js?v=20260429005743"></script>
+    <script src="js/calc-whatif.js?v=20260429005743"></script>
+    <script src="js/calc-goals.js?v=20260429005743"></script>
+    <script src="js/calc-multigoal.js?v=20260429005743"></script>
+    <script src="js/calc-emergency.js?v=20260429005743"></script>
+    <script src="js/calc-sip.js?v=20260429005743"></script>
+    <script src="js/calc-tracker.js?v=20260429005743"></script>
+    <script src="js/calc-savings-rollup.js?v=20260429005743"></script>
+    <script src="js/calc-milestones.js?v=20260429005743"></script>
+    <script src="js/calc-loan.js?v=20260429005743"></script>
+    <script src="js/calc-exptrack.js?v=20260429005743"></script>
+    <script src="js/calc-networth.js?v=20260429005743"></script>
+    <script src="js/profiles.js?v=20260429005743"></script>
+    <script src="js/sharelink.js?v=20260429005743"></script>
+    <script src="js/darkmode.js?v=20260429005743"></script>
+    <script src="js/app.js?v=20260429005743"></script>
 </body>
 </html>

@@ -340,3 +340,63 @@ footer a:focus {
 .nav-links a:hover {
     background: rgba(255, 255, 255, 0.3);
 }
+
+/* v1.1 audit: sticky summary bar — always-visible bottom strip with the
+ * 3 metrics that matter most. Click any item to jump to the relevant tab. */
+.sticky-summary {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: flex;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(148, 163, 184, 0.30);
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.30);
+    padding: 8px 12px;
+    gap: 4px;
+}
+.sticky-summary-item {
+    flex: 1;
+    background: transparent;
+    color: #f1f5f9;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+.sticky-summary-item:hover { background: rgba(148, 163, 184, 0.15); }
+.sticky-label {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+.sticky-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Pad the body so the sticky bar doesn't overlap the footer / final content */
+body { padding-bottom: 70px; }
+
+@media (max-width: 600px) {
+    .sticky-summary { padding: 6px 4px; }
+    .sticky-label { font-size: 0.65rem; }
+    .sticky-value { font-size: 0.85rem; }
+    body { padding-bottom: 64px; }
+}

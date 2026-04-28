@@ -30,6 +30,31 @@
     font-size: 0.9rem;
 }
 
+/* v1.1 audit: small "?" pill next to a label that shows a tooltip on
+ * hover. Uses native title attribute — no JS needed. */
+.field-help {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--primary-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: help;
+    user-select: none;
+    vertical-align: middle;
+}
+.field-help:hover { background: rgba(37, 99, 235, 0.22); }
+body.dark-mode .field-help {
+    background: rgba(96, 165, 250, 0.22);
+    color: #93c5fd;
+}
+body.dark-mode .field-help:hover { background: rgba(96, 165, 250, 0.35); }
+
 .input-group input[type="number"],
 .input-group input[type="text"],
 .input-group input[type="date"],

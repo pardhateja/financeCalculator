@@ -91,6 +91,25 @@ cat >> "$OUT" << 'FOOT'
         </footer>
     </div>
 
+    <!-- v1.1 audit: sticky summary bar. Always visible at the bottom of the
+         viewport so the user sees their key numbers update as they edit any
+         input. Three metrics: Corpus at retirement, Money lasts until,
+         Savings Rate. Click jumps to Dashboard for full breakdown. -->
+    <div id="stickySummary" class="sticky-summary" role="status" aria-label="Live financial summary">
+        <button class="sticky-summary-item" onclick="RP.switchTab('dashboard')" title="Click for full breakdown">
+            <span class="sticky-label">Corpus @ Retirement</span>
+            <span class="sticky-value" id="stickyCorpus">—</span>
+        </button>
+        <button class="sticky-summary-item" onclick="RP.switchTab('projections')" title="Click for year-by-year projection">
+            <span class="sticky-label">Money lasts until</span>
+            <span class="sticky-value" id="stickyLastsUntil">—</span>
+        </button>
+        <button class="sticky-summary-item" onclick="RP.switchTab('expenses')" title="Click to adjust expenses">
+            <span class="sticky-label">Savings Rate</span>
+            <span class="sticky-value" id="stickySavingsRate">—</span>
+        </button>
+    </div>
+
     <script src="js/utils.js"></script>
     <script src="js/calc-income.js"></script>
     <script src="js/calc-expenses.js"></script>

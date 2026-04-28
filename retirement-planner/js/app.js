@@ -65,6 +65,17 @@ RP.init = function () {
         RP._investManuallySet = true;
     });
 
+    // v1.1 audit: when user changes Annual Salary Growth, mirror it to the
+    // SIP step-up rate so the projection reflects "income grows → investment
+    // steps up at the same pace" without the user having to set both.
+    const salaryGrowthEl = document.getElementById('salaryGrowthRate');
+    if (salaryGrowthEl) {
+        salaryGrowthEl.addEventListener('input', () => {
+            const stepUpEl = document.getElementById('stepUpRate');
+            if (stepUpEl) stepUpEl.value = salaryGrowthEl.value;
+        });
+    }
+
     // Track manual edits to emergency fund
     document.getElementById('emergencyFund').addEventListener('input', () => {
         RP._emFundManuallySet = true;
@@ -144,7 +155,7 @@ RP.resetDefaults = function () {
         expInsurance: 5000, expEntertainment: 5000, expShopping: 5000, expOtherMonthly: 40000,
         expVacation: 0, expMedical: 0, expOtherYearly: 0,
         safeReturn: 7, largecapReturn: 12, midcapReturn: 15, smallcapReturn: 18,
-        currentSavings: 7000000, currentSavingsSeed: 7000000, stepUpRate: 5,
+        currentSavings: 7000000, currentSavingsSeed: 7000000, stepUpRate: 8, salaryGrowthRate: 8,
         preFixedReturn: 7, preFixedTax: 30, preFixedShare: 27,
         preLargeReturn: 12, preLargeTax: 20, preLargeShare: 29,
         preMidReturn: 15, preMidTax: 20, preMidShare: 22,
@@ -256,15 +267,53 @@ RP._restoreActiveTab = function () {
     } catch (e) { /* swallow */ }
 };
 
+/* v1.1 audit: cross-field age validation. retirementAge must be > currentAge,
+ * lifeExpectancy must be > retirementAge. Sets .input-invalid + inline error
+ * message under the offending field. Idempotent (runs on every calculateAll). */
+RP._validateAgeFields = function () {
+    const curAge = RP.val('currentAge');
+    const retAge = RP.val('retirementAge');
+    const lifeExp = RP.val('lifeExpectancy');
+    const retEl = document.getElementById('retirementAge');
+    const lifeEl = document.getElementById('lifeExpectancy');
+
+    function setError(el, msg) {
+        if (!el) return;
+        let errEl = el.parentElement.querySelector('.field-error');
+        if (msg) {
+            if (!errEl) {
+                errEl = document.createElement('div');
+                errEl.className = 'field-error';
+                errEl.setAttribute('role', 'alert');
+                el.parentElement.appendChild(errEl);
+            }
+            errEl.textContent = msg;
+            el.classList.add('input-invalid');
+        } else {
+            el.classList.remove('input-invalid');
+            if (errEl) errEl.textContent = '';
+        }
+    }
+
+    setError(retEl, retAge > curAge ? null : 'Retirement age must be greater than current age');
+    setError(lifeEl, lifeExp > retAge ? null : 'Life expectancy must be greater than retirement age');
+};
+
 RP.calculateAll = function () {
     const curAge = RP.val('currentAge');
     const retAge = RP.val('retirementAge');
     document.getElementById('yearsToRetire').value = Math.max(0, retAge - curAge);
 
+    // v1.1 audit: cross-field age validation
+    RP._validateAgeFields();
+
     // Core modules
     RP.highlightBracket();
-    RP.calculateIncome();
+    // v1.1 audit: Expenses runs first so it caches RP._lastMonthlyExpense
+    // for calc-income's Savings Rate card. Order is otherwise irrelevant
+    // (neither depends on the other's DOM writes).
     RP.calculateExpenses();
+    RP.calculateIncome();
     RP.calculateInvestments();
     RP.calculateFinancialPlan();
     RP.generateProjections();
@@ -287,6 +336,56 @@ RP.calculateAll = function () {
     // cascade picks up the freshly computed corpus. The wrapper IIFEs are idempotent.
     if (typeof RP.renderPhases === 'function') {
         try { RP.renderPhases(); } catch (e) { console.warn('renderPhases at end of calculateAll failed:', e); }
+    }
+
+    // v1.1 audit: refresh sticky bar at end of every calculateAll.
+    if (typeof RP._updateStickySummary === 'function') RP._updateStickySummary();
+};
+
+/* v1.1 audit: sticky summary bar populator. Reads numbers already computed
+ * by calc-projections + calc-expenses + calc-income — no math here. */
+RP._updateStickySummary = function () {
+    const corpusEl = document.getElementById('stickyCorpus');
+    const lastsEl = document.getElementById('stickyLastsUntil');
+    const rateEl = document.getElementById('stickySavingsRate');
+
+    // Corpus at retirement: from RP._projectionRows
+    if (corpusEl) {
+        let corpus = 0;
+        const rows = RP._projectionRows;
+        const retAge = RP.val('retirementAge');
+        if (Array.isArray(rows) && rows.length) {
+            const r = rows.find(x => x.age === retAge - 1);
+            if (r && Number.isFinite(r.ending)) corpus = Math.max(0, r.ending);
+        }
+        corpusEl.textContent = corpus > 0 ? RP.formatCurrencyShort(corpus) : '—';
+    }
+
+    // Money lasts until: first projection row where ending <= 0, else "Lifetime"
+    if (lastsEl) {
+        const rows = RP._projectionRows;
+        let label = '—';
+        if (Array.isArray(rows) && rows.length) {
+            const out = rows.find(x => x.ending <= 0 && x.status === 'Retired');
+            if (out) {
+                label = 'Age ' + out.age;
+            } else {
+                label = 'Lifetime';
+            }
+        }
+        lastsEl.textContent = label;
+    }
+
+    // Savings rate: read the computed value already shown on Basics card
+    if (rateEl) {
+        const basicsRate = document.getElementById('basicsSavingsRate');
+        if (basicsRate && basicsRate.textContent && basicsRate.textContent !== '0%') {
+            rateEl.textContent = basicsRate.textContent;
+            rateEl.style.color = basicsRate.style.color || '';
+        } else {
+            rateEl.textContent = '—';
+            rateEl.style.color = '';
+        }
     }
 };
 

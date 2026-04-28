@@ -18,6 +18,10 @@ RP.calculateExpenses = function () {
     const excess = monthlyIncome - monthlyExp;
     const savingsRate = monthlyIncome > 0 ? (excess / monthlyIncome * 100) : 0;
 
+    // v1.1 audit: cache monthly expense so calc-income.js can compute the
+    // Basics-tab Savings Rate card without recomputing the full sum.
+    RP._lastMonthlyExpense = monthlyExp;
+
     RP.setText('totalMonthlyExpenses', RP.formatCurrency(monthlyExp));
     RP.setText('totalAnnualExpenses', RP.formatCurrency(totalAnnual));
     RP.setText('monthlyExcess', RP.formatCurrency(excess));
