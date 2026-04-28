@@ -32,32 +32,25 @@ cat > "$OUT" << 'HEAD'
                 </div>
                 <div class="app-header-actions">
                     <button id="darkModeBtn" class="header-action-btn">🌙 Dark</button>
-                    <label for="includePhasesInShareLink" class="header-action-btn header-action-checkbox"><input type="checkbox" id="includePhasesInShareLink" checked>Include phases</label>
+                    <label for="includePhasesInShareLink" class="header-action-btn header-action-checkbox" title="When checked, your Multi-Goal life phases are encoded into the Copy Share Link URL so the recipient sees them too. Adds ~3KB. Uncheck for a shorter link."><input type="checkbox" id="includePhasesInShareLink" checked>Include phases in share link</label>
                     <button id="shareLinkBtn" class="header-action-btn" onclick="RP.generateShareLink()">Copy Share Link</button>
                     <button id="resetBtn" class="header-action-btn header-action-btn--danger">Reset</button>
                 </div>
             </div>
         </header>
 
-        <div class="nav-tabs">
-            <button class="nav-tab active" data-tab="basics">Basics & Income</button>
-            <button class="nav-tab" data-tab="expenses">Expenses</button>
-            <button class="nav-tab" data-tab="investments">Investments</button>
-            <button class="nav-tab" data-tab="financial-plan">Financial Plan</button>
-            <button class="nav-tab" data-tab="projections">Projections</button>
-            <button class="nav-tab" data-tab="dashboard">Dashboard</button>
-            <button class="nav-tab" data-tab="whatif">What-If</button>
-            <button class="nav-tab" data-tab="goals">Goals</button>
-            <button class="nav-tab" data-tab="multigoal">Multi-Goal</button>
-            <button class="nav-tab" data-tab="emergency">Emergency Fund</button>
-            <button class="nav-tab" data-tab="sip">SIP Calculator</button>
-            <button class="nav-tab" data-tab="tracker">Tracker</button>
-            <button class="nav-tab" data-tab="milestones">Milestones</button>
-            <button class="nav-tab" data-tab="loan">Loan/EMI</button>
-            <button class="nav-tab" data-tab="exptrack">Expense Log</button>
-            <button class="nav-tab" data-tab="networth">Net Worth</button>
-            <button class="nav-tab" data-tab="profiles">Profiles</button>
+        <!-- v1.1 audit: two-tier navigation. Top-level = 6 intent groups,
+             second tier = the sub-tabs of the active group (rendered by JS
+             into #navSubtabs). All 17 underlying tabs preserved. -->
+        <div class="nav-groups" role="tablist" aria-label="Sections">
+            <button class="nav-group" data-group="setup">Setup</button>
+            <button class="nav-group" data-group="plan">Plan</button>
+            <button class="nav-group" data-group="project">Project</button>
+            <button class="nav-group" data-group="track">Track</button>
+            <button class="nav-group" data-group="tools">Tools</button>
+            <button class="nav-group" data-group="profiles">Profiles</button>
         </div>
+        <div class="nav-subtabs" id="navSubtabs" role="tablist" aria-label="Sub-sections"></div>
 
 HEAD
 

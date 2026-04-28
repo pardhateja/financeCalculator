@@ -2,10 +2,62 @@
  * App entry point
  * Tab switching, event binding, calculation orchestrator
  */
+
+/* v1.1 audit (two-tier nav): groups + reverse lookup. Each group owns a list
+ * of tab IDs. Order matters — first tab is the default sub-tab when the user
+ * clicks a group fresh. */
+RP._tabGroups = {
+    setup:    { label: 'Setup',    tabs: ['basics', 'expenses', 'investments'] },
+    plan:     { label: 'Plan',     tabs: ['financial-plan', 'multigoal', 'emergency'] },
+    project:  { label: 'Project',  tabs: ['projections', 'whatif', 'milestones', 'goals'] },
+    track:    { label: 'Track',    tabs: ['dashboard', 'tracker', 'networth', 'exptrack'] },
+    tools:    { label: 'Tools',    tabs: ['sip', 'loan'] },
+    profiles: { label: 'Profiles', tabs: ['profiles'] }
+};
+/* tab → group key, built once at script load. */
+RP._tabToGroup = (function () {
+    const m = {};
+    Object.keys(RP._tabGroups).forEach(g => RP._tabGroups[g].tabs.forEach(t => { m[t] = g; }));
+    return m;
+})();
+/* Display labels for sub-tab buttons. Single source of truth for tab names
+ * — used by switchTab to render .nav-subtab buttons. */
+RP._tabLabels = {
+    'basics': 'Basics & Income',
+    'expenses': 'Expenses',
+    'investments': 'Investments',
+    'financial-plan': 'Financial Plan',
+    'multigoal': 'Multi-Goal',
+    'emergency': 'Emergency Fund',
+    'projections': 'Projections',
+    'whatif': 'What-If',
+    'milestones': 'Milestones',
+    'goals': 'Goals',
+    'dashboard': 'Dashboard',
+    'tracker': 'Tracker',
+    'networth': 'Net Worth',
+    'exptrack': 'Expense Log',
+    'sip': 'SIP Calculator',
+    'loan': 'Loan/EMI',
+    'profiles': 'Profiles'
+};
+
 RP.init = function () {
-    // Tab switching
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.addEventListener('click', () => RP.switchTab(tab.dataset.tab));
+    // v1.1 audit: top-tier group buttons. Click → switch to that group's
+    // first tab (or its previously-active sub-tab if remembered).
+    document.querySelectorAll('.nav-group').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const groupKey = btn.dataset.group;
+            const group = RP._tabGroups[groupKey];
+            if (!group) return;
+            // Restore the last-active sub-tab within this group, else default to first
+            let target = group.tabs[0];
+            try {
+                const lastInGroup = localStorage.getItem('rp_last_tab_in_group_' + groupKey);
+                if (lastInGroup && group.tabs.indexOf(lastInGroup) >= 0) target = lastInGroup;
+            } catch (e) {}
+            RP.switchTab(target);
+        });
     });
 
     // Track manual edits to monthly investment
@@ -88,23 +140,52 @@ RP.resetDefaults = function () {
 };
 
 RP.switchTab = function (tabName) {
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    // v1.1 audit (two-tier nav): activate the parent group + render its
+    // sub-tab strip first, then activate the requested sub-tab + content.
+    const groupKey = RP._tabToGroup[tabName];
+    if (!groupKey) return; // unknown tab — do nothing rather than crash
+
+    // 1. Activate the top-level group button
+    document.querySelectorAll('.nav-group').forEach(g => g.classList.remove('active'));
+    const groupBtn = document.querySelector('.nav-group[data-group="' + groupKey + '"]');
+    if (groupBtn) groupBtn.classList.add('active');
+
+    // 2. Render the sub-tab strip for this group (always re-render so
+    //    switching groups updates the visible sub-tabs).
+    const subContainer = document.getElementById('navSubtabs');
+    if (subContainer) {
+        const groupTabs = (RP._tabGroups[groupKey] && RP._tabGroups[groupKey].tabs) || [];
+        subContainer.innerHTML = '';
+        groupTabs.forEach(t => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-subtab' + (t === tabName ? ' active' : '');
+            btn.dataset.tab = t;
+            btn.textContent = RP._tabLabels[t] || t;
+            btn.addEventListener('click', () => RP.switchTab(t));
+            subContainer.appendChild(btn);
+        });
+    }
+
+    // 3. Show the tab content
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelector('.nav-tab[data-tab="' + tabName + '"]').classList.add('active');
-    document.getElementById('tab-' + tabName).classList.add('active');
-    // v1.1 audit: persist active tab so refresh restores the user's place
-    // instead of always landing on Basics & Income.
-    try { localStorage.setItem('rp_active_tab', tabName); } catch (e) {}
-    // v1.1 audit: also reflect in the URL hash so users can bookmark or
-    // share specific tabs and see where they are in the address bar.
-    // Use replaceState so the browser back-button doesn't fill with each
-    // intermediate tab visit.
+    const contentEl = document.getElementById('tab-' + tabName);
+    if (contentEl) contentEl.classList.add('active');
+
+    // 4. Persist (active tab + last sub-tab within this group)
+    try {
+        localStorage.setItem('rp_active_tab', tabName);
+        localStorage.setItem('rp_last_tab_in_group_' + groupKey, tabName);
+    } catch (e) {}
+
+    // 5. URL hash sync — unchanged format so old shared links still work
     try {
         const newHash = '#' + tabName;
         if (window.location.hash !== newHash) {
             history.replaceState(null, '', window.location.pathname + window.location.search + newHash);
         }
     } catch (e) {}
+
+    // 6. Per-tab side effects (charts, render hooks)
     if (tabName === 'projections') RP.renderChart();
     if (tabName === 'whatif' && RP.renderWhatIfChart) RP.renderWhatIfChart();
     if (tabName === 'tracker' && RP.renderTracker) RP.renderTracker();
@@ -121,14 +202,18 @@ RP._restoreActiveTab = function () {
         // 1. URL hash wins (shareable / bookmarkable)
         if (window.location.hash) {
             const fromHash = window.location.hash.replace(/^#/, '');
-            if (document.querySelector('.nav-tab[data-tab="' + fromHash + '"]')) target = fromHash;
+            if (RP._tabToGroup[fromHash]) target = fromHash;
         }
         // 2. localStorage fallback
         if (!target) {
             const saved = localStorage.getItem('rp_active_tab');
-            if (saved && document.querySelector('.nav-tab[data-tab="' + saved + '"]')) target = saved;
+            if (saved && RP._tabToGroup[saved]) target = saved;
         }
-        if (target) RP.switchTab(target);
+        // 3. Default to the first tab of the first group (Setup → Basics)
+        if (!target) {
+            target = RP._tabGroups.setup.tabs[0];
+        }
+        RP.switchTab(target);
     } catch (e) { /* swallow */ }
 };
 

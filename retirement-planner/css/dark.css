@@ -142,6 +142,15 @@ body.dark-mode .chart-container { background: #1e293b; }
 body.dark-mode .nav-tab { color: rgba(255,255,255,0.7); }
 body.dark-mode .nav-tab.active { background: #1e293b; color: #60a5fa; }
 
+/* v1.1 audit: two-tier navigation dark-mode overrides. */
+body.dark-mode .nav-group { color: rgba(255,255,255,0.75); }
+body.dark-mode .nav-group:hover { background: rgba(255,255,255,0.30); }
+body.dark-mode .nav-group.active { background: #1e293b; color: #60a5fa; }
+body.dark-mode .nav-subtabs { background: #1e293b; }
+body.dark-mode .nav-subtab { color: #cbd5e1; }
+body.dark-mode .nav-subtab:hover { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+body.dark-mode .nav-subtab.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
 body.dark-mode .month-card { background: #1e293b; border-color: #334155; }
 body.dark-mode .month-card:hover { border-color: #3b82f6; }
 body.dark-mode .month-card.completed { background: #064e3b; border-color: #10b981; }
