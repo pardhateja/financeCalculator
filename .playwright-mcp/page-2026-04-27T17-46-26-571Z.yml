@@ -1,0 +1,118 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "Retirement Financial Planner" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Comprehensive Income, Expense, Investment & Projection Planning
+    - generic [ref=e6]:
+      - button "🌙 Dark" [ref=e7] [cursor=pointer]
+      - generic [ref=e8] [cursor=pointer]:
+        - checkbox "Include phases" [checked] [ref=e9]
+        - text: Include phases
+      - button "Copy Share Link" [ref=e10] [cursor=pointer]
+      - button "Reset" [ref=e11] [cursor=pointer]
+  - generic [ref=e12]:
+    - button "Basics & Income" [ref=e13] [cursor=pointer]
+    - button "Expenses" [ref=e14] [cursor=pointer]
+    - button "Investments" [ref=e15] [cursor=pointer]
+    - button "Financial Plan" [ref=e16] [cursor=pointer]
+    - button "Projections" [ref=e17] [cursor=pointer]
+    - button "Dashboard" [ref=e18] [cursor=pointer]
+    - button "What-If" [ref=e19] [cursor=pointer]
+    - button "Goals" [ref=e20] [cursor=pointer]
+    - button "Multi-Goal" [ref=e21] [cursor=pointer]
+    - button "Emergency Fund" [ref=e22] [cursor=pointer]
+    - button "SIP Calculator" [ref=e23] [cursor=pointer]
+    - button "Tracker" [ref=e24] [cursor=pointer]
+    - button "Milestones" [ref=e25] [cursor=pointer]
+    - button "Loan/EMI" [ref=e26] [cursor=pointer]
+    - button "Expense Log" [ref=e27] [cursor=pointer]
+    - button "Net Worth" [ref=e28] [cursor=pointer]
+    - button "Profiles" [ref=e29] [cursor=pointer]
+  - generic [ref=e32]:
+    - generic [ref=e33]:
+      - heading "Basic Details" [level=2] [ref=e34]
+      - generic [ref=e35]:
+        - heading "Age & Timeline" [level=3] [ref=e36]
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: Date of Birth
+            - textbox "Date of Birth" [ref=e40]: 1998-04-19
+            - generic [ref=e41]: DOB
+          - generic [ref=e42]:
+            - generic [ref=e43]: Current Age
+            - spinbutton "Current Age" [ref=e44]: "28"
+            - generic [ref=e45]: years
+        - generic [ref=e46]:
+          - generic [ref=e48]:
+            - checkbox "Override Current Age (ignore DOB, type manually)" [ref=e49]
+            - text: Override Current Age (ignore DOB, type manually)
+          - generic [ref=e50]:
+            - generic [ref=e51]: Retirement Age
+            - spinbutton "Retirement Age" [ref=e52]: "35"
+            - generic [ref=e53]: years
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]: Life Expectancy
+            - spinbutton "Life Expectancy" [ref=e57]: "100"
+            - generic [ref=e58]: years
+          - generic [ref=e59]:
+            - generic [ref=e60]: Years to Retire
+            - spinbutton "Years to Retire" [ref=e61]: "7"
+            - generic [ref=e62]: years
+      - generic [ref=e63]:
+        - heading "Rates" [level=3] [ref=e64]
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e67]: Inflation Rate
+            - spinbutton "Inflation Rate" [ref=e68]: "6"
+            - generic [ref=e69]: "%"
+          - generic [ref=e70]:
+            - generic [ref=e71]: Tax Rate
+            - spinbutton "Tax Rate" [ref=e72]: "30"
+            - generic [ref=e73]: "%"
+      - generic [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: Total Monthly Income
+          - generic [ref=e77]: ₹3,50,000
+        - generic [ref=e78]:
+          - generic [ref=e79]: Total Yearly Income
+          - generic [ref=e80]: ₹0
+        - generic [ref=e81]:
+          - generic [ref=e82]: Grand Total (Annual)
+          - generic [ref=e83]: ₹42,00,000
+    - generic [ref=e84]:
+      - heading "Income Details" [level=2] [ref=e85]
+      - generic [ref=e86]:
+        - heading "Monthly Income" [level=3] [ref=e87]
+        - generic [ref=e88]:
+          - generic [ref=e89]: Salary / Business Income
+          - spinbutton "Salary / Business Income" [ref=e90]: "350000"
+          - generic [ref=e91]: ₹/mo
+        - generic [ref=e92]:
+          - generic [ref=e93]: Rental Income
+          - spinbutton "Rental Income" [ref=e94]: "0"
+          - generic [ref=e95]: ₹/mo
+        - generic [ref=e96]:
+          - generic [ref=e97]: Dividend / Interest
+          - spinbutton "Dividend / Interest" [ref=e98]: "0"
+          - generic [ref=e99]: ₹/mo
+        - generic [ref=e100]:
+          - generic [ref=e101]: Other Monthly Income
+          - spinbutton "Other Monthly Income" [ref=e102]: "0"
+          - generic [ref=e103]: ₹/mo
+      - generic [ref=e104]:
+        - heading "Yearly Income" [level=3] [ref=e105]
+        - generic [ref=e106]:
+          - generic [ref=e107]: Annual Bonus
+          - spinbutton "Annual Bonus" [ref=e108]: "0"
+          - generic [ref=e109]: ₹/yr
+        - generic [ref=e110]:
+          - generic [ref=e111]: Other Yearly Income
+          - spinbutton "Other Yearly Income" [ref=e112]: "0"
+          - generic [ref=e113]: ₹/yr
+  - contentinfo [ref=e114]:
+    - paragraph [ref=e115]: Retirement Financial Planner — Plan your financial future with confidence
+    - generic [ref=e116]:
+      - link "Home" [ref=e117] [cursor=pointer]:
+        - /url: ../index.html
+      - link "Multi-Method Calculator" [ref=e118] [cursor=pointer]:
+        - /url: ../multi-method-calculator.html

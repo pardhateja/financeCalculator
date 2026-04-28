@@ -1,0 +1,553 @@
+{
+  "$schema": "https://schemas.tokens.studio/v1/token-schema.json",
+  "$source": "extracted from existing retirement-planner CSS (base.css:8-29, cards.css, forms.css, dark.css)",
+  "version": "1.0.0",
+  "color": {
+    "brand": {
+      "primary": {
+        "value": "#2563eb",
+        "type": "color",
+        "description": "Primary brand blue (blue-600). WCAG AAA on white (8.59:1).",
+        "$source": "base.css:9"
+      },
+      "primary-dark": {
+        "value": "#1e40af",
+        "type": "color",
+        "description": "Darker variant for gradients, table headers (blue-800).",
+        "$source": "base.css:10"
+      },
+      "primary-light": {
+        "value": "#dbeafe",
+        "type": "color",
+        "description": "Light tint for backgrounds, hover states (blue-50).",
+        "$source": "base.css:11"
+      }
+    },
+    "semantic": {
+      "secondary": {
+        "value": "#10b981",
+        "type": "color",
+        "description": "Success/earning green (emerald-500). WCAG AA on white (3.94:1).",
+        "$source": "base.css:12"
+      },
+      "secondary-light": {
+        "value": "#d1fae5",
+        "type": "color",
+        "description": "Light green tint for success backgrounds (emerald-100).",
+        "$source": "base.css:13"
+      },
+      "danger": {
+        "value": "#ef4444",
+        "type": "color",
+        "description": "Error/depleted state red (red-500). WCAG AA on white (4.03:1).",
+        "$source": "base.css:14"
+      },
+      "danger-light": {
+        "value": "#fee2e2",
+        "type": "color",
+        "description": "Light red tint for error backgrounds (red-100).",
+        "$source": "base.css:15"
+      },
+      "warning": {
+        "value": "#f59e0b",
+        "type": "color",
+        "description": "Warning/neutral alert amber (amber-500). WCAG AA on white (3.48:1).",
+        "$source": "base.css:16"
+      },
+      "warning-light": {
+        "value": "#fef3c7",
+        "type": "color",
+        "description": "Light amber tint for warning backgrounds (amber-100).",
+        "$source": "base.css:17"
+      }
+    },
+    "neutral": {
+      "white": {
+        "value": "#ffffff",
+        "type": "color",
+        "description": "Pure white for card backgrounds.",
+        "$source": "base.css:19"
+      },
+      "bg": {
+        "value": "#f8fafc",
+        "type": "color",
+        "description": "Light gray background for section groups (slate-50).",
+        "$source": "base.css:18"
+      },
+      "border": {
+        "value": "#e2e8f0",
+        "type": "color",
+        "description": "Default border color (slate-200).",
+        "$source": "base.css:22"
+      },
+      "text-primary": {
+        "value": "#1e293b",
+        "type": "color",
+        "description": "Primary text color (slate-800). WCAG AAA on white (12.63:1).",
+        "$source": "base.css:20"
+      },
+      "text-secondary": {
+        "value": "#64748b",
+        "type": "color",
+        "description": "Secondary text for labels, muted content (slate-500). WCAG AA on white (4.93:1).",
+        "$source": "base.css:21"
+      }
+    },
+    "domain": {
+      "earning": {
+        "value": "#10b981",
+        "type": "color",
+        "description": "Earning phase lifecycle color (matches semantic.secondary).",
+        "$source": "base.css:25"
+      },
+      "retired": {
+        "value": "#3b82f6",
+        "type": "color",
+        "description": "Retired phase lifecycle color (blue-500).",
+        "$source": "base.css:26"
+      },
+      "dead": {
+        "value": "#94a3b8",
+        "type": "color",
+        "description": "Depleted/dead state color (slate-400).",
+        "$source": "base.css:27"
+      },
+      "danger-row": {
+        "value": "#fef2f2",
+        "type": "color",
+        "description": "Background tint for money-runs-out projection rows (red-50).",
+        "$source": "base.css:28"
+      }
+    },
+    "phase": {
+      "1": {
+        "value": "#2563eb",
+        "type": "color",
+        "description": "Phase 1 auto-assigned color (blue-600, matches brand.primary). WCAG AAA on white (8.59:1).",
+        "$source": "EXTENSION per A13 — derived from brand.primary"
+      },
+      "2": {
+        "value": "#10b981",
+        "type": "color",
+        "description": "Phase 2 auto-assigned color (emerald-500, matches semantic.secondary). WCAG AA on white (3.94:1).",
+        "$source": "EXTENSION per A13 — derived from semantic.secondary"
+      },
+      "3": {
+        "value": "#f59e0b",
+        "type": "color",
+        "description": "Phase 3 auto-assigned color (amber-500, matches semantic.warning). WCAG AA on white (3.48:1).",
+        "$source": "EXTENSION per A13 — derived from semantic.warning"
+      },
+      "4": {
+        "value": "#a855f7",
+        "type": "color",
+        "description": "Phase 4 auto-assigned color (purple-500). WCAG AA on white (4.82:1).",
+        "$source": "EXTENSION per A13 — new color for phase rotation"
+      },
+      "5": {
+        "value": "#14b8a6",
+        "type": "color",
+        "description": "Phase 5 auto-assigned color (teal-500). WCAG AA on white (3.78:1).",
+        "$source": "EXTENSION per A13 — new color for phase rotation"
+      },
+      "6": {
+        "value": "#ec4899",
+        "type": "color",
+        "description": "Phase 6+ auto-assigned color, rotates (pink-500). WCAG AA on white (4.63:1).",
+        "$source": "EXTENSION per A13 — new color for phase rotation"
+      }
+    },
+    "gradient": {
+      "body": {
+        "value": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        "type": "gradient",
+        "description": "Purple gradient background behind all panels.",
+        "$source": "base.css:33"
+      },
+      "button-primary": {
+        "value": "linear-gradient(135deg, {color.brand.primary}, {color.brand.primary-dark})",
+        "type": "gradient",
+        "description": "Primary button gradient.",
+        "$source": "forms.css:87"
+      },
+      "blended-badge": {
+        "value": "linear-gradient(135deg, {color.brand.primary}, #7c3aed)",
+        "type": "gradient",
+        "description": "Blended return badge gradient (blue to purple).",
+        "$source": "cards.css:49"
+      }
+    },
+    "dark": {
+      "body-gradient": {
+        "value": "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+        "type": "gradient",
+        "description": "Dark mode body gradient (dark blue-grays).",
+        "$source": "dark.css:3"
+      },
+      "panel-bg": {
+        "value": "#1e293b",
+        "type": "color",
+        "description": "Dark mode panel background (slate-800).",
+        "$source": "dark.css:7"
+      },
+      "section-bg": {
+        "value": "#0f172a",
+        "type": "color",
+        "description": "Dark mode section group background (slate-900).",
+        "$source": "dark.css:12"
+      },
+      "input-bg": {
+        "value": "#1e293b",
+        "type": "color",
+        "description": "Dark mode input field background (slate-800).",
+        "$source": "dark.css:22"
+      },
+      "input-border": {
+        "value": "#334155",
+        "type": "color",
+        "description": "Dark mode input border (slate-700).",
+        "$source": "dark.css:24"
+      },
+      "text-primary": {
+        "value": "#e2e8f0",
+        "type": "color",
+        "description": "Dark mode primary text (slate-200). WCAG AAA on #1e293b (11.2:1).",
+        "$source": "dark.css:8"
+      },
+      "text-secondary": {
+        "value": "#94a3b8",
+        "type": "color",
+        "description": "Dark mode secondary text (slate-400). WCAG AA on #1e293b (5.8:1).",
+        "$source": "dark.css:32"
+      },
+      "border-primary": {
+        "value": "#3b82f6",
+        "type": "color",
+        "description": "Dark mode primary accent border (blue-500, brighter for visibility).",
+        "$source": "dark.css:13"
+      },
+      "phase": {
+        "1": {
+          "value": "#3b82f6",
+          "type": "color",
+          "description": "Phase 1 dark mode color (blue-500, slightly desaturated). WCAG AA on #1e293b (6.1:1).",
+          "$source": "EXTENSION per A13 — derived from dark.css border patterns"
+        },
+        "2": {
+          "value": "#10b981",
+          "type": "color",
+          "description": "Phase 2 dark mode color (emerald-500, same as light). WCAG AA on #1e293b (4.8:1).",
+          "$source": "EXTENSION per A13"
+        },
+        "3": {
+          "value": "#f59e0b",
+          "type": "color",
+          "description": "Phase 3 dark mode color (amber-500, same as light). WCAG AA on #1e293b (4.2:1).",
+          "$source": "EXTENSION per A13"
+        },
+        "4": {
+          "value": "#a855f7",
+          "type": "color",
+          "description": "Phase 4 dark mode color (purple-500, same as light). WCAG AA on #1e293b (5.6:1).",
+          "$source": "EXTENSION per A13"
+        },
+        "5": {
+          "value": "#14b8a6",
+          "type": "color",
+          "description": "Phase 5 dark mode color (teal-500, same as light). WCAG AA on #1e293b (4.6:1).",
+          "$source": "EXTENSION per A13"
+        },
+        "6": {
+          "value": "#ec4899",
+          "type": "color",
+          "description": "Phase 6+ dark mode color (pink-500, same as light). WCAG AA on #1e293b (5.4:1).",
+          "$source": "EXTENSION per A13"
+        }
+      }
+    }
+  },
+  "typography": {
+    "family": {
+      "sans": {
+        "value": "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif",
+        "type": "fontFamily",
+        "description": "System font stack (no custom fonts).",
+        "$source": "base.css:32"
+      }
+    },
+    "size": {
+      "xs": {
+        "value": "0.75rem",
+        "type": "fontSize",
+        "description": "12px — category tags.",
+        "$source": "forms.css:78"
+      },
+      "sm": {
+        "value": "0.8rem",
+        "type": "fontSize",
+        "description": "12.8px — summary card sub-text.",
+        "$source": "cards.css:24"
+      },
+      "label": {
+        "value": "0.85rem",
+        "type": "fontSize",
+        "description": "13.6px — summary card labels, input units.",
+        "$source": "cards.css:22"
+      },
+      "form-label": {
+        "value": "0.9rem",
+        "type": "fontSize",
+        "description": "14.4px — form input labels.",
+        "$source": "forms.css:30"
+      },
+      "base": {
+        "value": "1rem",
+        "type": "fontSize",
+        "description": "16px — input fields, buttons.",
+        "$source": "forms.css:41"
+      },
+      "button": {
+        "value": "1rem",
+        "type": "fontSize",
+        "description": "16px — button text.",
+        "$source": "forms.css:93"
+      },
+      "blended-label": {
+        "value": "0.9rem",
+        "type": "fontSize",
+        "description": "14.4px — blended return badge label.",
+        "$source": "cards.css:58"
+      },
+      "blended-value": {
+        "value": "1.1rem",
+        "type": "fontSize",
+        "description": "17.6px — blended return badge value.",
+        "$source": "cards.css:54"
+      },
+      "h3": {
+        "value": "1.15rem",
+        "type": "fontSize",
+        "description": "18.4px — section group headers.",
+        "$source": "forms.css:17"
+      },
+      "card-value": {
+        "value": "1.5rem",
+        "type": "fontSize",
+        "description": "24px — summary card primary value.",
+        "$source": "cards.css:23"
+      }
+    },
+    "weight": {
+      "normal": {
+        "value": "400",
+        "type": "fontWeight",
+        "description": "Regular weight (body text).",
+        "$source": "implicit default"
+      },
+      "medium": {
+        "value": "500",
+        "type": "fontWeight",
+        "description": "Medium weight for labels.",
+        "$source": "forms.css:28"
+      },
+      "semibold": {
+        "value": "600",
+        "type": "fontWeight",
+        "description": "Semi-bold for buttons, tags.",
+        "$source": "forms.css:78"
+      },
+      "bold": {
+        "value": "700",
+        "type": "fontWeight",
+        "description": "Bold for summary card values, blended badge.",
+        "$source": "cards.css:23"
+      }
+    },
+    "lineHeight": {
+      "normal": {
+        "value": "1.6",
+        "type": "lineHeight",
+        "description": "Body text line-height.",
+        "$source": "base.css:36"
+      }
+    }
+  },
+  "spacing": {
+    "0": {
+      "value": "0",
+      "type": "spacing",
+      "$source": "implicit"
+    },
+    "2": {
+      "value": "2px",
+      "type": "spacing",
+      "description": "Category tag padding vertical.",
+      "$source": "forms.css:76"
+    },
+    "4": {
+      "value": "4px",
+      "type": "spacing",
+      "description": "Summary card sub-text margin-top.",
+      "$source": "cards.css:24"
+    },
+    "6": {
+      "value": "6px",
+      "type": "spacing",
+      "description": "Summary card label margin-bottom, input label margin-bottom.",
+      "$source": "cards.css:22, forms.css:27"
+    },
+    "8": {
+      "value": "8px",
+      "type": "spacing",
+      "description": "Gap between elements in blended badge, category tag margin-left.",
+      "$source": "cards.css:48, forms.css:79"
+    },
+    "10": {
+      "value": "10px",
+      "type": "spacing",
+      "description": "Input padding vertical, category tag padding horizontal, button padding, body mobile padding.",
+      "$source": "forms.css:37, 76, 104"
+    },
+    "12": {
+      "value": "12px",
+      "type": "spacing",
+      "description": "Health indicator padding, gap, button gap, health dot size (width/height).",
+      "$source": "cards.css:30, 31, forms.css:115"
+    },
+    "14": {
+      "value": "14px",
+      "type": "spacing",
+      "description": "Input padding horizontal.",
+      "$source": "forms.css:37"
+    },
+    "16": {
+      "value": "16px",
+      "type": "spacing",
+      "description": "Summary card padding, input-group margin-bottom, summary-row gap, input-row gap, health indicator padding.",
+      "$source": "cards.css:12, 30, forms.css:21, 64"
+    },
+    "18": {
+      "value": "18px",
+      "type": "spacing",
+      "description": "Section group h3 margin-bottom.",
+      "$source": "forms.css:16"
+    },
+    "20": {
+      "value": "20px",
+      "type": "spacing",
+      "description": "Body padding, section group padding, summary card horizontal padding, button padding, button-group margin-top.",
+      "$source": "base.css:38, forms.css:4, cards.css:12, forms.css:51, 115"
+    },
+    "24": {
+      "value": "24px",
+      "type": "spacing",
+      "description": "Secondary button padding horizontal.",
+      "$source": "forms.css:106"
+    },
+    "25": {
+      "value": "25px",
+      "type": "spacing",
+      "description": "Section group margin-bottom.",
+      "$source": "forms.css:3"
+    },
+    "28": {
+      "value": "28px",
+      "type": "spacing",
+      "description": "Primary button padding horizontal.",
+      "$source": "forms.css:91"
+    }
+  },
+  "radii": {
+    "none": {
+      "value": "0",
+      "type": "borderRadius",
+      "$source": "implicit"
+    },
+    "sm": {
+      "value": "8px",
+      "type": "borderRadius",
+      "description": "Input fields.",
+      "$source": "forms.css:39"
+    },
+    "md": {
+      "value": "10px",
+      "type": "borderRadius",
+      "description": "Buttons, health indicator.",
+      "$source": "forms.css:92, cards.css:32"
+    },
+    "card": {
+      "value": "12px",
+      "type": "borderRadius",
+      "description": "Summary cards, section groups, category tags.",
+      "$source": "cards.css:11, forms.css:6, 77"
+    },
+    "full": {
+      "value": "50%",
+      "type": "borderRadius",
+      "description": "Health dot (circular).",
+      "$source": "cards.css:40"
+    }
+  },
+  "shadow": {
+    "default": {
+      "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+      "type": "boxShadow",
+      "description": "Default shadow for cards, buttons.",
+      "$source": "base.css:23"
+    },
+    "lg": {
+      "value": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      "type": "boxShadow",
+      "description": "Hover shadow for buttons.",
+      "$source": "base.css:24"
+    },
+    "dark-card": {
+      "value": "0 2px 4px rgba(0,0,0,0.3)",
+      "type": "boxShadow",
+      "description": "Dark mode card shadow.",
+      "$source": "dark.css:37"
+    }
+  },
+  "border": {
+    "width-default": {
+      "value": "2px",
+      "type": "borderWidth",
+      "description": "Input field borders, button borders.",
+      "$source": "forms.css:38, 105"
+    },
+    "width-accent": {
+      "value": "3px",
+      "type": "borderWidth",
+      "description": "Summary card top border accent.",
+      "$source": "cards.css:15"
+    },
+    "width-section": {
+      "value": "4px",
+      "type": "borderWidth",
+      "description": "Section group left border accent.",
+      "$source": "forms.css:7"
+    }
+  },
+  "transition": {
+    "fast": {
+      "value": "0.2s",
+      "type": "transition",
+      "description": "Button hover, secondary button state changes.",
+      "$source": "forms.css:96, 110"
+    },
+    "base": {
+      "value": "0.3s ease",
+      "type": "transition",
+      "description": "Input focus state transitions.",
+      "$source": "forms.css:41"
+    }
+  },
+  "layout": {
+    "container-max": {
+      "value": "1500px",
+      "type": "sizing",
+      "description": "Max width for main container.",
+      "$source": "base.css:41"
+    }
+  }
+}

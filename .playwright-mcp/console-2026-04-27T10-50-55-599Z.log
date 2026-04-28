@@ -1,0 +1,2 @@
+[     124ms] [LOG] Multi-Goal tab initialized @ http://localhost:8765/js/calc-multigoal.js:10
+[     181ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0

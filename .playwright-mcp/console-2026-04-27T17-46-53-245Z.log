@@ -1,0 +1,14 @@
+[     103ms] [WARNING] Invalid phase data, skipping: {id: phase-73e1f777-7386-459e-864a-223c9cc3cbd3, name: Base (no kids), shortName: Base, startAge: 27, endAge: 100} @ http://localhost:8800/js/calc-multigoal.js:152
+[     103ms] [WARNING] Invalid phase data, skipping: {id: phase-43a901f5-24fc-44d4-bc3f-f8368dcfb88b, name: Kid 1 at home, shortName: K1 home, startAge: 28, endAge: 45} @ http://localhost:8800/js/calc-multigoal.js:152
+[     122ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8800/favicon.ico:0
+[ 1229743ms] [WARNING] Invalid phase data, skipping: {id: phase-73e1f777-7386-459e-864a-223c9cc3cbd3, name: Base (no kids), shortName: Base, startAge: 27, endAge: 100} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1229743ms] [WARNING] Invalid phase data, skipping: {id: phase-43a901f5-24fc-44d4-bc3f-f8368dcfb88b, name: Kid 1 at home, shortName: K1 home, startAge: 28, endAge: 45} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1231525ms] [WARNING] Invalid phase data, skipping: {id: phase-73e1f777-7386-459e-864a-223c9cc3cbd3, name: Base (no kids), shortName: Base, startAge: 27, endAge: 100} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1231525ms] [WARNING] Invalid phase data, skipping: {id: phase-43a901f5-24fc-44d4-bc3f-f8368dcfb88b, name: Kid 1 at home, shortName: K1 home, startAge: 28, endAge: 45} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1237538ms] [WARNING] Invalid phase data, skipping: {id: phase-73e1f777-7386-459e-864a-223c9cc3cbd3, name: Base (no kids), shortName: Base, startAge: 27, endAge: 100} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1237538ms] [WARNING] Invalid phase data, skipping: {id: phase-43a901f5-24fc-44d4-bc3f-f8368dcfb88b, name: Kid 1 at home, shortName: K1 home, startAge: 28, endAge: 45} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1240790ms] [WARNING] Invalid phase data, skipping: {id: phase-73e1f777-7386-459e-864a-223c9cc3cbd3, name: Base (no kids), shortName: Base, startAge: 27, endAge: 100} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1240790ms] [WARNING] Invalid phase data, skipping: {id: phase-43a901f5-24fc-44d4-bc3f-f8368dcfb88b, name: Kid 1 at home, shortName: K1 home, startAge: 28, endAge: 45} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1244426ms] [WARNING] Invalid phase data, skipping: {id: phase-73e1f777-7386-459e-864a-223c9cc3cbd3, name: Base (no kids), shortName: Base, startAge: 27, endAge: 100} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1244426ms] [WARNING] Invalid phase data, skipping: {id: phase-43a901f5-24fc-44d4-bc3f-f8368dcfb88b, name: Kid 1 at home, shortName: K1 home, startAge: 28, endAge: 45} @ http://localhost:8800/js/calc-multigoal.js:152
+[ 1244441ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8800/favicon.ico:0

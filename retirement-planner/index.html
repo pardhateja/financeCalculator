@@ -16,14 +16,18 @@
 </head>
 <body>
     <div class="container">
-        <header style="position:relative;">
-            <h1>Retirement Financial Planner</h1>
-            <p class="subtitle">Comprehensive Income, Expense, Investment & Projection Planning</p>
-            <div style="position:absolute;top:20px;right:20px;display:flex;gap:8px;">
-                <button id="darkModeBtn" style="background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);">🌙 Dark</button>
-                <label for="includePhasesInShareLink" style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 12px;border-radius:8px;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);cursor:pointer;user-select:none;"><input type="checkbox" id="includePhasesInShareLink" checked style="margin:0;cursor:pointer;">Include phases</label>
-                <button id="shareLinkBtn" onclick="RP.generateShareLink()" style="background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);">Copy Share Link</button>
-                <button id="resetBtn" style="background:rgba(0,0,0,0.35);color:#fff;border:2px solid rgba(255,255,255,0.5);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;backdrop-filter:blur(10px);" onmouseover="this.style.background='rgba(239,68,68,0.8)'" onmouseout="this.style.background='rgba(0,0,0,0.35)'" onfocus="this.style.background='rgba(239,68,68,0.8)'" onblur="this.style.background='rgba(0,0,0,0.35)'">Reset</button>
+        <header class="app-header">
+            <div class="app-header-row">
+                <div class="app-header-titles">
+                    <h1>Retirement Financial Planner</h1>
+                    <p class="subtitle">Comprehensive Income, Expense, Investment & Projection Planning</p>
+                </div>
+                <div class="app-header-actions">
+                    <button id="darkModeBtn" class="header-action-btn">🌙 Dark</button>
+                    <label for="includePhasesInShareLink" class="header-action-btn header-action-checkbox"><input type="checkbox" id="includePhasesInShareLink" checked>Include phases</label>
+                    <button id="shareLinkBtn" class="header-action-btn" onclick="RP.generateShareLink()">Copy Share Link</button>
+                    <button id="resetBtn" class="header-action-btn header-action-btn--danger">Reset</button>
+                </div>
             </div>
         </header>
 
@@ -1118,6 +1122,10 @@
                     <div class="input-group">
                         <label for="trackerModalActual">Actual Amount Invested</label>
                         <input type="number" id="trackerModalActual">
+                    </div>
+                    <div class="input-group">
+                        <label for="trackerModalDate">Investment Date <span style="font-weight:400;font-size:0.78rem;color:var(--text-secondary);">(drives compound interest)</span></label>
+                        <input type="date" id="trackerModalDate">
                     </div>
                     <div class="btn-row">
                         <button class="btn-secondary" id="trackerModalCancel">Cancel</button>

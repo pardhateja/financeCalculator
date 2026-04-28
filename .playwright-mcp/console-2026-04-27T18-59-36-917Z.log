@@ -1,0 +1,10 @@
+[      57ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/css/forms.css:0
+[      58ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/css/multigoal.css:0
+[      59ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/js/calc-multigoal.js:0
+[      60ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/js/calc-tracker.js:0
+[      60ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/js/calc-savings-rollup.js:0
+[      60ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/css/dark.css:0
+[     108ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/js/profiles.js:0
+[     108ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/js/app.js:0
+[     108ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/js/sharelink.js:0
+[     118ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0

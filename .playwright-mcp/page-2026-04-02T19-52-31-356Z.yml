@@ -1,0 +1,91 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "Retirement Financial Planner" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Comprehensive Income, Expense, Investment & Projection Planning
+  - generic [ref=e6]:
+    - button "Basics & Income" [ref=e7] [cursor=pointer]
+    - button "Expenses" [ref=e8] [cursor=pointer]
+    - button "Investments" [ref=e9] [cursor=pointer]
+    - button "Financial Plan" [ref=e10] [cursor=pointer]
+    - button "Projections" [ref=e11] [cursor=pointer]
+  - generic [ref=e14]:
+    - generic [ref=e15]:
+      - heading "Basic Details" [level=2] [ref=e16]
+      - generic [ref=e17]:
+        - heading "Age & Timeline" [level=3] [ref=e18]
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: Current Age
+            - spinbutton "Current Age" [ref=e22]: "27"
+            - generic [ref=e23]: years
+          - generic [ref=e24]:
+            - generic [ref=e25]: Retirement Age
+            - spinbutton "Retirement Age" [ref=e26]: "35"
+            - generic [ref=e27]: years
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: Life Expectancy
+            - spinbutton "Life Expectancy" [ref=e31]: "100"
+            - generic [ref=e32]: years
+          - generic [ref=e33]:
+            - generic [ref=e34]: Years to Retire
+            - spinbutton "Years to Retire" [ref=e35]: "8"
+            - generic [ref=e36]: years
+      - generic [ref=e37]:
+        - heading "Rates" [level=3] [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]: Inflation Rate
+            - spinbutton "Inflation Rate" [ref=e42]: "6"
+            - generic [ref=e43]: "%"
+          - generic [ref=e44]:
+            - generic [ref=e45]: Tax Rate
+            - spinbutton "Tax Rate" [ref=e46]: "30"
+            - generic [ref=e47]: "%"
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - generic [ref=e50]: Total Monthly Income
+          - generic [ref=e51]: ₹2,50,000
+        - generic [ref=e52]:
+          - generic [ref=e53]: Total Yearly Income
+          - generic [ref=e54]: ₹0
+        - generic [ref=e55]:
+          - generic [ref=e56]: Grand Total (Annual)
+          - generic [ref=e57]: ₹30,00,000
+    - generic [ref=e58]:
+      - heading "Income Details" [level=2] [ref=e59]
+      - generic [ref=e60]:
+        - heading "Monthly Income" [level=3] [ref=e61]
+        - generic [ref=e62]:
+          - generic [ref=e63]: Salary / Business Income
+          - spinbutton "Salary / Business Income" [ref=e64]: "250000"
+          - generic [ref=e65]: ₹/mo
+        - generic [ref=e66]:
+          - generic [ref=e67]: Rental Income
+          - spinbutton "Rental Income" [ref=e68]: "0"
+          - generic [ref=e69]: ₹/mo
+        - generic [ref=e70]:
+          - generic [ref=e71]: Dividend / Interest
+          - spinbutton "Dividend / Interest" [ref=e72]: "0"
+          - generic [ref=e73]: ₹/mo
+        - generic [ref=e74]:
+          - generic [ref=e75]: Other Monthly Income
+          - spinbutton "Other Monthly Income" [ref=e76]: "0"
+          - generic [ref=e77]: ₹/mo
+      - generic [ref=e78]:
+        - heading "Yearly Income" [level=3] [ref=e79]
+        - generic [ref=e80]:
+          - generic [ref=e81]: Annual Bonus
+          - spinbutton "Annual Bonus" [ref=e82]: "0"
+          - generic [ref=e83]: ₹/yr
+        - generic [ref=e84]:
+          - generic [ref=e85]: Other Yearly Income
+          - spinbutton "Other Yearly Income" [ref=e86]: "0"
+          - generic [ref=e87]: ₹/yr
+  - contentinfo [ref=e88]:
+    - paragraph [ref=e89]: Retirement Financial Planner — Plan your financial future with confidence
+    - generic [ref=e90]:
+      - link "FIRE Calculator" [ref=e91] [cursor=pointer]:
+        - /url: index.html
+      - link "Multi-Method Calculator" [ref=e92] [cursor=pointer]:
+        - /url: multi-method-calculator.html

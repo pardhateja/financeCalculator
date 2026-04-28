@@ -171,9 +171,9 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
         ribbonRows.push([phase]);
     });
 
-    const RIBBON_ROW_H = 18;
-    const RIBBON_GAP = 4;
-    const ribbonH = ribbonRows.length === 0 ? 0 : (ribbonRows.length * RIBBON_ROW_H + (ribbonRows.length - 1) * 2 + 12);
+    const RIBBON_ROW_H = 22;
+    const RIBBON_GAP = 6;
+    const ribbonH = ribbonRows.length === 0 ? 0 : (ribbonRows.length * RIBBON_ROW_H + (ribbonRows.length - 1) * RIBBON_GAP + 12);
     const H = 280 + ribbonH;
 
     canvasEl.width = W * dpr;
@@ -322,7 +322,7 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
      * into rows when phases overlap in time. */
     const ribbonTop = baselineY + 24;
     ribbonRows.forEach((row, rowIdx) => {
-        const rowY = ribbonTop + rowIdx * (RIBBON_ROW_H + 2);
+        const rowY = ribbonTop + rowIdx * (RIBBON_ROW_H + RIBBON_GAP);
         row.forEach(phase => {
             const startAge = Math.max(minAge, phase.startAge);
             const endAge = Math.min(maxAge, phase.endAge);

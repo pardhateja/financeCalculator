@@ -1,0 +1,5 @@
+[      65ms] [WARNING] rp_phases is not valid JSON, ignoring: SyntaxError: Unexpected token 'o', "not json" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at RP._multigoal._load (http://localhost:8765/js/calc-multigoal.js:96:23)
+    at RP.initMultiGoal (http://localhost:8765/js/calc-multigoal.js:594:66)
+    at HTMLDocument.<anonymous> (http://localhost:8765/js/calc-multigoal.js:1146:60) @ http://localhost:8765/js/calc-multigoal.js:97

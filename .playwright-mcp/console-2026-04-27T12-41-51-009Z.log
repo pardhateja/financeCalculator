@@ -1,0 +1,5 @@
+[      83ms] [WARNING] rp_phases is not valid JSON, ignoring: SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+    at JSON.parse (<anonymous>)
+    at RP._multigoal._load (http://localhost:8780/js/calc-multigoal.js:96:23)
+    at RP.initMultiGoal (http://localhost:8780/js/calc-multigoal.js:676:66)
+    at HTMLDocument.<anonymous> (http://localhost:8780/js/calc-multigoal.js:1604:60) @ http://localhost:8780/js/calc-multigoal.js:97

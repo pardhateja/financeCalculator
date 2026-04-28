@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node:*)",
+      "Bash(sed -i '' 's|href=\"styles.css\"|href=\"retirement-planner-styles.css\"|' /Users/mpardhateja/PycharmProjects/financeCalculator/retirement-planner.html)",
+      "Bash(sed -i '' 's|src=\"script.js\"|src=\"retirement-planner-script.js\"|' /Users/mpardhateja/PycharmProjects/financeCalculator/retirement-planner.html)",
+      "Bash(sed -i '' 's|href=\"../fire-calculator/index.html\"|href=\"index.html\"|' /Users/mpardhateja/PycharmProjects/financeCalculator/retirement-planner.html)",
+      "Bash(sed -i '' 's|href=\"../multi-method/index.html\"|href=\"multi-method-calculator.html\"|' /Users/mpardhateja/PycharmProjects/financeCalculator/retirement-planner.html)",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_navigate",
+      "Read(//Users/mpardhateja/**)"
+    ]
+  }
+}

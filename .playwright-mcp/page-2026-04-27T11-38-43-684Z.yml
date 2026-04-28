@@ -1,0 +1,141 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "Retirement Financial Planner" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Comprehensive Income, Expense, Investment & Projection Planning
+    - generic [ref=e6]:
+      - button "☀ Light" [ref=e7] [cursor=pointer]
+      - generic [ref=e8] [cursor=pointer]:
+        - checkbox "Include phases" [checked] [ref=e9]
+        - text: Include phases
+      - button "Copy Share Link" [ref=e10] [cursor=pointer]
+      - button "Reset" [ref=e11] [cursor=pointer]
+  - generic [ref=e12]:
+    - button "Basics & Income" [ref=e13] [cursor=pointer]
+    - button "Expenses" [ref=e14] [cursor=pointer]
+    - button "Investments" [ref=e15] [cursor=pointer]
+    - button "Financial Plan" [ref=e16] [cursor=pointer]
+    - button "Projections" [ref=e17] [cursor=pointer]
+    - button "Dashboard" [ref=e18] [cursor=pointer]
+    - button "What-If" [ref=e19] [cursor=pointer]
+    - button "Goals" [ref=e20] [cursor=pointer]
+    - button "Multi-Goal" [ref=e21] [cursor=pointer]
+    - button "Emergency Fund" [ref=e22] [cursor=pointer]
+    - button "SIP Calculator" [ref=e23] [cursor=pointer]
+    - button "Tracker" [ref=e24] [cursor=pointer]
+    - button "Milestones" [ref=e25] [cursor=pointer]
+    - button "Loan/EMI" [ref=e26] [cursor=pointer]
+    - button "Expense Log" [ref=e27] [cursor=pointer]
+    - button "Net Worth" [ref=e28] [cursor=pointer]
+    - button "Profiles" [ref=e29] [cursor=pointer]
+  - generic [ref=e111]:
+    - generic [ref=e112]:
+      - heading "Multi-Goal Planner" [level=2] [ref=e113]
+      - paragraph [ref=e114]: Plan multiple life-phase expenses with per-phase inflation
+      - generic [ref=e115]:
+        - heading "Add Life Phase" [level=3] [ref=e116]
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]: Phase Name
+            - textbox "Phase Name" [ref=e120]:
+              - /placeholder: e.g. Kids in college
+            - generic [ref=e121]: Phase name cannot be empty
+          - generic [ref=e122]:
+            - generic [ref=e123]: Start Age
+            - spinbutton "Start Age" [ref=e124]: "40"
+          - generic [ref=e126]:
+            - generic [ref=e127]: End Age
+            - spinbutton "End Age" [ref=e128]: "45"
+          - generic [ref=e130]:
+            - generic [ref=e131]: Monthly Expense (₹)
+            - spinbutton "Monthly Expense (₹)" [ref=e132]: "10000"
+          - generic [ref=e134]:
+            - generic [ref=e135]: Inflation %
+            - spinbutton "Inflation %" [ref=e136]: "5"
+        - generic [ref=e138]:
+          - button "Add Phase" [ref=e139] [cursor=pointer]
+          - button "Load Example" [ref=e140] [cursor=pointer]
+      - generic [ref=e141]:
+        - heading "Your Life Phases (3)" [level=3] [ref=e389]
+        - generic [ref=e143]:
+          - generic [ref=e390]:
+            - generic [ref=e391]:
+              - generic [ref=e392]: Kids at Home
+              - generic [ref=e393]: Age 35-50 (15 years)
+              - generic [ref=e395]: ₹80,000/mo · 6% inflation
+            - button "Delete phase Kids at Home" [ref=e397] [cursor=pointer]: Delete
+          - generic [ref=e398]:
+            - generic [ref=e399]:
+              - generic [ref=e400]: Mid-life Hobbies
+              - generic [ref=e401]: Age 51-64 (13 years)
+              - generic [ref=e403]: ₹20,000/mo · 5% inflation
+            - button "Delete phase Mid-life Hobbies" [ref=e405] [cursor=pointer]: Delete
+          - generic [ref=e406]:
+            - generic [ref=e407]:
+              - generic [ref=e408]: Healthcare
+              - generic [ref=e409]: Age 76-100 (24 years)
+              - generic [ref=e411]: ₹40,000/mo · 8% inflation
+            - button "Delete phase Healthcare" [ref=e413] [cursor=pointer]: Delete
+      - generic [ref=e145]:
+        - heading "Allocation Pre-Flight" [level=3] [ref=e146]
+        - generic [ref=e161]:
+          - table "Retirement corpus allocation across life phases" [ref=e163]:
+            - caption [ref=e164]: Retirement corpus allocation across life phases
+            - rowgroup [ref=e165]:
+              - row "Phase Age Range PV Needed Allocated % Status" [ref=e166]:
+                - columnheader "Phase" [ref=e167]
+                - columnheader "Age Range" [ref=e168]
+                - columnheader "PV Needed" [ref=e169]
+                - columnheader "Allocated" [ref=e170]
+                - columnheader "%" [ref=e171]
+                - columnheader "Status" [ref=e172]
+            - rowgroup [ref=e173]:
+              - row "Kids at Home 35-50 ₹1.94 Cr ₹3.32 Cr 60.4% Funded" [ref=e414]:
+                - cell "Kids at Home" [ref=e415]: Kids at Home
+                - cell "35-50" [ref=e417]
+                - cell "₹1.94 Cr" [ref=e418]
+                - cell "₹3.32 Cr" [ref=e419]
+                - cell "60.4%" [ref=e420]
+                - cell "Funded" [ref=e421]:
+                  - generic [ref=e422]: Funded
+              - row "Mid-life Hobbies 51-64 ₹19.59 L ₹33.47 L 6.1% Funded" [ref=e424]:
+                - cell "Mid-life Hobbies" [ref=e425]: Mid-life Hobbies
+                - cell "51-64" [ref=e427]
+                - cell "₹19.59 L" [ref=e428]
+                - cell "₹33.47 L" [ref=e429]
+                - cell "6.1%" [ref=e430]
+                - cell "Funded" [ref=e431]:
+                  - generic [ref=e432]: Funded
+              - row "Healthcare 76-100 ₹1.07 Cr ₹1.84 Cr 33.5% Funded" [ref=e434]:
+                - cell "Healthcare" [ref=e435]: Healthcare
+                - cell "76-100" [ref=e437]
+                - cell "₹1.07 Cr" [ref=e438]
+                - cell "₹1.84 Cr" [ref=e439]
+                - cell "33.5%" [ref=e440]
+                - cell "Funded" [ref=e441]:
+                  - generic [ref=e442]: Funded
+            - rowgroup [ref=e184]:
+              - row "TOTAL ₹3.21 Cr ₹5.49 Cr 100% Surplus ₹2.28 Cr" [ref=e444]:
+                - cell "TOTAL" [ref=e186]:
+                  - strong [ref=e187]: TOTAL
+                - cell [ref=e188]
+                - cell "₹3.21 Cr" [ref=e445]
+                - cell "₹5.49 Cr" [ref=e190]
+                - cell "100%" [ref=e191]
+                - cell "Surplus ₹2.28 Cr" [ref=e446]:
+                  - generic [ref=e447]: Surplus ₹2.28 Cr
+          - 'img "Retirement corpus allocation across 3 phases: Kids at Home 60.4%, Mid-life Hobbies 6.1%, Healthcare 33.5%" [ref=e449]':
+            - 'generic "Kids at Home: ₹3.32 Cr (60.4%)" [ref=e450]'
+            - 'generic "Mid-life Hobbies: ₹33.47 L (6.1%)" [ref=e451]'
+            - 'generic "Healthcare: ₹1.84 Cr (33.5%)" [ref=e452]'
+      - heading "Corpus Projection by Phase" [level=3] [ref=e149]
+      - heading "Year-by-Year Projection" [level=3] [ref=e151]
+    - status [ref=e453]:
+      - generic [ref=e454]: Phase "Travel" deleted
+      - button "Undo" [ref=e455] [cursor=pointer]
+  - contentinfo [ref=e106]:
+    - paragraph [ref=e107]: Retirement Financial Planner — Plan your financial future with confidence
+    - generic [ref=e108]:
+      - link "Home" [ref=e109] [cursor=pointer]:
+        - /url: ../index.html
+      - link "Multi-Method Calculator" [ref=e110] [cursor=pointer]:
+        - /url: ../multi-method-calculator.html

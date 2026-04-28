@@ -1,0 +1,74 @@
+- generic [active] [ref=e1]:
+  - heading "Multi-Goal Retirement Planner — Math Tests" [level=1] [ref=e2]
+  - paragraph [ref=e3]:
+    - text: fe-010 · Validates
+    - code [ref=e4]: RP._multigoal.calculateAllocation
+    - text: ","
+    - code [ref=e5]: runProjection
+    - text: ", and"
+    - code [ref=e6]: calculateDeficitSuggestions
+    - text: . No npm, no Vitest — open this file in a browser.
+  - generic [ref=e7]:
+    - paragraph [ref=e8]:
+      - strong [ref=e9]: "Tests:"
+      - text: "15"
+    - paragraph [ref=e10]:
+      - strong [ref=e11]: "Passed:"
+      - text: "15"
+    - paragraph [ref=e12]:
+      - strong [ref=e13]: "Failed:"
+      - text: "0"
+    - paragraph [ref=e14]: 15/15 PASS
+  - generic [ref=e15]:
+    - generic [ref=e17]:
+      - generic [ref=e18]: PASS
+      - text: "1. Scenario 1: Single phase, zero inflation, zero return — exact PV"
+    - generic [ref=e20]:
+      - generic [ref=e21]: PASS
+      - text: "2. Scenario 2: PV formula spot-check — 6% inflation × 30 yrs at age 60"
+    - generic [ref=e23]:
+      - generic [ref=e24]: PASS
+      - text: "3. Scenario 3: 4-phase Indian FIRE template (₹5Cr corpus)"
+    - generic [ref=e26]:
+      - generic [ref=e27]: PASS
+      - text: "4. Scenario 4: Overlapping phases — projection sums expenses"
+    - generic [ref=e29]:
+      - generic [ref=e30]: PASS
+      - text: "5. Scenario 5: Gap year — no expense, corpus grows"
+    - generic [ref=e32]:
+      - generic [ref=e33]: PASS
+      - text: "6. Scenario 6: Underfunded — overallDeficit > 0"
+    - generic [ref=e35]:
+      - generic [ref=e36]: PASS
+      - text: "7. Scenario 7: Overfunded — surplus > 0"
+    - generic [ref=e38]:
+      - generic [ref=e39]: PASS
+      - text: "8. Scenario 8: 25% inflation boundary — handles extreme compounding"
+    - generic [ref=e41]:
+      - generic [ref=e42]: PASS
+      - text: "9. Scenario 9: 10-phase stress — all allocated, sum ≈ corpus"
+    - generic [ref=e44]:
+      - generic [ref=e45]: PASS
+      - text: "10. Scenario 10: Edge — corpus = 0, full deficit"
+    - generic [ref=e47]:
+      - generic [ref=e48]: PASS
+      - text: "11. Scenario 11: Edge — zero phases, no crash"
+    - generic [ref=e50]:
+      - generic [ref=e51]: PASS
+      - text: "12. Scenario 12: Underfunded → allocation sum equals corpus (≤ ₹10 drift)"
+    - generic [ref=e53]:
+      - generic [ref=e54]: PASS
+      - text: "13. Scenario 13: Two equal phases (same expense + duration) → 50/50 split"
+    - generic [ref=e56]:
+      - generic [ref=e57]: PASS
+      - text: "14. Scenario 14: Phase exhausts mid-life — exhaustedAt set in projection"
+    - generic [ref=e59]:
+      - generic [ref=e60]: PASS
+      - text: "15. Scenario 15: Higher inflation phase requires larger PV"
+  - contentinfo [ref=e61]:
+    - text: "Math source:"
+    - code [ref=e62]: js/calc-multigoal.js
+    - text: "(fe-003) · Fixtures:"
+    - code [ref=e63]: js/test-multigoal-fixtures.js
+    - text: "· Spec:"
+    - code [ref=e64]: 01-tech-spec.md#appendix-a

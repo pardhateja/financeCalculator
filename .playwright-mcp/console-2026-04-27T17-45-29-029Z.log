@@ -1,0 +1,2 @@
+[      60ms] [WARNING] Invalid phase data, skipping: {id: phase-73e1f777-7386-459e-864a-223c9cc3cbd3, name: Base (no kids), shortName: Base, startAge: 27, endAge: 100} @ http://localhost:8800/js/calc-multigoal.js:152
+[      60ms] [WARNING] Invalid phase data, skipping: {id: phase-43a901f5-24fc-44d4-bc3f-f8368dcfb88b, name: Kid 1 at home, shortName: K1 home, startAge: 28, endAge: 45} @ http://localhost:8800/js/calc-multigoal.js:152

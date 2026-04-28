@@ -224,6 +224,19 @@ RP.openTrackerModal = function (key) {
     document.getElementById('trackerModalTitle').textContent = month.label;
     document.getElementById('trackerModalPlanned').value = month.planned;
     document.getElementById('trackerModalActual').value = month.completed ? month.actual : month.planned;
+
+    // v1.1 audit: editable date so user can override (or correct) the
+    // "I actually invested this on date X, not today" case. Default = the
+    // existing entry's saved date, OR today for new entries.
+    const dateEl = document.getElementById('trackerModalDate');
+    if (dateEl) {
+        const existingEntry = RP._trackerEntries[key];
+        const today = new Date().toISOString().slice(0, 10);
+        dateEl.value = (existingEntry && existingEntry.date) ? existingEntry.date : today;
+        // Don't allow future dates (interest math expects past contributions)
+        dateEl.setAttribute('max', today);
+    }
+
     document.getElementById('trackerModal').classList.add('active');
     document.getElementById('trackerModalActual').focus();
 };
@@ -240,11 +253,26 @@ RP.saveTrackerMonth = function () {
     const actual = parseFloat(document.getElementById('trackerModalActual').value) || 0;
     const existing = RP._trackerEntries[key] || {};
 
+    // v1.1 audit: read date from the modal field. Defaults: the field's
+    // current value (set on open) → fall back to existing entry date →
+    // fall back to today. Reject empty/invalid by clamping to today.
+    const dateEl = document.getElementById('trackerModalDate');
+    const todayStr = new Date().toISOString().slice(0, 10);
+    let dateStr = todayStr;
+    if (dateEl && dateEl.value) {
+        const d = new Date(dateEl.value);
+        if (!isNaN(d.getTime()) && dateEl.value <= todayStr) {
+            dateStr = dateEl.value;
+        }
+    } else if (existing.date) {
+        dateStr = existing.date;
+    }
+
     RP._trackerEntries[key] = {
         ...existing,
         actual: actual,
         completed: true,
-        date: new Date().toISOString().split('T')[0]
+        date: dateStr
     };
 
     RP.saveTrackerToStorage();

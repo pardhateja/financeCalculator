@@ -18,6 +18,88 @@ header h1 {
     font-weight: 300;
 }
 
+/* v1.1 audit: header layout with flex row instead of absolute-positioned
+ * action buttons. The H1 (text-align:center) overlapped the top-right
+ * button group on narrower viewports. Now title + actions sit side-by-side
+ * and gracefully wrap when space runs out. */
+.app-header {
+    text-align: left;
+    padding: 24px 20px;
+}
+
+.app-header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.app-header-titles {
+    flex: 1 1 auto;
+    min-width: 280px;
+}
+
+.app-header-titles h1 {
+    margin: 0 0 4px;
+    font-size: 2rem;
+    line-height: 1.2;
+}
+
+.app-header-titles .subtitle {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.app-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.header-action-btn {
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    line-height: 1.2;
+    white-space: nowrap;
+    transition: background 0.15s ease;
+}
+
+.header-action-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    user-select: none;
+}
+
+.header-action-checkbox input {
+    margin: 0;
+    cursor: pointer;
+}
+
+.header-action-btn--danger:hover,
+.header-action-btn--danger:focus {
+    background: rgba(239, 68, 68, 0.8);
+    outline: none;
+}
+
+@media (max-width: 720px) {
+    .app-header-titles h1 { font-size: 1.6rem; }
+    .app-header-titles .subtitle { font-size: 0.85rem; }
+    .app-header-actions { width: 100%; }
+    .header-action-btn { font-size: 0.78rem; padding: 6px 10px; }
+}
+
 /* Navigation tabs */
 .nav-tabs {
     display: flex;

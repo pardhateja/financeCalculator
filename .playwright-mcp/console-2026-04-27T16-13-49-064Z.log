@@ -1,0 +1,2 @@
+[   30035ms] TypeError: Cannot read properties of null (reading 'style')
+    at eval (eval at evaluate (:302:30), <anonymous>:25:73)

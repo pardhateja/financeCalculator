@@ -1,0 +1,161 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "Retirement Financial Planner" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Comprehensive Income, Expense, Investment & Projection Planning
+    - generic [ref=e6]:
+      - button "☀ Light" [ref=e7] [cursor=pointer]
+      - button "Copy Share Link" [ref=e8] [cursor=pointer]
+      - button "Reset" [ref=e9] [cursor=pointer]
+  - generic [ref=e10]:
+    - button "Basics & Income" [ref=e11] [cursor=pointer]
+    - button "Expenses" [ref=e12] [cursor=pointer]
+    - button "Investments" [ref=e13] [cursor=pointer]
+    - button "Financial Plan" [ref=e14] [cursor=pointer]
+    - button "Projections" [ref=e15] [cursor=pointer]
+    - button "Dashboard" [active] [ref=e16] [cursor=pointer]
+    - button "What-If" [ref=e17] [cursor=pointer]
+    - button "Goals" [ref=e18] [cursor=pointer]
+    - button "Multi-Goal" [ref=e19] [cursor=pointer]
+    - button "Emergency Fund" [ref=e20] [cursor=pointer]
+    - button "SIP Calculator" [ref=e21] [cursor=pointer]
+    - button "Tracker" [ref=e22] [cursor=pointer]
+    - button "Milestones" [ref=e23] [cursor=pointer]
+    - button "Loan/EMI" [ref=e24] [cursor=pointer]
+    - button "Expense Log" [ref=e25] [cursor=pointer]
+    - button "Net Worth" [ref=e26] [cursor=pointer]
+    - button "Profiles" [ref=e27] [cursor=pointer]
+  - generic [ref=e209]:
+    - heading "Financial Dashboard" [level=2] [ref=e210]
+    - generic [ref=e211]:
+      - generic [ref=e212]:
+        - generic [ref=e213]: FI Score
+        - generic [ref=e214]: 90/100
+        - generic [ref=e215]: On Track
+      - generic [ref=e216]:
+        - generic [ref=e217]: Current Net Worth
+        - generic [ref=e218]: ₹70.00 L
+      - generic [ref=e219]:
+        - generic [ref=e220]: Corpus at Retirement
+        - generic [ref=e221]: ₹5.49 Cr
+      - generic [ref=e222]:
+        - generic [ref=e223]: Money Lasts Until
+        - generic [ref=e224]: Never
+    - generic [ref=e225]:
+      - heading "FI Score Breakdown" [level=3] [ref=e226]
+      - generic [ref=e227]:
+        - generic [ref=e228]:
+          - generic [ref=e229]:
+            - strong [ref=e230]: Savings Rate
+            - generic [ref=e231]: 20.0 / 20
+          - generic [ref=e234]: "60.0% (target: 60%+)"
+        - generic [ref=e235]:
+          - generic [ref=e236]:
+            - strong [ref=e237]: Corpus Adequacy
+            - generic [ref=e238]: 30.0 / 30
+          - generic [ref=e241]: ₹5.49 Cr / ₹4.78 Cr target
+        - generic [ref=e242]:
+          - generic [ref=e243]:
+            - strong [ref=e244]: Longevity Coverage
+            - generic [ref=e245]: 30.0 / 30
+          - generic [ref=e248]: Lasts entire lifetime
+        - generic [ref=e249]:
+          - generic [ref=e250]:
+            - strong [ref=e251]: Emergency Fund
+            - generic [ref=e252]: 0.0 / 10
+          - generic [ref=e254]: "0.0 months covered (target: 6)"
+        - generic [ref=e255]:
+          - generic [ref=e256]:
+            - strong [ref=e257]: Investment Discipline
+            - generic [ref=e258]: 10.0 / 10
+          - generic [ref=e261]: ₹2,10,000/mo invested
+    - generic [ref=e262]:
+      - generic [ref=e263]:
+        - generic [ref=e264]:
+          - heading "Income & Expense Metrics" [level=3] [ref=e265]
+          - generic [ref=e266]:
+            - generic [ref=e267]:
+              - generic [ref=e268]: Savings Rate
+              - generic [ref=e269]: 60.0%
+            - generic [ref=e270]:
+              - generic [ref=e271]: Monthly Surplus
+              - generic [ref=e272]: ₹2,10,000
+          - generic [ref=e273]:
+            - generic [ref=e274]:
+              - generic [ref=e275]: Needs vs Wants
+              - generic [ref=e276]: 64% / 36%
+            - generic [ref=e277]:
+              - generic [ref=e278]: Annual Surplus
+              - generic [ref=e279]: ₹25.20 L
+        - generic [ref=e280]:
+          - heading "Investment Metrics" [level=3] [ref=e281]
+          - generic [ref=e282]:
+            - generic [ref=e283]:
+              - generic [ref=e284]: Pre-Ret Return
+              - generic [ref=e285]: 12.63%
+            - generic [ref=e286]:
+              - generic [ref=e287]: Post-Ret Return
+              - generic [ref=e288]: 9.50%
+          - generic [ref=e289]:
+            - generic [ref=e290]:
+              - generic [ref=e291]: Monthly SIP
+              - generic [ref=e292]: ₹2,10,000
+            - generic [ref=e293]:
+              - generic [ref=e294]: Annual SIP (w/ step-up)
+              - generic [ref=e295]: ₹25.20 L
+        - generic [ref=e296]:
+          - heading "Retirement Readiness" [level=3] [ref=e297]
+          - generic [ref=e298]:
+            - generic [ref=e299]:
+              - generic [ref=e300]: Years to Retire
+              - generic [ref=e301]: "8"
+            - generic [ref=e302]:
+              - generic [ref=e303]: Retirement Duration
+              - generic [ref=e304]: 65 yrs
+          - generic [ref=e305]:
+            - generic [ref=e306]:
+              - generic [ref=e307]: Post-Ret Monthly (inflation adj.)
+              - generic [ref=e308]: ₹1,59,385
+            - generic [ref=e309]:
+              - generic [ref=e310]: Wealth Multiple
+              - generic [ref=e311]: 28.7x
+              - generic [ref=e312]: Corpus / Annual Expense
+      - generic [ref=e313]:
+        - generic [ref=e314]:
+          - heading "Risk Alerts" [level=3] [ref=e315]
+          - generic [ref=e316]:
+            - generic [ref=e319]: Emergency fund critical — only 0.0 months coverage
+            - generic [ref=e322]: Excellent savings rate of 60%
+            - generic [ref=e325]: Corpus lasts your entire lifetime
+            - generic [ref=e328]: Wealth multiple 28.7x — FIRE ready!
+        - generic [ref=e329]:
+          - heading "Quick Actions" [level=3] [ref=e330]
+          - generic [ref=e331]:
+            - generic [ref=e332]: Build emergency fund to ₹8,40,000 (6 months)
+            - generic [ref=e333]: Review investment allocation at age milestones (30, 40, 50)
+        - generic [ref=e334]:
+          - heading "Key Ratios" [level=3] [ref=e335]
+          - generic [ref=e336]:
+            - generic [ref=e337]:
+              - generic [ref=e338]: Expense Ratio
+              - generic [ref=e339]: 40%
+              - generic [ref=e340]: Expenses / Income
+            - generic [ref=e341]:
+              - generic [ref=e342]: Investment Ratio
+              - generic [ref=e343]: 60%
+              - generic [ref=e344]: Investment / Income
+          - generic [ref=e345]:
+            - generic [ref=e346]:
+              - generic [ref=e347]: Debt-Free Income
+              - generic [ref=e348]: ₹3,25,000
+              - generic [ref=e349]: Income - EMIs
+            - generic [ref=e350]:
+              - generic [ref=e351]: FIRE Number
+              - generic [ref=e352]: ₹4.78 Cr
+              - generic [ref=e353]: Annual Expense x 25
+  - contentinfo [ref=e104]:
+    - paragraph [ref=e105]: Retirement Financial Planner — Plan your financial future with confidence
+    - generic [ref=e106]:
+      - link "Home" [ref=e107] [cursor=pointer]:
+        - /url: ../index.html
+      - link "Multi-Method Calculator" [ref=e108] [cursor=pointer]:
+        - /url: ../multi-method-calculator.html

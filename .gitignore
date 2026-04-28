@@ -1,0 +1,11 @@
+# NOTE (2026-04-27): the entire .claude/ directory IS intentionally tracked
+# in this repo (per Pardha — sync trust rules + PDLC run artifacts + agents
+# across machines). Nothing under .claude/ should be ignored.
+#
+# TODO: revisit before any public publish or before adding collaborators —
+# settings.local.json may contain machine-specific paths and PDLC run folders
+# may contain in-progress drafts not meant for an external audience. To
+# selectively ignore at that point:
+#   .claude/settings.local.json   # if you want machine-local trust only
+#   .claude/pdlc-runs/            # if you don't want to share run artifacts
+# Then `git rm -r --cached .claude/<path>` to remove from index.
