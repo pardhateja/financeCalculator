@@ -11,9 +11,50 @@
  *   - "yrs from now" text becomes "this year", "next year",
  *     "N yrs · M mo from now" so the timeline reads naturally
  */
+/* v1.1 audit: lazy-wire the source dropdown once. Re-runs the math on
+ * change + persists the choice in localStorage so the selection survives
+ * reload (and matches the URL-hash + active-tab persistence pattern). */
+RP._wireMilestoneSource = function () {
+    const sel = document.getElementById('milestoneSource');
+    if (!sel || sel._wired) return;
+    sel._wired = true;
+    // Restore saved choice
+    try {
+        const saved = localStorage.getItem('rp_milestone_source');
+        if (saved === 'single' || saved === 'multi') sel.value = saved;
+    } catch (e) {}
+    sel.addEventListener('change', () => {
+        try { localStorage.setItem('rp_milestone_source', sel.value); } catch (e) {}
+        RP.calculateMilestones();
+    });
+};
+
 RP.calculateMilestones = function () {
     const container = document.getElementById('milestonesContainer');
-    if (!container || !RP._chartData || RP._chartData.length === 0) return;
+    if (!container) return;
+    RP._wireMilestoneSource();
+
+    /* v1.1 audit: choose data source. Single-Goal uses RP._chartData
+     * (filled by calc-projections), Multi-Goal uses RP._multiGoalProjectionRows
+     * (filled by calc-multigoal renderProjection). Both arrays share the
+     * same {age, ending} shape so the rest of the math is identical. */
+    const sel = document.getElementById('milestoneSource');
+    let source = sel ? sel.value : 'single';
+    let data;
+    if (source === 'multi') {
+        data = Array.isArray(RP._multiGoalProjectionRows) ? RP._multiGoalProjectionRows : [];
+        if (data.length === 0) {
+            // Multi-Goal has no projection yet (no phases or corpus=0).
+            // Render a helper card instead of an empty timeline.
+            container.innerHTML = '<div class="summary-card" style="padding:14px 16px;color:var(--text-secondary);text-align:center;line-height:1.5;">' +
+                '<strong>Multi-Goal projection not available.</strong><br>' +
+                'Add at least one life phase under the <em>Multi-Goal</em> tab so milestones can read its corpus curve.</div>';
+            return;
+        }
+    } else {
+        data = Array.isArray(RP._chartData) ? RP._chartData : [];
+        if (data.length === 0) return;
+    }
 
     /* Wider ladder. Each ascending number is "feels meaningful" — round
      * crores. Only the ones the projection reaches will render. */
@@ -30,7 +71,7 @@ RP.calculateMilestones = function () {
         { label: '₹500 Cr', amount: 5000000000 }
     ];
 
-    const data = RP._chartData;
+    // `data` already chosen above based on dropdown source
     const curAge = RP.val('currentAge');
     const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const today = new Date();

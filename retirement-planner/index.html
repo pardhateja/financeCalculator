@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Financial Planner</title>
-    <link rel="stylesheet" href="css/base.css?v=20260428124817">
-    <link rel="stylesheet" href="css/layout.css?v=20260428124817">
-    <link rel="stylesheet" href="css/forms.css?v=20260428124817">
-    <link rel="stylesheet" href="css/cards.css?v=20260428124817">
-    <link rel="stylesheet" href="css/tables.css?v=20260428124817">
-    <link rel="stylesheet" href="css/responsive.css?v=20260428124817">
-    <link rel="stylesheet" href="css/tracker.css?v=20260428124817">
-    <link rel="stylesheet" href="css/multigoal.css?v=20260428124817">
-    <link rel="stylesheet" href="css/dark.css?v=20260428124817">
+    <link rel="stylesheet" href="css/base.css?v=20260428125541">
+    <link rel="stylesheet" href="css/layout.css?v=20260428125541">
+    <link rel="stylesheet" href="css/forms.css?v=20260428125541">
+    <link rel="stylesheet" href="css/cards.css?v=20260428125541">
+    <link rel="stylesheet" href="css/tables.css?v=20260428125541">
+    <link rel="stylesheet" href="css/responsive.css?v=20260428125541">
+    <link rel="stylesheet" href="css/tracker.css?v=20260428125541">
+    <link rel="stylesheet" href="css/multigoal.css?v=20260428125541">
+    <link rel="stylesheet" href="css/dark.css?v=20260428125541">
 </head>
 <body>
     <div class="container">
@@ -1140,7 +1140,14 @@
         <div class="tab-content" id="tab-milestones">
             <div class="panel">
                 <h2>Milestone Alerts</h2>
-                <div class="sub-text" style="margin-bottom:20px;color:var(--text-secondary);">Based on your current projections, here's when you'll hit each milestone.</div>
+                <div class="sub-text" style="margin-bottom:12px;color:var(--text-secondary);">Based on your current projections, here's when you'll hit each milestone.</div>
+                <div class="input-group" style="max-width:340px;margin-bottom:18px;">
+                    <label for="milestoneSource">Projection source</label>
+                    <select id="milestoneSource">
+                        <option value="single">Single-Goal Projection</option>
+                        <option value="multi">Multi-Goal Projection</option>
+                    </select>
+                </div>
                 <div id="milestonesContainer"></div>
             </div>
         </div>
@@ -1342,28 +1349,28 @@
         </footer>
     </div>
 
-    <script src="js/utils.js?v=20260428124817"></script>
-    <script src="js/calc-income.js?v=20260428124817"></script>
-    <script src="js/calc-expenses.js?v=20260428124817"></script>
-    <script src="js/calc-investments.js?v=20260428124817"></script>
-    <script src="js/calc-financial-plan.js?v=20260428124817"></script>
-    <script src="js/calc-projections.js?v=20260428124817"></script>
-    <script src="js/chart.js?v=20260428124817"></script>
-    <script src="js/calc-dashboard.js?v=20260428124817"></script>
-    <script src="js/calc-whatif.js?v=20260428124817"></script>
-    <script src="js/calc-goals.js?v=20260428124817"></script>
-    <script src="js/calc-multigoal.js?v=20260428124817"></script>
-    <script src="js/calc-emergency.js?v=20260428124817"></script>
-    <script src="js/calc-sip.js?v=20260428124817"></script>
-    <script src="js/calc-tracker.js?v=20260428124817"></script>
-    <script src="js/calc-savings-rollup.js?v=20260428124817"></script>
-    <script src="js/calc-milestones.js?v=20260428124817"></script>
-    <script src="js/calc-loan.js?v=20260428124817"></script>
-    <script src="js/calc-exptrack.js?v=20260428124817"></script>
-    <script src="js/calc-networth.js?v=20260428124817"></script>
-    <script src="js/profiles.js?v=20260428124817"></script>
-    <script src="js/sharelink.js?v=20260428124817"></script>
-    <script src="js/darkmode.js?v=20260428124817"></script>
-    <script src="js/app.js?v=20260428124817"></script>
+    <script src="js/utils.js?v=20260428125541"></script>
+    <script src="js/calc-income.js?v=20260428125541"></script>
+    <script src="js/calc-expenses.js?v=20260428125541"></script>
+    <script src="js/calc-investments.js?v=20260428125541"></script>
+    <script src="js/calc-financial-plan.js?v=20260428125541"></script>
+    <script src="js/calc-projections.js?v=20260428125541"></script>
+    <script src="js/chart.js?v=20260428125541"></script>
+    <script src="js/calc-dashboard.js?v=20260428125541"></script>
+    <script src="js/calc-whatif.js?v=20260428125541"></script>
+    <script src="js/calc-goals.js?v=20260428125541"></script>
+    <script src="js/calc-multigoal.js?v=20260428125541"></script>
+    <script src="js/calc-emergency.js?v=20260428125541"></script>
+    <script src="js/calc-sip.js?v=20260428125541"></script>
+    <script src="js/calc-tracker.js?v=20260428125541"></script>
+    <script src="js/calc-savings-rollup.js?v=20260428125541"></script>
+    <script src="js/calc-milestones.js?v=20260428125541"></script>
+    <script src="js/calc-loan.js?v=20260428125541"></script>
+    <script src="js/calc-exptrack.js?v=20260428125541"></script>
+    <script src="js/calc-networth.js?v=20260428125541"></script>
+    <script src="js/profiles.js?v=20260428125541"></script>
+    <script src="js/sharelink.js?v=20260428125541"></script>
+    <script src="js/darkmode.js?v=20260428125541"></script>
+    <script src="js/app.js?v=20260428125541"></script>
 </body>
 </html>

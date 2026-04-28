@@ -2,7 +2,14 @@
         <div class="tab-content" id="tab-milestones">
             <div class="panel">
                 <h2>Milestone Alerts</h2>
-                <div class="sub-text" style="margin-bottom:20px;color:var(--text-secondary);">Based on your current projections, here's when you'll hit each milestone.</div>
+                <div class="sub-text" style="margin-bottom:12px;color:var(--text-secondary);">Based on your current projections, here's when you'll hit each milestone.</div>
+                <div class="input-group" style="max-width:340px;margin-bottom:18px;">
+                    <label for="milestoneSource">Projection source</label>
+                    <select id="milestoneSource">
+                        <option value="single">Single-Goal Projection</option>
+                        <option value="multi">Multi-Goal Projection</option>
+                    </select>
+                </div>
                 <div id="milestonesContainer"></div>
             </div>
         </div>
