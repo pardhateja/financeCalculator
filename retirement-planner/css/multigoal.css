@@ -543,9 +543,11 @@ body.dark-mode .phase-chart-legend {
     border-top-color: rgba(148, 163, 184, 0.20);
 }
 
-body.dark-mode .phase-legend-chip {
-    color: var(--text-primary, #f1f5f9);
-}
+/* v1.1 audit: legend chips in dark mode were unreadable because
+ * var(--text-primary) resolves to #1e293b (defined for light mode only,
+ * never redefined for dark). Hard-code an explicit bright slate. */
+body.dark-mode .phase-legend-chip { color: #f1f5f9; }
+body.dark-mode .phase-legend-label { color: #f1f5f9; }
 
 /* v1.1 audit chart v3: hover tooltip on multi-goal chart.
  * Explicit color values per mode (light + dark.mode override) instead of CSS

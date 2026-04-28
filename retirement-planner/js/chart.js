@@ -200,7 +200,10 @@ RP.renderMultiGoalChart = function (canvasEl, projectionRows, phases) {
     const docStyle = getComputedStyle(document.documentElement);
     const isDark = document.body.classList.contains('dark-mode');
     const gridColor = isDark ? 'rgba(148,163,184,0.18)' : 'rgba(148,163,184,0.30)';
-    const labelColor = isDark ? '#94a3b8' : '#64748b';
+    // v1.1 audit: brighter label color in dark mode — #94a3b8 read as too dim
+    // against the navy background. #cbd5e1 (slate-300) gives clear contrast
+    // without being pure white (which would compete with the corpus line).
+    const labelColor = isDark ? '#cbd5e1' : '#64748b';
     const lineColor = '#2563eb';
     const fillGood = isDark ? 'rgba(37,99,235,0.20)' : 'rgba(37,99,235,0.14)';
     const fillBad  = isDark ? 'rgba(239,68,68,0.18)'  : 'rgba(239,68,68,0.14)';
