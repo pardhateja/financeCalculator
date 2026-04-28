@@ -463,11 +463,12 @@ RP._multigoal.runProjection = function (phases, allocationResult, retirementAge,
 //      Solve FV = SIP * [(1+r)^n - 1] / r for SIP, given FV = deficit
 //   2. Reduce highest-cost phase by X% to eliminate the gap
 // ---------------------------------------------------------------------------
-RP._multigoal.calculateDeficitSuggestions = function (deficit, yearsToRetirement, preReturn, phases) {
+RP._multigoal.calculateDeficitSuggestions = function (deficit, yearsToRetirement, preReturn, phases, allocationRows) {
     const gap = (typeof deficit === 'number' && deficit > 0) ? deficit : 0;
     const years = (typeof yearsToRetirement === 'number' && yearsToRetirement > 0) ? yearsToRetirement : 0;
     const r = (typeof preReturn === 'number' && isFinite(preReturn)) ? preReturn : 0.08;
     const phaseList = Array.isArray(phases) ? phases : [];
+    const allocList = Array.isArray(allocationRows) ? allocationRows : [];
 
     // Option 1: SIP increase needed (monthly amount)
     let sipIncrease = 0;
@@ -483,29 +484,53 @@ RP._multigoal.calculateDeficitSuggestions = function (deficit, yearsToRetirement
         }
     }
 
-    // Option 2: Reduce highest-cost phase by gap/totalPhaseCost percentage
-    // Directional suggestion only — exact reduction requires re-running PV.
+    /* Option 2 (v1.1 audit fix): reduce the phase with the highest PV by
+     * (gap / phasePV). Reducing baseMonthlyExpense by X% reduces that phase's
+     * PV by exactly X% (linear in monthlyExpense), so this is mathematically
+     * sound — cutting that phase by reductionPercent removes `gap` rupees of
+     * PV burden and closes the deficit.
+     *
+     * Previous version used nominal (monthly × 12 × years) which ignores
+     * inflation+discount, making the suggested reduction far too small to
+     * actually close the gap (Pardha hit this — the suggested cut "reduce
+     * Base from ₹50k to ₹5,729" only saved ~₹2 Cr of a ₹3.93 Cr gap).
+     *
+     * Picks the highest-PV phase (the one whose share of corpus is largest)
+     * which is also the most actionable single lever — not the highest
+     * monthly amount, since a high-monthly short-duration phase may have a
+     * smaller PV than a modest-monthly long-duration phase.
+     *
+     * If the gap is bigger than the chosen phase's PV, the suggestion is
+     * "even cutting this phase to zero won't close the gap" — surfaces that
+     * honestly via reductionPercent = 100 + a flag the renderer can show.
+     */
     let phaseReduction = null;
-    if (gap > 0 && phaseList.length > 0) {
-        let topPhase = phaseList[0];
+    if (gap > 0 && phaseList.length > 0 && allocList.length > 0) {
+        // Build phaseId → PV lookup
+        const pvById = {};
+        allocList.forEach(a => { pvById[a.phaseId] = a.pvRequired || 0; });
+
+        let topPhase = null;
+        let topPV = 0;
         for (const p of phaseList) {
-            if (p.baseMonthlyExpense > topPhase.baseMonthlyExpense) {
-                topPhase = p;
-            }
+            const pv = pvById[p.id] || 0;
+            if (pv > topPV) { topPV = pv; topPhase = p; }
         }
-        const topPhaseAnnualBase = topPhase.baseMonthlyExpense * 12;
-        const phaseDuration = topPhase.endAge - topPhase.startAge + 1;
-        const topPhaseTotalBase = topPhaseAnnualBase * phaseDuration;
-        const reductionPercent = topPhaseTotalBase > 0
-            ? Math.min(100, (gap / topPhaseTotalBase) * 100)
-            : 0;
-        const reducedAmount = topPhase.baseMonthlyExpense * (1 - reductionPercent / 100);
-        phaseReduction = {
-            phaseName: topPhase.name,
-            currentAmount: topPhase.baseMonthlyExpense,
-            reducedAmount: Math.max(0, reducedAmount),
-            reductionPercent: reductionPercent
-        };
+
+        if (topPhase && topPV > 0) {
+            const rawPercent = (gap / topPV) * 100;
+            const reductionPercent = Math.min(100, rawPercent);
+            const reducedAmount = topPhase.baseMonthlyExpense * (1 - reductionPercent / 100);
+            phaseReduction = {
+                phaseName: topPhase.name,
+                currentAmount: topPhase.baseMonthlyExpense,
+                reducedAmount: Math.max(0, reducedAmount),
+                reductionPercent: reductionPercent,
+                topPhasePV: topPV,
+                // True when even zeroing this phase doesn't close the gap.
+                insufficient: rawPercent > 100
+            };
+        }
     }
 
     return {
@@ -1381,8 +1406,16 @@ RP._multigoal._renderDeficitSuggestion = function (allocation, retirementAge, cu
     const preReturn = (typeof RP._preReturn === 'number' && isFinite(RP._preReturn) && RP._preReturn > 0)
         ? RP._preReturn
         : 0.12;
+    // v1.1 audit: pass allocation.phases (which carry per-phase PV) so the
+    // reduction suggestion can compute against actual PV, not nominal totals.
+    // Use the corpus-filtered phases (allocation.phases reflects the same set).
+    const corpusPhasesForSuggest = (allocation.phases || []).map(a => {
+        const p = (RP._multigoal.phases || []).find(x => x.id === a.phaseId);
+        return p ? p : null;
+    }).filter(Boolean);
     const suggestions = RP._multigoal.calculateDeficitSuggestions(
-        allocation.overallDeficit, yearsToRetirement, preReturn, RP._multigoal.phases
+        allocation.overallDeficit, yearsToRetirement, preReturn,
+        corpusPhasesForSuggest, allocation.phases
     );
 
     const deficitLakhs = (allocation.overallDeficit / 100000).toFixed(1);
@@ -1413,10 +1446,18 @@ RP._multigoal._renderDeficitSuggestion = function (allocation, retirementAge, cu
         const safeName = String(pr.phaseName).replace(/[&<>"']/g, ch => ({
             '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
         }[ch]));
-        html += '<br>&bull; OR reduce "' + safeName + '" from '
-            + RP.formatCurrency(pr.currentAmount) + '/mo to '
-            + RP.formatCurrency(Math.round(pr.reducedAmount)) + '/mo ('
-            + pr.reductionPercent.toFixed(1) + '% reduction)';
+        if (pr.insufficient) {
+            // v1.1 audit: be honest when no single phase cut closes the gap.
+            const topPVLakhs = (pr.topPhasePV / 100000).toFixed(1);
+            html += '<br>&bull; OR reduce "' + safeName + '" — but even cutting it to ₹0/mo only saves &#8377;'
+                + topPVLakhs + ' lakhs of the &#8377;' + deficitLakhs
+                + ' lakhs gap. SIP increase or trimming multiple phases is the realistic path.';
+        } else {
+            html += '<br>&bull; OR reduce "' + safeName + '" from '
+                + RP.formatCurrency(pr.currentAmount) + '/mo to '
+                + RP.formatCurrency(Math.round(pr.reducedAmount)) + '/mo ('
+                + pr.reductionPercent.toFixed(1) + '% reduction)';
+        }
     }
 
     message.innerHTML = html;
