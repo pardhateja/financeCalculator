@@ -1,5 +1,26 @@
 /* Dark mode overrides */
+/* v1.1 audit: redefine the design-token variables for dark mode. Without
+ * this, every `var(--bg-color)` / `var(--card-bg)` / `var(--text-primary)`
+ * usage (in CSS files and inline-style HTML strings emitted from JS)
+ * resolves to the LIGHT-mode value → white-on-white, dark-on-dark, etc.
+ *
+ * Specific bugs this fixes in one shot:
+ *   - Investments tab → highlighted active-bracket row → unreadable text
+ *   - Dashboard → Quick Actions → action items white-on-white
+ *   - Profiles list, alert pills, table stripes, etc.
+ */
 body.dark-mode {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #334155;
+    --primary-light: #1e3a5f;
+    --primary-dark: #93c5fd;
+    --secondary-light: #064e3b;
+    --danger-light: #7f1d1d;
+    --warning-light: #78350f;
+    --danger-row: #3a0e0e;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
@@ -40,9 +61,20 @@ body.dark-mode .input-group input[readonly] {
     border-style: dashed;
 }
 
-/* v1.1: date input — invert the picker indicator so it's visible on dark bg */
-body.dark-mode .input-group input[type="date"]::-webkit-calendar-picker-indicator {
+/* v1.1: date + month inputs — invert the picker indicator so it's visible
+ * on dark bg. Also extend to standalone date/month inputs (not just inside
+ * .input-group) for the Expense Log + Net Worth + Tracker modal pickers. */
+body.dark-mode input[type="date"],
+body.dark-mode input[type="month"] {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-color: #334155;
+    color-scheme: dark; /* tells the browser to use dark UI for native widgets */
+}
+body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator,
+body.dark-mode input[type="month"]::-webkit-calendar-picker-indicator {
     filter: invert(0.85);
+    cursor: pointer;
 }
 
 /* v1.1: pencil-toggle button (DOB override) */
@@ -81,6 +113,10 @@ body.dark-mode .inv-table .total-row td { border-top-color: #3b82f6; }
 
 body.dark-mode .matrix-table th { background: #1e3a5f; color: #93c5fd; }
 body.dark-mode .matrix-table td { border-color: #334155; color: #e2e8f0; }
+/* Active-bracket cell: light mode uses dark-green text on mint-green bg.
+ * In dark mode the bg becomes deep emerald, so the dark-green text is
+ * unreadable. Override to bright mint. */
+body.dark-mode .matrix-table td.active-bracket { color: #6ee7b7; background: #064e3b; }
 body.dark-mode .matrix-card { background: #0f172a; }
 
 body.dark-mode .projection-table thead th { background: #1e40af; }

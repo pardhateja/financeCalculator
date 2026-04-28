@@ -56,3 +56,50 @@
 }
 
 .blended-return .label { font-weight: 400; font-size: 0.9rem; opacity: 0.9; }
+
+/* v1.1 audit: profile list rows. Explicit colors for both modes so the
+ * profile name + meta read clearly regardless of theme. */
+.profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    background: #f8fafc;
+    color: #1e293b;
+    border-radius: 8px;
+    border-left: 3px solid #2563eb;
+}
+.profile-row--active {
+    border-left-color: #10b981;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25);
+}
+.profile-row-info { flex: 1; min-width: 0; }
+.profile-row-info strong { color: #1e293b; }
+.profile-row-date { font-size: 0.8rem; color: #64748b; }
+.profile-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.profile-row-btn { padding: 6px 14px; font-size: 0.8rem; }
+.profile-row-btn--del { padding: 6px 10px; color: #ef4444; border-color: #ef4444; }
+.profile-active-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: #10b981;
+    color: #ffffff;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+}
+
+body.dark-mode .profile-row {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+body.dark-mode .profile-row strong { color: #f1f5f9; }
+body.dark-mode .profile-row-date { color: #94a3b8; }
+body.dark-mode .profile-row--active {
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.45);
+}

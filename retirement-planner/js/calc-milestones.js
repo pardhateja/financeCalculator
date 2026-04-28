@@ -17,6 +17,12 @@ RP.calculateMilestones = function () {
     const data = RP._chartData;
     const curAge = RP.val('currentAge');
     const today = new Date();
+    // v1.1 audit: "reached" must compare against ACTUAL CURRENT corpus
+    // (#currentSavings = seed + tracker contributions + interest), not the
+    // first projection row's ending value. The first row's `ending` already
+    // includes a full year of growth + savings, so a ₹70L corpus that grows
+    // to ₹1.04Cr by year-end was incorrectly marked as "reached ₹1 Cr today".
+    const currentCorpus = (typeof RP.val === 'function') ? RP.val('currentSavings') : 0;
 
     container.innerHTML = milestones.map(m => {
         const idx = data.findIndex(d => d.ending >= m.amount);
@@ -32,7 +38,7 @@ RP.calculateMilestones = function () {
         const targetDate = new Date(today.getFullYear() + yearsFromNow, today.getMonth(), 1);
         const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         const dateStr = monthNames[targetDate.getMonth()] + ' ' + targetDate.getFullYear();
-        const isPast = data.findIndex(d => d.age === curAge && d.ending >= m.amount) >= 0;
+        const isPast = currentCorpus >= m.amount;
         const statusColor = isPast ? 'var(--secondary-color)' : yearsFromNow <= 3 ? 'var(--warning-color)' : 'var(--primary-color)';
         const statusIcon = isPast ? '&#10003;' : '&#9679;';
 
