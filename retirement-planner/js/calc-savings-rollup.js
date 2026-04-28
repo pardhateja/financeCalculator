@@ -26,16 +26,24 @@
     }
 
     /* Walk RP._trackerEntries (object keyed by "y{N}m{N}"), compound each
-     * completed contribution from its date (or implicit y/m offset) to today. */
+     * completed contribution from its date (or implicit y/m offset) to today.
+     * v1.1 audit: returns { contributions, interest, total } so the UI can
+     * surface the split. Previously returned a single rounded total, which
+     * made it impossible to see "how much did I put in vs. how much grew." */
     function computeTrackerRollup() {
-        if (typeof RP._trackerEntries !== 'object' || !RP._trackerEntries) return 0;
+        if (typeof RP._trackerEntries !== 'object' || !RP._trackerEntries) {
+            return { contributions: 0, interest: 0, total: 0 };
+        }
         const entries = RP._trackerEntries;
         const postTaxAnnual = getPostTaxAnnualRate();
-        if (!Number.isFinite(postTaxAnnual) || postTaxAnnual < 0) return 0;
+        if (!Number.isFinite(postTaxAnnual) || postTaxAnnual < 0) {
+            return { contributions: 0, interest: 0, total: 0 };
+        }
         const monthlyRate = Math.pow(1 + postTaxAnnual, 1 / 12) - 1;
 
         const today = new Date();
-        let rollup = 0;
+        let contributions = 0;
+        let totalWithInterest = 0;
 
         Object.keys(entries).forEach(key => {
             const entry = entries[key];
@@ -59,26 +67,41 @@
                 (today.getFullYear() - entryDate.getFullYear()) * 12
                 + (today.getMonth() - entryDate.getMonth())
             );
-            rollup += amount * Math.pow(1 + monthlyRate, monthsElapsed);
+            contributions += amount;
+            totalWithInterest += amount * Math.pow(1 + monthlyRate, monthsElapsed);
         });
 
-        return Math.round(rollup);
+        const contribRounded = Math.round(contributions);
+        const totalRounded = Math.round(totalWithInterest);
+        return {
+            contributions: contribRounded,
+            interest: Math.max(0, totalRounded - contribRounded),
+            total: totalRounded
+        };
     }
 
     /* Main entry point — refreshes the readonly Tracker rollup + Total fields,
      * then fires a 'change' event on #currentSavings so all downstream readers
-     * (Projections, What-If, Multi-Goal, Dashboard, etc.) recompute. */
+     * (Projections, What-If, Multi-Goal, Dashboard, etc.) recompute.
+     * v1.1 audit: split rollup into Contributions + Interest fields for clarity. */
     RP._computeSavingsRollup = function () {
         const seedEl = document.getElementById('currentSavingsSeed');
         const rollupEl = document.getElementById('trackerRollupAmount');
+        const contribEl = document.getElementById('trackerContributions');
+        const interestEl = document.getElementById('trackerInterest');
         const totalEl = document.getElementById('currentSavings');
         if (!seedEl || !rollupEl || !totalEl) return; // tab not in DOM yet
 
         const seed = parseFloat(seedEl.value) || 0;
-        const trackerRollup = computeTrackerRollup();
+        const breakdown = computeTrackerRollup();
+        const trackerRollup = breakdown.total;
         const total = seed + trackerRollup;
 
         rollupEl.value = trackerRollup;
+        // v1.1: optional split fields. If markup hasn't been bundled yet
+        // (older index.html), silently skip — the legacy rollupEl still works.
+        if (contribEl) contribEl.value = breakdown.contributions;
+        if (interestEl) interestEl.value = breakdown.interest;
         // Only fire change if the total actually changed (avoids infinite loop
         // if a downstream listener triggers another recompute).
         if (parseFloat(totalEl.value) !== total) {

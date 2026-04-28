@@ -6,20 +6,27 @@
                         <h2>Pre-Retirement Plan</h2>
                         <div class="section-group">
                             <h3>Current Savings</h3>
-                            <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Total = your seed (had before tracking started) + everything you've logged in the Tracker tab, with monthly compound interest applied at your post-tax blended return.</p>
+                            <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Total = Seed (what you had before tracking) + Tracker contributions (what you've logged in the Tracker tab) + Interest earned on those contributions at your post-tax blended return.</p>
                             <div class="input-group">
                                 <label for="currentSavingsSeed">Seed (had before tracking)</label>
                                 <input type="number" id="currentSavingsSeed" value="7000000" min="0">
                                 <span class="unit">&#8377;</span>
                             </div>
                             <div class="input-group">
-                                <label for="trackerRollupAmount">Tracker rollup (with interest)</label>
-                                <input type="number" id="trackerRollupAmount" value="0" readonly tabindex="-1" title="Auto-computed from Tracker entries with monthly compound interest at your post-tax blended return.">
+                                <label for="trackerContributions">Tracker contributions</label>
+                                <input type="number" id="trackerContributions" value="0" readonly tabindex="-1" title="Sum of all completed Tracker entries (what you actually invested, no interest).">
                                 <span class="unit">&#8377;</span>
                             </div>
                             <div class="input-group">
+                                <label for="trackerInterest">Interest earned</label>
+                                <input type="number" id="trackerInterest" value="0" readonly tabindex="-1" title="Compound interest earned on Tracker contributions at your post-tax blended return.">
+                                <span class="unit">&#8377;</span>
+                            </div>
+                            <!-- Hidden legacy field — kept so calc-savings-rollup.js keeps working as the canonical "tracker total with interest" source for downstream readers. -->
+                            <input type="hidden" id="trackerRollupAmount" value="0">
+                            <div class="input-group">
                                 <label for="currentSavings">Current Total Savings (auto)</label>
-                                <input type="number" id="currentSavings" value="7000000" readonly tabindex="-1" title="Auto-computed = Seed + Tracker rollup. Used by every calculation in the app.">
+                                <input type="number" id="currentSavings" value="7000000" readonly tabindex="-1" title="Auto-computed = Seed + Tracker contributions + Interest. Used by every calculation in the app.">
                                 <span class="unit">&#8377;</span>
                             </div>
                             <div class="input-group">
