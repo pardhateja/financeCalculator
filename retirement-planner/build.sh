@@ -31,10 +31,31 @@ cat > "$OUT" << 'HEAD'
                     <p class="subtitle">Comprehensive Income, Expense, Investment & Projection Planning</p>
                 </div>
                 <div class="app-header-actions">
-                    <button id="darkModeBtn" class="header-action-btn">🌙 Dark</button>
-                    <label for="includePhasesInShareLink" class="header-action-btn header-action-checkbox" title="When checked, your Multi-Goal life phases are encoded into the Copy Share Link URL so the recipient sees them too. Adds ~3KB. Uncheck for a shorter link."><input type="checkbox" id="includePhasesInShareLink" checked>Include phases in share link</label>
-                    <button id="shareLinkBtn" class="header-action-btn" onclick="RP.generateShareLink()">Copy Share Link</button>
-                    <button id="resetBtn" class="header-action-btn header-action-btn--danger">Reset</button>
+                    <!-- v1.1 audit: settings popover. Single gear icon collapses
+                         what used to be 4 separate header buttons (Dark/Light,
+                         Include phases, Copy Share Link, Reset). Click outside
+                         or press Esc to close. -->
+                    <button id="settingsToggleBtn" class="header-action-btn header-settings-toggle" aria-label="Settings" aria-haspopup="true" aria-expanded="false" title="Settings">⚙</button>
+                    <div id="settingsPopover" class="settings-popover" role="menu" aria-labelledby="settingsToggleBtn" hidden>
+                        <button id="darkModeBtn" class="settings-item">
+                            <span class="settings-item-icon">🌙</span>
+                            <span class="settings-item-label">Dark mode</span>
+                        </button>
+                        <label for="includePhasesInShareLink" class="settings-item settings-item--checkbox" title="When on, your Multi-Goal phases are encoded into the share link so recipients see them too. Adds ~3KB to the URL.">
+                            <span class="settings-item-icon">📋</span>
+                            <span class="settings-item-label">Include phases in share link</span>
+                            <input type="checkbox" id="includePhasesInShareLink" checked>
+                        </label>
+                        <button id="shareLinkBtn" class="settings-item" onclick="RP.generateShareLink()">
+                            <span class="settings-item-icon">🔗</span>
+                            <span class="settings-item-label">Copy Share Link</span>
+                        </button>
+                        <div class="settings-divider"></div>
+                        <button id="resetBtn" class="settings-item settings-item--danger">
+                            <span class="settings-item-icon">⚠️</span>
+                            <span class="settings-item-label">Reset to defaults</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>

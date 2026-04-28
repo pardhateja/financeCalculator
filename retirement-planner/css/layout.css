@@ -96,8 +96,77 @@ header h1 {
 @media (max-width: 720px) {
     .app-header-titles h1 { font-size: 1.6rem; }
     .app-header-titles .subtitle { font-size: 0.85rem; }
-    .app-header-actions { width: 100%; }
+    .app-header-actions { width: auto; }
     .header-action-btn { font-size: 0.78rem; padding: 6px 10px; }
+}
+
+/* v1.1 audit: settings popover. Header now collapses to a single ⚙
+ * button which opens a floating panel with Dark mode, Include phases,
+ * Copy Share Link, Reset. Click-outside + Esc close handled in JS. */
+.app-header-actions { position: relative; }
+.header-settings-toggle {
+    font-size: 1.05rem;
+    padding: 8px 14px;
+    line-height: 1;
+}
+.settings-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 280px;
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18), 0 2px 6px rgba(15, 23, 42, 0.08);
+    padding: 6px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.settings-popover[hidden] { display: none; }
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: transparent;
+    color: #1e293b;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+.settings-item:hover { background: #f1f5f9; }
+.settings-item--danger { color: #ef4444; }
+.settings-item--danger:hover { background: rgba(239, 68, 68, 0.10); color: #b91c1c; }
+
+.settings-item-icon {
+    font-size: 1.05rem;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.settings-item-label { flex: 1; }
+
+.settings-item--checkbox { cursor: pointer; }
+.settings-item--checkbox input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+    accent-color: #2563eb;
+    flex-shrink: 0;
+}
+
+.settings-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 4px 6px;
 }
 
 /* v1.1 audit: two-tier navigation. Top tier = .nav-groups (intent groups),

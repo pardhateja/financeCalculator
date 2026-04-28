@@ -86,6 +86,45 @@ RP.init = function () {
     // Reset button
     document.getElementById('resetBtn').addEventListener('click', () => RP.resetDefaults());
 
+    // v1.1 audit: Settings popover open/close. Click gear → toggle. Click
+    // anywhere outside the popover → close. Esc → close. Closes after each
+    // item click (except the Include phases checkbox which is sticky).
+    const settingsBtn = document.getElementById('settingsToggleBtn');
+    const settingsPop = document.getElementById('settingsPopover');
+    if (settingsBtn && settingsPop) {
+        const closePopover = function () {
+            settingsPop.hidden = true;
+            settingsBtn.setAttribute('aria-expanded', 'false');
+        };
+        const openPopover = function () {
+            settingsPop.hidden = false;
+            settingsBtn.setAttribute('aria-expanded', 'true');
+        };
+        settingsBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            settingsPop.hidden ? openPopover() : closePopover();
+        });
+        // Close after action items (Reset, Share Link, Dark mode toggle).
+        // Skip the checkbox label — that's the sticky toggle the user wants
+        // to flip without dismissing.
+        settingsPop.addEventListener('click', function (e) {
+            const item = e.target.closest('.settings-item');
+            if (!item) return;
+            if (item.classList.contains('settings-item--checkbox')) return;
+            closePopover();
+        });
+        // Click outside → close
+        document.addEventListener('click', function (e) {
+            if (settingsPop.hidden) return;
+            if (settingsPop.contains(e.target) || settingsBtn.contains(e.target)) return;
+            closePopover();
+        });
+        // Esc → close
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !settingsPop.hidden) closePopover();
+        });
+    }
+
     // Module inits
     if (RP.initGoals) RP.initGoals();
     if (RP.initTracker) RP.initTracker();
