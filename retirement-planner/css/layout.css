@@ -188,10 +188,24 @@ footer a {
     color: white;
     text-decoration: none;
     font-weight: 500;
+    /* v1.1 audit: footer links rendered as plain white text on dark bg —
+     * users couldn't tell they were clickable. Pill the same way as the
+     * header action buttons so they read as buttons. */
+    display: inline-block;
+    padding: 8px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-footer a:hover {
-    text-decoration: underline;
+footer a:hover,
+footer a:focus {
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.85);
+    outline: none;
 }
 
 .nav-links {
