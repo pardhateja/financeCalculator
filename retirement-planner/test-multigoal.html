@@ -107,11 +107,41 @@
         Spec: <code>01-tech-spec.md#appendix-a</code>
     </footer>
 
-    <!-- Dependencies -->
-    <script src="js/utils.js"></script>
-    <script src="js/calc-financial-plan.js"></script>
-    <script src="js/calc-multigoal.js"></script>
-    <script src="js/test-multigoal-fixtures.js"></script>
+    <!-- Dependencies. v1.1 audit: only the math modules. Other modules
+         (app.js, calc-savings-rollup) require live DOM elements + register
+         DOMContentLoaded handlers that throw on this stripped-down page,
+         so we cherry-pick just the pure functions they expose. -->
+    <script>
+        /* v1.1 audit: dynamic cache-bust on every page load. Test page isn't
+         * built by build.sh so it doesn't get the ?v=BUILD_VERSION treatment.
+         * Insert all script tags via JS with a unique timestamp. */
+        (function () {
+            const t = Date.now();
+            const files = ['js/utils.js','js/calc-financial-plan.js','js/calc-multigoal.js'];
+            files.forEach(function (f) {
+                document.write('<scr' + 'ipt src="' + f + '?v=' + t + '"></scr' + 'ipt>');
+            });
+        })();
+    </script>
+    <script>
+        /* Inline the v1.1 DOB age helper from app.js so the R8 test can
+         * exercise it without booting the whole app. Keep this in sync
+         * with RP._computeAgeFromDOB in app.js. */
+        RP._computeAgeFromDOB = function (dobString) {
+            if (!dobString) return null;
+            const dob = new Date(dobString);
+            if (isNaN(dob.getTime())) return null;
+            const now = new Date();
+            let age = now.getFullYear() - dob.getFullYear();
+            const monthDelta = now.getMonth() - dob.getMonth();
+            if (monthDelta < 0 || (monthDelta === 0 && now.getDate() < dob.getDate())) {
+                age--;
+            }
+            if (age < 0 || age > 120) return null;
+            return age;
+        };
+    </script>
+    <script>document.write('<scr' + 'ipt src="js/test-multigoal-fixtures.js?v=' + Date.now() + '"></scr' + 'ipt>');</script>
 
     <!-- Test runner -->
     <script>

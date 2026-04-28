@@ -188,8 +188,10 @@ window.TEST_SCENARIOS = [
                   baseMonthlyExpense: 200000, inflationRate: 8, color: 'blue' }
             ];
             const result = RP._multigoal.calculateAllocation(phases, corpus, 60, 30, 0.08);
+            // v1.1: signature requires allocation rows (5th arg) so the
+            // suggestion can compute against per-phase PV instead of nominal.
             const sugg   = RP._multigoal.calculateDeficitSuggestions(
-                result.overallDeficit, 30, 0.10, phases);
+                result.overallDeficit, 30, 0.10, phases, result.phases);
 
             const hasDef = result.overallDeficit > 0;
             const noSurplus = result.surplus === 0;
@@ -529,16 +531,20 @@ window.TEST_SCENARIOS = [
     {
         name: 'v1.1 R3: deficit suggestion math — applying it closes the gap',
         fn: function () {
-            // Bug: nominal-total math (monthly × 12 × years) gave reduction
+            // Bug: nominal-total math (monthly × 12 × years) gave a reduction
             // percent that was always too small. After applying the suggested
-            // cut, the gap remained.
+            // cut, the gap remained. Test asserts that with the new PV-based
+            // math, applying the suggested cut reduces the gap to ~zero.
+            //
+            // Setup: corpus tuned so the deficit is < topPhasePV (so the
+            // suggestion uses the "exact close" branch, not "insufficient").
             const phases = [
                 { id: 'big',   name: 'Big',   startAge: 60, endAge: 90,
                   baseMonthlyExpense: 100000, inflationRate: 6, color: 'blue' },
                 { id: 'small', name: 'Small', startAge: 60, endAge: 70,
                   baseMonthlyExpense: 30000,  inflationRate: 6, color: 'emerald' }
             ];
-            const corpus = 10000000; // ₹1 Cr — deliberately small to force deficit
+            const corpus = 200000000; // ₹20 Cr — gap will be smaller than topPhasePV
             const alloc = RP._multigoal.calculateAllocation(phases, corpus, 60, 30, 0.05);
             const sugg = RP._multigoal.calculateDeficitSuggestions(
                 alloc.overallDeficit, 30, 0.10, phases, alloc.phases
@@ -551,11 +557,11 @@ window.TEST_SCENARIOS = [
                 });
             });
             const after = RP._multigoal.calculateAllocation(reduced, corpus, 60, 30, 0.05);
-            // Gap should now be close to zero (within ₹100 rounding)
+            // Gap should now be close to zero. ₹100 floating-point tolerance.
             const closed = after.overallDeficit < 100;
             return {
                 pass: closed,
-                expected: { gapAfterApply: '< ₹100' },
+                expected: { gapAfterApply: '< ₹100', insufficient: false },
                 actual:   {
                     suggestion: sugg.phaseReduction,
                     gapBefore: Math.round(alloc.overallDeficit),
