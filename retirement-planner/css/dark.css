@@ -117,6 +117,15 @@ body.dark-mode .matrix-table td { border-color: #334155; color: #e2e8f0; }
  * In dark mode the bg becomes deep emerald, so the dark-green text is
  * unreadable. Override to bright mint. */
 body.dark-mode .matrix-table td.active-bracket { color: #6ee7b7; background: #064e3b; }
+
+/* v1.1 audit (dark-mode sweep): status badges. The .earning badge had
+ * hardcoded dark-forest text (#065f46) which becomes invisible on the
+ * dark-emerald --secondary-light bg in dark mode. .dead badge has a
+ * hardcoded light-slate bg that doesn't change in dark mode but the
+ * default dead-color slate text is barely visible against it. Override
+ * to bright variants. */
+body.dark-mode .status-badge.earning { color: #6ee7b7; background: #064e3b; }
+body.dark-mode .status-badge.dead { color: #475569; background: #cbd5e1; }
 body.dark-mode .matrix-card { background: #0f172a; }
 
 body.dark-mode .projection-table thead th { background: #1e40af; }
