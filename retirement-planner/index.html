@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Financial Planner</title>
-    <link rel="stylesheet" href="css/base.css?v=20260430013358">
-    <link rel="stylesheet" href="css/layout.css?v=20260430013358">
-    <link rel="stylesheet" href="css/forms.css?v=20260430013358">
-    <link rel="stylesheet" href="css/cards.css?v=20260430013358">
-    <link rel="stylesheet" href="css/tables.css?v=20260430013358">
-    <link rel="stylesheet" href="css/responsive.css?v=20260430013358">
-    <link rel="stylesheet" href="css/tracker.css?v=20260430013358">
-    <link rel="stylesheet" href="css/multigoal.css?v=20260430013358">
-    <link rel="stylesheet" href="css/montecarlo.css?v=20260430013358">
-    <link rel="stylesheet" href="css/dark.css?v=20260430013358">
+    <link rel="stylesheet" href="css/base.css?v=20260430014317">
+    <link rel="stylesheet" href="css/layout.css?v=20260430014317">
+    <link rel="stylesheet" href="css/forms.css?v=20260430014317">
+    <link rel="stylesheet" href="css/cards.css?v=20260430014317">
+    <link rel="stylesheet" href="css/tables.css?v=20260430014317">
+    <link rel="stylesheet" href="css/responsive.css?v=20260430014317">
+    <link rel="stylesheet" href="css/tracker.css?v=20260430014317">
+    <link rel="stylesheet" href="css/multigoal.css?v=20260430014317">
+    <link rel="stylesheet" href="css/montecarlo.css?v=20260430014317">
+    <link rel="stylesheet" href="css/dark.css?v=20260430014317">
 </head>
 <body>
     <div class="container">
@@ -614,6 +614,27 @@
                             <thead><tr><th scope="col">Age</th><th scope="col">% of futures with money left</th><th scope="col">Risk level</th></tr></thead>
                             <tbody id="mc-bar-table-body"></tbody>
                         </table>
+
+                        <!-- Sample 5 random futures so the user SEES the randomness -->
+                        <div class="mc-samples" id="mc-samples">
+                            <h4 class="mc-samples__title">5 random futures from this run</h4>
+                            <p class="mc-samples__hint">The %s above are the average across 10,000 of these. Each individual future is random — bad luck early in retirement matters more than late luck.</p>
+                            <ul class="mc-samples__list" id="mc-samples-list"></ul>
+                        </div>
+
+                        <!-- Run history ticker — proves the aggregate is stable across re-runs -->
+                        <div class="mc-history" id="mc-history" hidden>
+                            <span class="mc-history__label">This run vs previous re-runs:</span>
+                            <span class="mc-history__items" id="mc-history-items"></span>
+                            <span class="mc-history__hint">→ small variation between runs is the honest randomness; the answer stays close to the true probability.</span>
+                        </div>
+
+                        <!-- "Why is it always ~48%?" explainer (the question every first-time user asks) -->
+                        <details class="mc-faq">
+                            <summary>Why does the % barely change when I re-run?</summary>
+                            <p>Because that's your plan's <strong>true success rate</strong>, computed honestly. Each individual simulated future is random — the 5 samples above re-shuffle on every run, you can verify by clicking <em>Re-run with different luck</em>. But their average, across 10,000 futures, <strong>converges</strong>. With only 100 sims the number would jump from 40% to 60% between runs; with 10,000 it settles within ±1% of the truth. That stability isn't proof it's fake — it's proof it's working.</p>
+                            <p>Think of it like flipping a fair coin 10,000 times: you'll always get close to 50% heads, never exactly. We're flipping 10,000 "market futures" against your plan; the % you see is your plan's honest survival rate.</p>
+                        </details>
 
                         <h3 class="mc-chart-title">How much money you'll likely have, by age</h3>
                         <p class="mc-chart-help">The blue line is the <em>middle</em> outcome — half of replays end up with more than this, half with less. The shaded band shows the range between an unlucky run (worst 10%) and a lucky run (best 10%) — most futures fall inside this band.</p>
@@ -1513,39 +1534,39 @@
         </button>
     </div>
 
-    <script src="js/utils.js?v=20260430013358"></script>
-    <script src="js/calc-income.js?v=20260430013358"></script>
-    <script src="js/calc-expenses.js?v=20260430013358"></script>
-    <script src="js/calc-investments.js?v=20260430013358"></script>
-    <script src="js/calc-financial-plan.js?v=20260430013358"></script>
-    <script src="js/calc-projections.js?v=20260430013358"></script>
-    <script src="js/chart.js?v=20260430013358"></script>
-    <script src="js/calc-dashboard.js?v=20260430013358"></script>
-    <script src="js/calc-whatif.js?v=20260430013358"></script>
-    <script src="js/calc-goals.js?v=20260430013358"></script>
-    <script src="js/calc-multigoal.js?v=20260430013358"></script>
-    <script src="js/calc-emergency.js?v=20260430013358"></script>
-    <script src="js/calc-sip.js?v=20260430013358"></script>
-    <script src="js/calc-tracker.js?v=20260430013358"></script>
-    <script src="js/historical-returns-data.js?v=20260430013358"></script>
-    <script src="js/chart-montecarlo.js?v=20260430013358"></script>
-    <script src="js/calc-montecarlo.js?v=20260430013358"></script>
-    <script src="js/calc-savings-rollup.js?v=20260430013358"></script>
-    <script src="js/calc-milestones.js?v=20260430013358"></script>
-    <script src="js/calc-loan.js?v=20260430013358"></script>
-    <script src="js/calc-exptrack.js?v=20260430013358"></script>
-    <script src="js/calc-networth.js?v=20260430013358"></script>
-    <script src="js/profiles.js?v=20260430013358"></script>
-    <script src="js/sharelink.js?v=20260430013358"></script>
-    <script src="js/darkmode.js?v=20260430013358"></script>
-    <script src="js/app.js?v=20260430013358"></script>
+    <script src="js/utils.js?v=20260430014317"></script>
+    <script src="js/calc-income.js?v=20260430014317"></script>
+    <script src="js/calc-expenses.js?v=20260430014317"></script>
+    <script src="js/calc-investments.js?v=20260430014317"></script>
+    <script src="js/calc-financial-plan.js?v=20260430014317"></script>
+    <script src="js/calc-projections.js?v=20260430014317"></script>
+    <script src="js/chart.js?v=20260430014317"></script>
+    <script src="js/calc-dashboard.js?v=20260430014317"></script>
+    <script src="js/calc-whatif.js?v=20260430014317"></script>
+    <script src="js/calc-goals.js?v=20260430014317"></script>
+    <script src="js/calc-multigoal.js?v=20260430014317"></script>
+    <script src="js/calc-emergency.js?v=20260430014317"></script>
+    <script src="js/calc-sip.js?v=20260430014317"></script>
+    <script src="js/calc-tracker.js?v=20260430014317"></script>
+    <script src="js/historical-returns-data.js?v=20260430014317"></script>
+    <script src="js/chart-montecarlo.js?v=20260430014317"></script>
+    <script src="js/calc-montecarlo.js?v=20260430014317"></script>
+    <script src="js/calc-savings-rollup.js?v=20260430014317"></script>
+    <script src="js/calc-milestones.js?v=20260430014317"></script>
+    <script src="js/calc-loan.js?v=20260430014317"></script>
+    <script src="js/calc-exptrack.js?v=20260430014317"></script>
+    <script src="js/calc-networth.js?v=20260430014317"></script>
+    <script src="js/profiles.js?v=20260430014317"></script>
+    <script src="js/sharelink.js?v=20260430014317"></script>
+    <script src="js/darkmode.js?v=20260430014317"></script>
+    <script src="js/app.js?v=20260430014317"></script>
 
     <!-- Phase 2: Monte Carlo Worker source inlined as a string. The Web Worker
          is loaded via Blob URL (works from file:// AND http://). This script
          block runs after calc-montecarlo.js so window.RP is defined. -->
     <script>
     window.RP = window.RP || {};
-    window.RP._workerSource = "/* ============================================================================\n   Monte Carlo Worker (Phase 2)\n   ----------------------------------------------------------------------------\n   Runs in a Web Worker context. Receives RUN message with inputs + seed,\n   loops 10K simulations using historical bootstrap of NIFTY/debt/gold/CPI\n   1991-2025, postMessages PROGRESS every 1000 sims and DONE at completion.\n   Listens for CANCEL to exit early.\n\n   IMPORTANT: this file is loaded as a Blob URL by calc-montecarlo.js \u2014 it\n   must be self-contained (cannot importScripts other project files because\n   file:// origin doesn't allow that). The historical-returns dataset is\n   passed in via the RUN message payload, NOT importScripts'd.\n   ============================================================================ */\n\n'use strict';\n\n// ---------- Seeded PRNG (mulberry32) ----------\nfunction makePRNG(seed) {\n  var s = seed >>> 0;\n  return function () {\n    s = (s + 0x6d2b79f5) >>> 0;\n    var t = s;\n    t = Math.imul(t ^ (t >>> 15), t | 1);\n    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);\n    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;\n  };\n}\n\n// ---------- Single simulation ----------\nfunction runOneSim(inputs, hist, prng) {\n  // inputs: { currentAge, retirementAge, lifeExpectancy, currentSavings,\n  //           monthlyInvestment, stockPct, safePct, postRetireMonthly }\n  // hist:   { yearCount, nifty50[], debt[], gold[], cpi[] }\n  // Phase 1 model: Safe (debt) vs Stock (NIFTY) \u2014 no gold bucket.\n  // returns: { corpusByAge: Map<age, corpus>, finalMonthlyExp }\n\n  var corpusByAge = {};\n  var corpus = inputs.currentSavings;\n  var monthlyExpenseAtRet = inputs.postRetireMonthly;\n  // Apply CPI inflation from currentAge \u2192 retirementAge to compute\n  // expense-at-retirement in nominal terms (Phase 1 mental model: user\n  // enters today's-rupees expense, we inflate to retirement year).\n  var preRetYears = inputs.retirementAge - inputs.currentAge;\n  var inflatedMonthlyExpense = monthlyExpenseAtRet;\n\n  // Pre-retirement accumulation\n  for (var i = 0; i < preRetYears; i++) {\n    var idx = Math.floor(prng() * hist.yearCount);\n    var ret = (hist.nifty50[idx] * inputs.stockPct\n             + hist.debt[idx]    * inputs.safePct);\n    var infl = hist.cpi[idx];\n    corpus = corpus * (1 + ret) + (inputs.monthlyInvestment * 12);\n    inflatedMonthlyExpense *= (1 + infl);\n    corpusByAge[inputs.currentAge + i + 1] = corpus;\n  }\n\n  // Post-retirement drawdown\n  var monthlyExp = inflatedMonthlyExpense;\n  for (var j = 0; j < (inputs.lifeExpectancy - inputs.retirementAge); j++) {\n    var idx2 = Math.floor(prng() * hist.yearCount);\n    var ret2 = (hist.nifty50[idx2] * inputs.stockPct\n              + hist.debt[idx2]    * inputs.safePct);\n    var infl2 = hist.cpi[idx2];\n    var annualExpense = monthlyExp * 12;\n    corpus = corpus * (1 + ret2) - annualExpense;\n    if (corpus < 0) corpus = 0;\n    monthlyExp *= (1 + infl2);\n    corpusByAge[inputs.retirementAge + j + 1] = corpus;\n  }\n\n  return { corpusByAge: corpusByAge, finalMonthlyExp: monthlyExp };\n}\n\n// ---------- Aggregate N sims into success% + corpus percentiles ----------\nfunction aggregate(allSims, ages) {\n  // ages: target milestone ages [70,80,90,...]\n  // For each age: success% = pct of sims where corpus[age] > 6mo expense buffer\n  // Plus per-age P10/P50/P90 corpus values\n  var n = allSims.length;\n  var results = ages.map(function (age) {\n    var corpora = [];\n    var successes = 0;\n    for (var i = 0; i < n; i++) {\n      var c = allSims[i].corpusByAge[age];\n      if (c === undefined) continue;\n      corpora.push(c);\n      // 6-month buffer = monthly expense at this age \u00d7 6\n      // Use that sim's final monthly expense as proxy (close enough since\n      // we approach lifeExpectancy)\n      var sixMoBuffer = allSims[i].finalMonthlyExp * 6;\n      if (c > sixMoBuffer) successes++;\n    }\n    corpora.sort(function (a, b) { return a - b; });\n    var pct = function (p) {\n      var idx = Math.floor(corpora.length * p);\n      return corpora[Math.min(idx, corpora.length - 1)] || 0;\n    };\n    return {\n      age: age,\n      successPct: corpora.length > 0 ? Math.round((successes / corpora.length) * 100) : 0,\n      p10: pct(0.10),\n      p50: pct(0.50),\n      p90: pct(0.90)\n    };\n  });\n  return results;\n}\n\n// ---------- Determine age milestones (5 evenly spaced from retAge+1 \u2192 lifeExp) ----------\nfunction ageMilestones(retAge, lifeExp) {\n  var span = lifeExp - retAge;\n  if (span < 5) {\n    // very short retirement \u2014 show every year\n    var arr = [];\n    for (var a = retAge + 1; a <= lifeExp; a++) arr.push(a);\n    return arr;\n  }\n  // 5 evenly spaced milestones from retAge+span/5 to lifeExp\n  var step = span / 5;\n  var ages = [];\n  for (var k = 1; k <= 5; k++) {\n    ages.push(Math.round(retAge + k * step));\n  }\n  // Ensure final point is exactly lifeExp (rounding may have produced lifeExp-1)\n  ages[ages.length - 1] = lifeExp;\n  // Dedupe in case of small spans\n  return ages.filter(function (v, i, self) { return self.indexOf(v) === i; });\n}\n\n// ---------- Worker message handler ----------\nvar cancelled = false;\n\nself.onmessage = function (e) {\n  var msg = e.data;\n  if (msg.type === 'CANCEL') {\n    cancelled = true;\n    return;\n  }\n  if (msg.type !== 'RUN') return;\n\n  cancelled = false;\n  var inputs = msg.inputs;\n  var hist = msg.hist;\n  var seed = msg.seed || Date.now();\n  var simCount = msg.simCount || 10000;\n  var prng = makePRNG(seed);\n  var startMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();\n\n  var ages = ageMilestones(inputs.retirementAge, inputs.lifeExpectancy);\n  var allSims = [];\n\n  for (var i = 0; i < simCount; i++) {\n    if (cancelled) {\n      self.postMessage({ type: 'CANCELLED', completed: i });\n      return;\n    }\n    allSims.push(runOneSim(inputs, hist, prng));\n    if ((i + 1) % 1000 === 0) {\n      self.postMessage({ type: 'PROGRESS', completed: i + 1 });\n    }\n  }\n\n  var endMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();\n  var results = aggregate(allSims, ages);\n\n  self.postMessage({\n    type: 'DONE',\n    results: results,\n    elapsedMs: Math.round(endMs - startMs),\n    simCount: simCount,\n    seed: seed\n  });\n};\n";
+    window.RP._workerSource = "/* ============================================================================\n   Monte Carlo Worker (Phase 2)\n   ----------------------------------------------------------------------------\n   Runs in a Web Worker context. Receives RUN message with inputs + seed,\n   loops 10K simulations using historical bootstrap of NIFTY/debt/gold/CPI\n   1991-2025, postMessages PROGRESS every 1000 sims and DONE at completion.\n   Listens for CANCEL to exit early.\n\n   IMPORTANT: this file is loaded as a Blob URL by calc-montecarlo.js \u2014 it\n   must be self-contained (cannot importScripts other project files because\n   file:// origin doesn't allow that). The historical-returns dataset is\n   passed in via the RUN message payload, NOT importScripts'd.\n   ============================================================================ */\n\n'use strict';\n\n// ---------- Seeded PRNG (mulberry32) ----------\nfunction makePRNG(seed) {\n  var s = seed >>> 0;\n  return function () {\n    s = (s + 0x6d2b79f5) >>> 0;\n    var t = s;\n    t = Math.imul(t ^ (t >>> 15), t | 1);\n    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);\n    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;\n  };\n}\n\n// ---------- Single simulation ----------\nfunction runOneSim(inputs, hist, prng) {\n  // inputs: { currentAge, retirementAge, lifeExpectancy, currentSavings,\n  //           monthlyInvestment, stockPct, safePct, postRetireMonthly }\n  // hist:   { yearCount, nifty50[], debt[], gold[], cpi[] }\n  // Phase 1 model: Safe (debt) vs Stock (NIFTY) \u2014 no gold bucket.\n  // returns: { corpusByAge: Map<age, corpus>, finalMonthlyExp }\n\n  var corpusByAge = {};\n  var corpus = inputs.currentSavings;\n  var monthlyExpenseAtRet = inputs.postRetireMonthly;\n  // Apply CPI inflation from currentAge \u2192 retirementAge to compute\n  // expense-at-retirement in nominal terms (Phase 1 mental model: user\n  // enters today's-rupees expense, we inflate to retirement year).\n  var preRetYears = inputs.retirementAge - inputs.currentAge;\n  var inflatedMonthlyExpense = monthlyExpenseAtRet;\n\n  // Pre-retirement accumulation\n  for (var i = 0; i < preRetYears; i++) {\n    var idx = Math.floor(prng() * hist.yearCount);\n    var ret = (hist.nifty50[idx] * inputs.stockPct\n             + hist.debt[idx]    * inputs.safePct);\n    var infl = hist.cpi[idx];\n    corpus = corpus * (1 + ret) + (inputs.monthlyInvestment * 12);\n    inflatedMonthlyExpense *= (1 + infl);\n    corpusByAge[inputs.currentAge + i + 1] = corpus;\n  }\n\n  // Post-retirement drawdown\n  var monthlyExp = inflatedMonthlyExpense;\n  for (var j = 0; j < (inputs.lifeExpectancy - inputs.retirementAge); j++) {\n    var idx2 = Math.floor(prng() * hist.yearCount);\n    var ret2 = (hist.nifty50[idx2] * inputs.stockPct\n              + hist.debt[idx2]    * inputs.safePct);\n    var infl2 = hist.cpi[idx2];\n    var annualExpense = monthlyExp * 12;\n    corpus = corpus * (1 + ret2) - annualExpense;\n    if (corpus < 0) corpus = 0;\n    monthlyExp *= (1 + infl2);\n    corpusByAge[inputs.retirementAge + j + 1] = corpus;\n  }\n\n  return { corpusByAge: corpusByAge, finalMonthlyExp: monthlyExp };\n}\n\n// ---------- Aggregate N sims into success% + corpus percentiles ----------\nfunction aggregate(allSims, ages) {\n  // ages: target milestone ages [70,80,90,...]\n  // For each age: success% = pct of sims where corpus[age] > 6mo expense buffer\n  // Plus per-age P10/P50/P90 corpus values\n  var n = allSims.length;\n  var results = ages.map(function (age) {\n    var corpora = [];\n    var successes = 0;\n    for (var i = 0; i < n; i++) {\n      var c = allSims[i].corpusByAge[age];\n      if (c === undefined) continue;\n      corpora.push(c);\n      // 6-month buffer = monthly expense at this age \u00d7 6\n      // Use that sim's final monthly expense as proxy (close enough since\n      // we approach lifeExpectancy)\n      var sixMoBuffer = allSims[i].finalMonthlyExp * 6;\n      if (c > sixMoBuffer) successes++;\n    }\n    corpora.sort(function (a, b) { return a - b; });\n    var pct = function (p) {\n      var idx = Math.floor(corpora.length * p);\n      return corpora[Math.min(idx, corpora.length - 1)] || 0;\n    };\n    return {\n      age: age,\n      successPct: corpora.length > 0 ? Math.round((successes / corpora.length) * 100) : 0,\n      p10: pct(0.10),\n      p50: pct(0.50),\n      p90: pct(0.90)\n    };\n  });\n  return results;\n}\n\n// ---------- Determine age milestones (5 evenly spaced from retAge+1 \u2192 lifeExp) ----------\nfunction ageMilestones(retAge, lifeExp) {\n  var span = lifeExp - retAge;\n  if (span < 5) {\n    // very short retirement \u2014 show every year\n    var arr = [];\n    for (var a = retAge + 1; a <= lifeExp; a++) arr.push(a);\n    return arr;\n  }\n  // 5 evenly spaced milestones from retAge+span/5 to lifeExp\n  var step = span / 5;\n  var ages = [];\n  for (var k = 1; k <= 5; k++) {\n    ages.push(Math.round(retAge + k * step));\n  }\n  // Ensure final point is exactly lifeExp (rounding may have produced lifeExp-1)\n  ages[ages.length - 1] = lifeExp;\n  // Dedupe in case of small spans\n  return ages.filter(function (v, i, self) { return self.indexOf(v) === i; });\n}\n\n// ---------- Worker message handler ----------\nvar cancelled = false;\n\nself.onmessage = function (e) {\n  var msg = e.data;\n  if (msg.type === 'CANCEL') {\n    cancelled = true;\n    return;\n  }\n  if (msg.type !== 'RUN') return;\n\n  cancelled = false;\n  var inputs = msg.inputs;\n  var hist = msg.hist;\n  var seed = msg.seed || Date.now();\n  var simCount = msg.simCount || 10000;\n  var prng = makePRNG(seed);\n  var startMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();\n\n  var ages = ageMilestones(inputs.retirementAge, inputs.lifeExpectancy);\n  var allSims = [];\n\n  for (var i = 0; i < simCount; i++) {\n    if (cancelled) {\n      self.postMessage({ type: 'CANCELLED', completed: i });\n      return;\n    }\n    allSims.push(runOneSim(inputs, hist, prng));\n    if ((i + 1) % 1000 === 0) {\n      self.postMessage({ type: 'PROGRESS', completed: i + 1 });\n    }\n  }\n\n  var endMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();\n  var results = aggregate(allSims, ages);\n\n  // Sample 5 random individual futures so the user can see the underlying\n  // randomness (vs the aggregate, which stabilises around the true probability).\n  // Each sample includes: the age the corpus first hit zero (or \"lasted\" if it\n  // never did) and the final corpus value at lifeExpectancy.\n  function sampleFiveFutures() {\n    var samples = [];\n    var picked = {};\n    var safety = 0;\n    while (samples.length < Math.min(5, allSims.length) && safety < 50) {\n      safety++;\n      var idx = Math.floor(prng() * allSims.length);\n      if (picked[idx]) continue;\n      picked[idx] = true;\n      var sim = allSims[idx];\n      // Find first age where corpus hit zero\n      var keys = Object.keys(sim.corpusByAge).map(Number).sort(function (a, b) { return a - b; });\n      var ranOutAge = null;\n      for (var k = 0; k < keys.length; k++) {\n        if (sim.corpusByAge[keys[k]] <= 0) { ranOutAge = keys[k]; break; }\n      }\n      var finalCorpus = sim.corpusByAge[keys[keys.length - 1]] || 0;\n      samples.push({\n        ranOutAge: ranOutAge,\n        finalCorpus: finalCorpus\n      });\n    }\n    return samples;\n  }\n\n  self.postMessage({\n    type: 'DONE',\n    results: results,\n    elapsedMs: Math.round(endMs - startMs),\n    simCount: simCount,\n    seed: seed,\n    samples: sampleFiveFutures()\n  });\n};\n";
     </script>
 </body>
 </html>

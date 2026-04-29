@@ -20,6 +20,9 @@
   var lastSeed = null;
   var lastResults = null;
   var cancelRequested = false;
+  // Track recent run minPct values so we can display a "this vs prior runs"
+  // ticker that proves randomness (small variation across seeds).
+  var runHistory = [];
 
   // ---------- Read user inputs from existing Phase 1 DOM ----------
   // Phase 1 reality: stockPercent + safePercent split (no separate gold).
@@ -232,6 +235,15 @@
         : (msg.elapsedMs / 1000).toFixed(1) + 's';
       pf.textContent = msg.simCount.toLocaleString() + ' simulated lives · completed in ' + elapsedStr + ' · run id ' + msg.seed;
     }
+
+    // Render the 5 random-future samples (proves individual sims ARE random)
+    renderSamples(msg.samples);
+
+    // Append this run's worst-age %% to history and render the ticker
+    var minPct = Math.min.apply(Math, results.map(function (r) { return r.successPct; }));
+    runHistory.push(minPct);
+    if (runHistory.length > 6) runHistory.shift(); // keep last 6
+    renderHistory();
   }
 
   function tierFor(pct) {
@@ -335,6 +347,45 @@
     if (v >= 1e5) return '₹' + (v / 1e5).toFixed(1) + 'L';
     if (v >= 1e3) return '₹' + Math.round(v / 1e3) + 'K';
     return '₹' + Math.round(v);
+  }
+
+  // ---------- Random sample futures + run-history ticker ----------
+  function renderSamples(samples) {
+    var ul = document.getElementById('mc-samples-list');
+    if (!ul) return;
+    ul.innerHTML = '';
+    if (!samples || samples.length === 0) {
+      document.getElementById('mc-samples').hidden = true;
+      return;
+    }
+    document.getElementById('mc-samples').hidden = false;
+    samples.forEach(function (s, i) {
+      var li = document.createElement('li');
+      if (s.ranOutAge !== null && s.ranOutAge !== undefined) {
+        li.className = 'mc-sample-fail';
+        li.textContent = 'Future ' + (i + 1) + ': ran out at age ' + s.ranOutAge + ' ✕';
+      } else {
+        li.className = 'mc-sample-pass';
+        li.textContent = 'Future ' + (i + 1) + ': lasted to the end with ' + fmtINR(s.finalCorpus) + ' ✓';
+      }
+      ul.appendChild(li);
+    });
+  }
+
+  function renderHistory() {
+    var box = document.getElementById('mc-history');
+    var items = document.getElementById('mc-history-items');
+    if (!box || !items) return;
+    if (runHistory.length < 2) {
+      box.hidden = true;
+      return;
+    }
+    box.hidden = false;
+    items.textContent = runHistory.map(function (p, i) {
+      return (i === runHistory.length - 1)
+        ? p + '% (this run)'
+        : p + '%';
+    }).join('  ·  ');
   }
 
   function renderLineTable(results) {

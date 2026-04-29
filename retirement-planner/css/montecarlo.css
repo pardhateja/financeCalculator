@@ -170,6 +170,96 @@ body.dark-mode .mc-chart-title { color: #f1f5f9; }
   100% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
 }
 
+/* ---------- Sample 5 random futures ---------- */
+.mc-samples {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(100, 116, 139, 0.06);
+  border-left: 3px solid var(--text-secondary, #94a3b8);
+  border-radius: 0 6px 6px 0;
+}
+.mc-samples__title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.mc-samples__hint {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.4;
+}
+.mc-samples__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 6px 16px;
+}
+.mc-samples__list li {
+  font-size: 13px;
+  color: var(--text, #1e293b);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.mc-samples__list li::before {
+  content: '•';
+  color: var(--text-secondary, #94a3b8);
+}
+.mc-samples__list .mc-sample-fail { color: #dc2626; }
+.mc-samples__list .mc-sample-pass { color: #059669; }
+body.dark-mode .mc-samples { background: rgba(148, 163, 184, 0.06); }
+body.dark-mode .mc-samples__list li { color: #cbd5e1; }
+body.dark-mode .mc-samples__list .mc-sample-fail { color: #fca5a5; }
+body.dark-mode .mc-samples__list .mc-sample-pass { color: #6ee7b7; }
+
+/* ---------- Run history ticker ---------- */
+.mc-history {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: rgba(37, 99, 235, 0.06);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.5;
+}
+.mc-history__label { font-weight: 600; color: var(--text, #1e293b); margin-right: 8px; }
+.mc-history__items { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent, #2563eb); margin-right: 8px; }
+.mc-history__hint { color: var(--text-secondary, #94a3b8); }
+body.dark-mode .mc-history { background: rgba(59, 130, 246, 0.10); color: #cbd5e1; }
+body.dark-mode .mc-history__label { color: #f1f5f9; }
+
+/* ---------- "Why is it always ~48%?" FAQ explainer ---------- */
+.mc-faq {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: rgba(100, 116, 139, 0.06);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mc-faq summary {
+  cursor: pointer;
+  color: var(--accent, #2563eb);
+  font-weight: 600;
+  padding: 4px 0;
+}
+.mc-faq summary:hover { text-decoration: underline; }
+.mc-faq[open] summary { margin-bottom: 8px; }
+.mc-faq p {
+  margin: 8px 0;
+  color: var(--text, #1e293b);
+}
+.mc-faq strong { color: var(--text, #1e293b); }
+body.dark-mode .mc-faq { background: rgba(148, 163, 184, 0.06); }
+body.dark-mode .mc-faq p, body.dark-mode .mc-faq strong { color: #cbd5e1; }
+
 /* ---------- Re-run + debug expander ---------- */
 .mc-results-actions {
   display: flex;

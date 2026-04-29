@@ -106,6 +106,27 @@
                             <tbody id="mc-bar-table-body"></tbody>
                         </table>
 
+                        <!-- Sample 5 random futures so the user SEES the randomness -->
+                        <div class="mc-samples" id="mc-samples">
+                            <h4 class="mc-samples__title">5 random futures from this run</h4>
+                            <p class="mc-samples__hint">The %s above are the average across 10,000 of these. Each individual future is random — bad luck early in retirement matters more than late luck.</p>
+                            <ul class="mc-samples__list" id="mc-samples-list"></ul>
+                        </div>
+
+                        <!-- Run history ticker — proves the aggregate is stable across re-runs -->
+                        <div class="mc-history" id="mc-history" hidden>
+                            <span class="mc-history__label">This run vs previous re-runs:</span>
+                            <span class="mc-history__items" id="mc-history-items"></span>
+                            <span class="mc-history__hint">→ small variation between runs is the honest randomness; the answer stays close to the true probability.</span>
+                        </div>
+
+                        <!-- "Why is it always ~48%?" explainer (the question every first-time user asks) -->
+                        <details class="mc-faq">
+                            <summary>Why does the % barely change when I re-run?</summary>
+                            <p>Because that's your plan's <strong>true success rate</strong>, computed honestly. Each individual simulated future is random — the 5 samples above re-shuffle on every run, you can verify by clicking <em>Re-run with different luck</em>. But their average, across 10,000 futures, <strong>converges</strong>. With only 100 sims the number would jump from 40% to 60% between runs; with 10,000 it settles within ±1% of the truth. That stability isn't proof it's fake — it's proof it's working.</p>
+                            <p>Think of it like flipping a fair coin 10,000 times: you'll always get close to 50% heads, never exactly. We're flipping 10,000 "market futures" against your plan; the % you see is your plan's honest survival rate.</p>
+                        </details>
+
                         <h3 class="mc-chart-title">How much money you'll likely have, by age</h3>
                         <p class="mc-chart-help">The blue line is the <em>middle</em> outcome — half of replays end up with more than this, half with less. The shaded band shows the range between an unlucky run (worst 10%) and a lucky run (best 10%) — most futures fall inside this band.</p>
                         <div class="chart-container"><canvas id="mc-line-chart" tabindex="0" aria-label="Corpus trajectory range over time" aria-describedby="mc-line-table"></canvas></div>

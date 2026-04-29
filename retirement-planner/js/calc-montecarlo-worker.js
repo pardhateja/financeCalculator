@@ -163,11 +163,41 @@ self.onmessage = function (e) {
   var endMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   var results = aggregate(allSims, ages);
 
+  // Sample 5 random individual futures so the user can see the underlying
+  // randomness (vs the aggregate, which stabilises around the true probability).
+  // Each sample includes: the age the corpus first hit zero (or "lasted" if it
+  // never did) and the final corpus value at lifeExpectancy.
+  function sampleFiveFutures() {
+    var samples = [];
+    var picked = {};
+    var safety = 0;
+    while (samples.length < Math.min(5, allSims.length) && safety < 50) {
+      safety++;
+      var idx = Math.floor(prng() * allSims.length);
+      if (picked[idx]) continue;
+      picked[idx] = true;
+      var sim = allSims[idx];
+      // Find first age where corpus hit zero
+      var keys = Object.keys(sim.corpusByAge).map(Number).sort(function (a, b) { return a - b; });
+      var ranOutAge = null;
+      for (var k = 0; k < keys.length; k++) {
+        if (sim.corpusByAge[keys[k]] <= 0) { ranOutAge = keys[k]; break; }
+      }
+      var finalCorpus = sim.corpusByAge[keys[keys.length - 1]] || 0;
+      samples.push({
+        ranOutAge: ranOutAge,
+        finalCorpus: finalCorpus
+      });
+    }
+    return samples;
+  }
+
   self.postMessage({
     type: 'DONE',
     results: results,
     elapsedMs: Math.round(endMs - startMs),
     simCount: simCount,
-    seed: seed
+    seed: seed,
+    samples: sampleFiveFutures()
   });
 };
