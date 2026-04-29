@@ -374,6 +374,29 @@ RP._multigoal.runProjection = function (phases, allocationResult, retirementAge,
 
     const rows = [];
 
+    /* v1.1 audit: prepend pre-retirement rows so the milestones tab and any
+     * downstream consumer sees the user's full corpus journey, not just the
+     * post-retirement decline. Pre-retirement years borrow from the single-
+     * goal projection (RP._chartData) which already accounts for current
+     * savings + step-up contributions. Multi-goal allocation hasn't happened
+     * yet during these years — corpus is just the cumulative savings. */
+    if (cur < ret && Array.isArray(RP._chartData) && RP._chartData.length > 0) {
+        for (let age = cur; age < ret; age++) {
+            const single = RP._chartData.find(d => d.age === age);
+            if (!single) continue;
+            rows.push({
+                age: age,
+                activePhaseIds: [],
+                starting: 0,
+                growth: 0,
+                expenses: 0,
+                ending: Math.max(0, single.ending),
+                status: 'pre-retirement',
+                activePhases: []
+            });
+        }
+    }
+
     for (let age = ret; age <= lifeExp; age++) {
         const activePhases = phaseList.filter(p => age >= p.startAge && age <= p.endAge);
 
@@ -1498,9 +1521,10 @@ RP.renderAllocation = function () { RP._multigoal.renderAllocation(); };
  *   'depleted'  → row-warning (red tint, !important)
  * The status column always renders a status-badge for explicit color+text. */
 RP._multigoal._projectionStatusMeta = {
-    healthy:   { rowClass: 'row-retired', badge: 'retired',  label: 'Healthy' },
-    depleting: { rowClass: '',            badge: 'earning',  label: 'Depleting' },
-    depleted:  { rowClass: 'row-warning', badge: 'dead',     label: 'Depleted' }
+    healthy:        { rowClass: 'row-retired', badge: 'retired',  label: 'Healthy' },
+    depleting:      { rowClass: '',            badge: 'earning',  label: 'Depleting' },
+    depleted:       { rowClass: 'row-warning', badge: 'dead',     label: 'Depleted' },
+    'pre-retirement': { rowClass: '',          badge: 'earning',  label: 'Earning' }
 };
 
 RP._multigoal.renderProjection = function () {
