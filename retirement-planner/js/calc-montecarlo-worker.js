@@ -50,6 +50,10 @@ function runOneSim(inputs, hist, prng) {
   // returns: { corpusByAge: {age: corpus}, finalMonthlyExp }
 
   var corpusByAge = {};
+  // Track inflation-adjusted monthly expense at each age — used by aggregate()
+  // to compute the "6-month buffer" success threshold properly per age, not
+  // against a single end-of-life value.
+  var monthlyExpenseByAge = {};
   var corpus = inputs.currentSavings;
   var inflatedMonthlyExpense = inputs.postRetireMonthly;
   var preRetYears = inputs.retirementAge - inputs.currentAge;
@@ -70,6 +74,11 @@ function runOneSim(inputs, hist, prng) {
     inflatedMonthlyExpense *= (1 + infl);
     corpusByAge[age + 1] = corpus;
   }
+
+  // Snapshot the corpus + monthly-expense at the moment of retirement.
+  // This is the anchor bar — usually 100% success at retAge.
+  corpusByAge[inputs.retirementAge] = corpus;
+  monthlyExpenseByAge[inputs.retirementAge] = inflatedMonthlyExpense;
 
   // ---- Post-retirement: drawdown with tax + fees ----
   // Each year:
@@ -129,16 +138,22 @@ function runOneSim(inputs, hist, prng) {
     costBasis = Math.max(0, costBasis - grossWithdrawal * (1 - gainFraction));
     monthlyExp *= (1 + infl2);
     corpusByAge[ageRet + 1] = corpus;
+    monthlyExpenseByAge[ageRet + 1] = monthlyExp;
   }
 
-  return { corpusByAge: corpusByAge, finalMonthlyExp: monthlyExp };
+  return {
+    corpusByAge: corpusByAge,
+    monthlyExpenseByAge: monthlyExpenseByAge,
+    finalMonthlyExp: monthlyExp
+  };
 }
 
 // ---------- Aggregate N sims into success% + corpus percentiles ----------
 function aggregate(allSims, ages) {
-  // ages: target milestone ages [70,80,90,...]
   // For each age: success% = pct of sims where corpus[age] > 6mo expense buffer
-  // Plus per-age P10/P50/P90 corpus values
+  // AT THAT AGE (using each sim's own age-specific inflated monthly expense,
+  // NOT a global end-of-life value — that would be apples-to-oranges and
+  // produce nonsensical low success% in early retirement years).
   var n = allSims.length;
   var results = ages.map(function (age) {
     var corpora = [];
@@ -147,10 +162,12 @@ function aggregate(allSims, ages) {
       var c = allSims[i].corpusByAge[age];
       if (c === undefined) continue;
       corpora.push(c);
-      // 6-month buffer = monthly expense at this age × 6
-      // Use that sim's final monthly expense as proxy (close enough since
-      // we approach lifeExpectancy)
-      var sixMoBuffer = allSims[i].finalMonthlyExp * 6;
+      var monthlyAtAge = allSims[i].monthlyExpenseByAge && allSims[i].monthlyExpenseByAge[age];
+      if (monthlyAtAge === undefined) {
+        // Fallback: use final value if age-specific not tracked (older sims)
+        monthlyAtAge = allSims[i].finalMonthlyExp;
+      }
+      var sixMoBuffer = monthlyAtAge * 6;
       if (c > sixMoBuffer) successes++;
     }
     corpora.sort(function (a, b) { return a - b; });
@@ -169,25 +186,32 @@ function aggregate(allSims, ages) {
   return results;
 }
 
-// ---------- Determine age milestones (5 evenly spaced from retAge+1 → lifeExp) ----------
+// ---------- Determine age milestones (every 5 years from retAge → lifeExp) ----------
+// Per Pardha (2026-04-30): show every 5 years across the full retirement
+// window so the user sees where the plan transitions from green→amber→red.
+// Includes retirementAge itself as the first bar (corpus at start of retirement
+// is the healthiest snapshot — usually 100% chance, anchors the chart).
 function ageMilestones(retAge, lifeExp) {
+  var ages = [];
   var span = lifeExp - retAge;
   if (span < 5) {
-    // very short retirement — show every year
-    var arr = [];
-    for (var a = retAge + 1; a <= lifeExp; a++) arr.push(a);
-    return arr;
+    // Very short retirement — show every year
+    for (var a = retAge; a <= lifeExp; a++) ages.push(a);
+    return ages;
   }
-  // 5 evenly spaced milestones from retAge+span/5 to lifeExp
-  var step = span / 5;
-  var ages = [];
-  for (var k = 1; k <= 5; k++) {
-    ages.push(Math.round(retAge + k * step));
+  // Every 5 years starting at retAge, ending at lifeExp
+  for (var age = retAge; age <= lifeExp; age += 5) ages.push(age);
+  // Always include lifeExp as the final marker (in case retAge..lifeExp isn't a multiple of 5)
+  if (ages[ages.length - 1] !== lifeExp) ages.push(lifeExp);
+  // Cap at ~20 bars to keep the chart legible (covers 100-yr life from age 0)
+  if (ages.length > 20) {
+    var step = Math.ceil(ages.length / 14);
+    var thinned = [];
+    for (var i = 0; i < ages.length; i += step) thinned.push(ages[i]);
+    if (thinned[thinned.length - 1] !== lifeExp) thinned.push(lifeExp);
+    return thinned;
   }
-  // Ensure final point is exactly lifeExp (rounding may have produced lifeExp-1)
-  ages[ages.length - 1] = lifeExp;
-  // Dedupe in case of small spans
-  return ages.filter(function (v, i, self) { return self.indexOf(v) === i; });
+  return ages;
 }
 
 // ---------- Worker message handler ----------
