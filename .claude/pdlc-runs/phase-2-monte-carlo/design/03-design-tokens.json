@@ -1,0 +1,143 @@
+{
+  "$schema": "https://schemas.tokens.studio/v1/token-schema.json",
+  "$source": "Phase 2 reuses Phase 1 tokens with minimal Monte Carlo-specific extensions",
+  "version": "2.0.0",
+  "extends": "../multi-goal-early-retirement/design/03-design-tokens.json",
+  "note": "Phase 2 Monte Carlo stress test reuses ALL Phase 1 base tokens (color, typography, spacing, radii, shadow, border, transition, layout). The 4 probability threshold colors (green/blue/amber/red for success%) map directly to existing semantic tokens. Only new additions are segmented toggle UI tokens and canvas chart sizing.",
+  "color": {
+    "probability": {
+      "$comment": "Maps success% thresholds to existing semantic colors (zero new hues)",
+      "high": {
+        "value": "{color.semantic.secondary}",
+        "type": "color",
+        "description": "Success% ≥85% — 'safe/great' tier. Reuses Phase 1 green (#10b981). WCAG AA on white (3.94:1).",
+        "$source": "EXTENSION per intake B3 thresholds, maps to existing semantic.secondary"
+      },
+      "medium": {
+        "value": "{color.brand.primary}",
+        "type": "color",
+        "description": "Success% 75-84% — 'acceptable/OK' tier. Reuses Phase 1 primary blue (#2563eb). WCAG AAA on white (8.59:1).",
+        "$source": "EXTENSION per intake B3 thresholds, maps to existing brand.primary"
+      },
+      "borderline": {
+        "value": "{color.semantic.warning}",
+        "type": "color",
+        "description": "Success% 50-74% — 'risky' tier. Reuses Phase 1 amber (#f59e0b). WCAG AA on white (3.48:1) for large text.",
+        "$source": "EXTENSION per intake B3 thresholds, maps to existing semantic.warning"
+      },
+      "low": {
+        "value": "{color.semantic.danger}",
+        "type": "color",
+        "description": "Success% <50% — 'likely fail' tier. Reuses Phase 1 red (#ef4444). WCAG AA on white (4.03:1).",
+        "$source": "EXTENSION per intake B3 thresholds, maps to existing semantic.danger"
+      }
+    },
+    "toggle": {
+      "$comment": "New segmented control UI for 'Ideal Scenario | Stress Test (Monte Carlo)' toggle at top of Projections tab",
+      "container-bg": {
+        "value": "{color.neutral.bg}",
+        "type": "color",
+        "description": "Toggle container background (light mode) — reuses #f8fafc slate-50",
+        "$source": "EXTENSION — new toggle component pattern"
+      },
+      "inactive-text": {
+        "value": "{color.neutral.text-secondary}",
+        "type": "color",
+        "description": "Inactive segment text — reuses #64748b slate-500 (WCAG AA 4.93:1 on white)",
+        "$source": "EXTENSION — new toggle component pattern"
+      },
+      "active-bg": {
+        "value": "#ffffff",
+        "type": "color",
+        "description": "Active segment background (light mode) — white with shadow for raised effect",
+        "$source": "EXTENSION — new toggle component pattern"
+      },
+      "active-text": {
+        "value": "{color.neutral.text-primary}",
+        "type": "color",
+        "description": "Active segment text — reuses #1e293b slate-800 (WCAG AAA 12.63:1 on white)",
+        "$source": "EXTENSION — new toggle component pattern"
+      }
+    },
+    "dark": {
+      "toggle": {
+        "$comment": "Dark mode variants for segmented control",
+        "container-bg": {
+          "value": "#0f172a",
+          "type": "color",
+          "description": "Dark mode toggle container background (slate-900)",
+          "$source": "EXTENSION — matches existing dark.section-bg"
+        },
+        "active-bg": {
+          "value": "#1e293b",
+          "type": "color",
+          "description": "Dark mode active segment background (slate-800, matches dark.panel-bg)",
+          "$source": "EXTENSION — matches existing dark.panel-bg"
+        }
+      }
+    }
+  },
+  "spacing": {
+    "toggle-padding": {
+      "value": "4px",
+      "type": "spacing",
+      "description": "Padding inside toggle container around segment buttons",
+      "$source": "EXTENSION — new toggle component spacing"
+    }
+  },
+  "shadow": {
+    "toggle-active": {
+      "value": "0 1px 3px rgba(0, 0, 0, 0.12)",
+      "type": "boxShadow",
+      "description": "Subtle shadow on active toggle segment (raised appearance, iOS-style)",
+      "$source": "EXTENSION — new toggle component pattern"
+    }
+  },
+  "layout": {
+    "chart-canvas": {
+      "$comment": "Canvas dimensions for Monte Carlo charts (bar chart + line chart with confidence bands)",
+      "bar-height": {
+        "value": "300px",
+        "type": "sizing",
+        "description": "Success% by age bar chart height (desktop)",
+        "$source": "EXTENSION — Monte Carlo visualization sizing"
+      },
+      "bar-height-mobile": {
+        "value": "240px",
+        "type": "sizing",
+        "description": "Success% by age bar chart height (mobile <768px)",
+        "$source": "EXTENSION — Monte Carlo visualization sizing"
+      },
+      "line-height": {
+        "value": "320px",
+        "type": "sizing",
+        "description": "Corpus percentile line chart height (desktop)",
+        "$source": "EXTENSION — Monte Carlo visualization sizing"
+      },
+      "line-height-mobile": {
+        "value": "260px",
+        "type": "sizing",
+        "description": "Corpus percentile line chart height (mobile <768px)",
+        "$source": "EXTENSION — Monte Carlo visualization sizing"
+      },
+      "bar-width": {
+        "value": "40px",
+        "type": "sizing",
+        "description": "Individual age-bar width in success% chart (desktop)",
+        "$source": "EXTENSION — Monte Carlo bar chart sizing"
+      },
+      "bar-width-mobile": {
+        "value": "32px",
+        "type": "sizing",
+        "description": "Individual age-bar width in success% chart (mobile)",
+        "$source": "EXTENSION — Monte Carlo bar chart sizing"
+      },
+      "bar-gap": {
+        "value": "12px",
+        "type": "spacing",
+        "description": "Gap between age bars in success% chart",
+        "$source": "EXTENSION — reuses existing spacing.12 token"
+      }
+    }
+  }
+}

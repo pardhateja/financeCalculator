@@ -1,0 +1,130 @@
+/* ============================================================================
+   Monte Carlo (Phase 2) styles
+   ----------------------------------------------------------------------------
+   Reuses Phase 1 design tokens (CSS vars from base.css). No new colors.
+   ============================================================================ */
+
+/* ---------- Toggle (segmented control) ---------- */
+.mc-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 0 16px 0;
+  background: var(--bg-soft, #f8fafc);
+}
+.mc-toggle__btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-secondary, #64748b);
+  transition: background 150ms ease, color 150ms ease;
+}
+.mc-toggle__btn:hover { color: var(--text, #1e293b); }
+.mc-toggle__btn--active {
+  background: var(--accent, #2563eb);
+  color: #fff;
+}
+.mc-toggle__btn:focus-visible {
+  outline: 2px solid var(--accent, #2563eb);
+  outline-offset: 2px;
+}
+
+/* ---------- Idle state ---------- */
+.mc-idle { padding: 32px 16px; text-align: center; }
+.mc-idle__desc { color: var(--text-secondary, #64748b); max-width: 580px; margin: 0 auto 16px; line-height: 1.5; }
+
+/* ---------- Empty state ---------- */
+.mc-empty-state { padding: 48px 16px; text-align: center; color: var(--text-secondary, #64748b); }
+.mc-empty-state p { margin: 0 0 16px; }
+
+/* ---------- Progress bar ---------- */
+.mc-progress { padding: 24px; text-align: center; }
+.mc-progress__label { color: var(--text, #1e293b); font-weight: 500; margin-bottom: 12px; }
+.mc-progress__bar {
+  width: 100%;
+  max-width: 480px;
+  height: 12px;
+  background: var(--bg-soft, #f1f5f9);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0 auto 12px;
+}
+.mc-progress__fill {
+  height: 100%;
+  background: var(--accent, #2563eb);
+  transition: width 200ms ease;
+}
+.mc-progress__count { color: var(--text-secondary, #64748b); margin-bottom: 16px; font-variant-numeric: tabular-nums; }
+
+/* ---------- Results: callout reuses .alert pattern from base.css ---------- */
+#mc-results .alert { margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px; padding: 16px; border-radius: 8px; }
+#mc-results .alert__icon { font-size: 20px; line-height: 1; }
+#mc-results .alert__text { flex: 1; margin: 0; line-height: 1.5; }
+#mc-results .alert__cta { white-space: nowrap; }
+.alert--success { background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; }
+.alert--info    { background: #eff6ff; border-left: 4px solid #2563eb; color: #1e40af; }
+.alert--warning { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
+.alert--danger  { background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; }
+
+/* ---------- Section titles ---------- */
+.mc-chart-title { margin: 24px 0 8px; font-size: 16px; color: var(--text, #1e293b); font-weight: 600; }
+
+/* ---------- Data table fallback ---------- */
+.mc-data-table {
+  width: 100%;
+  margin: 8px 0 16px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.mc-data-table caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text, #1e293b);
+}
+.mc-data-table th,
+.mc-data-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  text-align: left;
+}
+.mc-data-table th { font-weight: 600; color: var(--text-secondary, #64748b); }
+
+/* ---------- Footer (perf info) ---------- */
+.mc-footer {
+  margin-top: 16px;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Buttons that don't already exist in base.css ---------- */
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--accent, #2563eb);
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 13px;
+  text-decoration: underline;
+}
+.btn-link:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; }
+
+/* ---------- Mobile (<600px) ---------- */
+@media (max-width: 600px) {
+  .mc-toggle { display: flex; flex-direction: column; width: 100%; }
+  .mc-toggle__btn { width: 100%; text-align: center; padding: 10px 16px; }
+  #mc-results .alert { flex-direction: column; }
+  .mc-data-table { font-size: 12px; }
+  .mc-data-table th, .mc-data-table td { padding: 4px 8px; }
+}
+
+/* ---------- Dark mode ---------- */
+body.dark-mode .alert--success { background: rgba(16, 185, 129, 0.12); color: #6ee7b7; }
+body.dark-mode .alert--info    { background: rgba(37, 99, 235, 0.12);  color: #93c5fd; }
+body.dark-mode .alert--warning { background: rgba(245, 158, 11, 0.12); color: #fcd34d; }
+body.dark-mode .alert--danger  { background: rgba(239, 68, 68, 0.12);  color: #fca5a5; }
