@@ -269,11 +269,15 @@
     renderHistory();
   }
 
+  // Threshold tiers calibrated for LONG retirements (50-65 years, common for
+  // FIRE planning in India). For traditional 25-30 year retirements the bar
+  // would be higher; for 65-year retirements anything above 60% is genuinely
+  // good and 35-60% is the realistic "needs adjustment but not disaster" zone.
   function tierFor(pct) {
-    if (pct >= 85) return 'high';
-    if (pct >= 75) return 'medium';
-    if (pct >= 50) return 'borderline';
-    return 'low';
+    if (pct >= 75) return 'high';        // green — solidly safe
+    if (pct >= 60) return 'medium';      // blue — likely safe
+    if (pct >= 35) return 'borderline';  // amber — needs adjustment but workable
+    return 'low';                         // red — genuine disaster zone
   }
 
   function summarize(results) {
@@ -289,38 +293,42 @@
     var minPct = Math.min.apply(Math, results.map(function (r) { return r.successPct; }));
     var maxAge = results[results.length - 1].age;
 
-    // Helper: a single sentence framing the headline number in everyday terms
+    // Helper: a single sentence framing the headline number in everyday terms.
+    // Calibrated for LONG retirement horizons (50-65 yrs). Anything ≥60 is
+    // genuinely OK for a 65-year retirement; <35 is the disaster zone.
     function colloquial(pct) {
       if (pct >= 95) return 'almost guaranteed to last';
-      if (pct >= 85) return 'very likely to last';
-      if (pct >= 75) return 'likely to last';
-      if (pct >= 60) return 'more likely than not to last, but not safe';
-      if (pct >= 40) return 'roughly a coin flip';
-      if (pct >= 20) return 'unlikely to last';
-      return 'very unlikely to last';
+      if (pct >= 75) return 'very likely to last';
+      if (pct >= 60) return 'likely to last';
+      if (pct >= 45) return 'more likely than not to last, with real risk in the late years';
+      if (pct >= 30) return 'risky — needs adjustment to sleep well';
+      if (pct >= 15) return 'unlikely to last as-is';
+      return 'very unlikely to last as-is';
     }
 
+    // Tier banding for the callout (matches tierFor() used by the bar chart):
+    //   ≥75 success / 60-74 info / 35-59 warning / <35 danger.
     var variant, icon, text;
-    if (minPct >= 85) {
+    if (minPct >= 75) {
       variant = 'success'; icon = '✓';
       text = 'Your plan has a ' + minPct + '% chance of lasting all the way to age ' + maxAge + '. ' +
-             'In simple terms: if you replayed your retirement 100 times under different market conditions, ' +
-             'you\'d still have money in at least ' + minPct + ' of them. That\'s ' + colloquial(minPct) + '.';
-    } else if (minPct >= 75) {
+             'Out of 100 possible market futures, at least ' + minPct + ' would still have money in your account by then. ' +
+             'It\'s ' + colloquial(minPct) + ' — solid.';
+    } else if (minPct >= 60) {
       variant = 'info'; icon = 'ℹ';
       text = 'Your plan has a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
-             'Out of 100 possible futures (with different stock-market luck), about ' + minPct + ' end with money still in the bank at ' + maxAge + ' and ' + (100 - minPct) + ' run out before then. ' +
-             'It\'s ' + colloquial(minPct) + ' — acceptable, but worth monitoring.';
-    } else if (firstRiskyAge !== null && firstFailAge === null) {
+             'Out of 100 possible market futures, about ' + minPct + ' end with money still in the bank at ' + maxAge + '; ' + (100 - minPct) + ' run out before then. ' +
+             'It\'s ' + colloquial(minPct) + ' — acceptable for a long retirement, worth monitoring.';
+    } else if (minPct >= 35) {
       variant = 'warning'; icon = '⚠';
       if (lastSafeAge && lastSafeAge < maxAge) {
-        text = 'Your plan looks safe through age ' + lastSafeAge + ' but weakens after that. ' +
-               'By age ' + maxAge + ' the chance of still having money drops to ' + minPct + '% — meaning out of 100 possible futures, ' + (100 - minPct) + ' would run out of money before you turn ' + maxAge + '. ' +
-               'It\'s ' + colloquial(minPct) + '. Consider increasing your monthly investment or trimming post-retirement expenses.';
+        text = 'Your plan looks reasonable through age ' + lastSafeAge + ' but weakens after that. ' +
+               'By age ' + maxAge + ' the chance of still having money drops to ' + minPct + '% — meaning out of 100 possible futures, ' + (100 - minPct) + ' would run out before you turn ' + maxAge + '. ' +
+               'It\'s ' + colloquial(minPct) + '. Consider increasing monthly investment, retiring a year or two later, or trimming late-life expenses.';
       } else {
-        text = 'Your plan has only a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
+        text = 'Your plan has a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
                'Out of 100 possible futures, about ' + (100 - minPct) + ' run out of money before then — usually because of bad luck in the early retirement years. ' +
-               'It\'s ' + colloquial(minPct) + '. Consider increasing your monthly investment.';
+               'It\'s ' + colloquial(minPct) + '.';
       }
     } else {
       variant = 'danger'; icon = '✕';
@@ -331,7 +339,7 @@
       } else {
         text = 'Your plan has only a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
                'Put another way: if you replayed your retirement 100 times with different market luck each time, you\'d run out of money before age ' + maxAge + ' in about ' + (100 - minPct) + ' of them. ' +
-               'It\'s ' + colloquial(minPct) + ' for the last stretch of your life. Consider increasing your monthly investment or reducing post-retirement expenses.';
+               'It\'s ' + colloquial(minPct) + '. Consider increasing your monthly investment or reducing post-retirement expenses.';
       }
     }
 

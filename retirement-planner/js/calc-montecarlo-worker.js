@@ -75,11 +75,20 @@ function runOneSim(inputs, hist, prng) {
   // Each year:
   //   1. Apply growth (after TER drag) to corpus
   //   2. Compute annual expense (includes any shocks)
-  //   3. Gross-up the withdrawal so AFTER paying tax on it, net cash = expense
-  //      Use blended tax rate weighted by current allocation
-  //   4. Subtract gross withdrawal from corpus
+  //   3. Tax applies ONLY to the gains portion of the withdrawal, not
+  //      the principal (LTCG/STCG mechanics — you already paid tax on
+  //      the principal when you earned the salary). Approximate the
+  //      "gains portion" as the fraction of corpus that is gain vs cost.
+  //      Track cost basis as we go.
+  //   4. Subtract gross withdrawal (expense + tax-on-gain) from corpus
   //   5. Inflate expense for next year
   var monthlyExp = inflatedMonthlyExpense;
+  // costBasis = total amount the user actually contributed (principal).
+  // Anything above this in `corpus` is "gain" subject to tax on withdrawal.
+  // We seed it pessimistically: assume current corpus at retirement is ALL
+  // principal (no built-in gain). This UNDERSTATES tax slightly which
+  // matches conservative real-life behaviour (held-for-decades equity).
+  var costBasis = corpus;
   for (var j = 0; j < (inputs.lifeExpectancy - inputs.retirementAge); j++) {
     var ageRet = inputs.retirementAge + j;
     var allocR = allocAt(ageRet, inputs);
@@ -90,28 +99,34 @@ function runOneSim(inputs, hist, prng) {
     var infl2 = hist.cpi[idx2];
 
     // Growth
+    var corpusBefore = corpus;
     corpus = corpus * (1 + ret2);
+    // Growth doesn't change cost basis — it adds unrealised gain.
 
     // Annual expense + spending shocks
     var annualExpense = monthlyExp * 12;
     if (inputs.shocks && ageRet >= 60 && ((ageRet - 60) % 10) === 0) {
-      // ₹5L in today's value, inflated to current year of sim
       var shockInTodaysRupees = 500000;
-      // Estimate inflation factor between today (currentAge) and now (ageRet)
       var yearsFromToday = ageRet - inputs.currentAge;
-      var avgCpi = 0.06; // 6% nominal — just used as a deterministic proxy here
+      var avgCpi = 0.06;
       var shockNow = shockInTodaysRupees * Math.pow(1 + avgCpi, yearsFromToday);
       annualExpense += shockNow;
     }
 
-    // Tax gross-up. Withdrawals are split by current allocation:
-    //   stock portion → taxed at equityTax (LTCG), safe portion → debtTax.
-    // Effective tax rate on the gross withdrawal:
+    // Tax-aware gross-up:
+    //   gainFraction = (corpus - costBasis) / corpus   [proportion of withdrawal that is gain]
+    //   netExpense   = the user's actual cash need (after tax)
+    //   gross        = principal_part + gain_part
+    //                = (1 - gainFraction) * gross + gainFraction * gross / (1 - effTax)
+    // Solving for gross: gross = netExpense / (1 - gainFraction*effTax)
+    var gainFraction = corpus > 0 ? Math.max(0, (corpus - costBasis) / corpus) : 0;
     var effTax = (allocR.stockPct * inputs.equityTax) + (allocR.safePct * inputs.debtTax);
-    var grossWithdrawal = annualExpense / (1 - effTax);
+    var grossWithdrawal = annualExpense / (1 - gainFraction * effTax);
 
     corpus = corpus - grossWithdrawal;
     if (corpus < 0) corpus = 0;
+    // Reduce cost basis proportionally (you withdrew principal too)
+    costBasis = Math.max(0, costBasis - grossWithdrawal * (1 - gainFraction));
     monthlyExp *= (1 + infl2);
     corpusByAge[ageRet + 1] = corpus;
   }
