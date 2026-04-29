@@ -12,7 +12,9 @@
   window.RP = window.RP || {};
 
   var STORAGE_KEY = 'rp_projection_view';
+  var SIM_COUNT_KEY = 'rp_mc_sim_count';
   var DEFAULT_SIM_COUNT = 10000;
+  var currentSimCount = DEFAULT_SIM_COUNT;
   var workerInstance = null;
   var workerBlobUrl = null;
   var lastSeed = null;
@@ -128,12 +130,14 @@
       cleanupWorker();
     };
 
+    var simCount = opts.simCount || currentSimCount || DEFAULT_SIM_COUNT;
+    currentSimCount = simCount; // remember for the progress label
     workerInstance.postMessage({
       type: 'RUN',
       inputs: inputs,
       hist: window.RP._historicalReturns,
       seed: seed,
-      simCount: opts.simCount || DEFAULT_SIM_COUNT
+      simCount: simCount
     });
   }
 
@@ -180,10 +184,11 @@
     var fill = document.getElementById('mc-progress-fill');
     var count = document.getElementById('mc-progress-count');
     var bar = fill && fill.parentElement;
-    var pct = Math.round((completed / DEFAULT_SIM_COUNT) * 100);
+    var total = currentSimCount || DEFAULT_SIM_COUNT;
+    var pct = Math.round((completed / total) * 100);
     if (fill) fill.style.width = pct + '%';
     if (bar) bar.setAttribute('aria-valuenow', String(pct));
-    if (count) count.textContent = 'Running ' + completed.toLocaleString() + ' / ' + DEFAULT_SIM_COUNT.toLocaleString();
+    if (count) count.textContent = 'Running ' + completed.toLocaleString() + ' / ' + total.toLocaleString();
   }
 
   // ---------- Render results ----------
@@ -218,13 +223,14 @@
     }
     renderLineTable(results);
 
-    // Perf footer — show ms when sub-second, seconds otherwise
+    // Perf footer — moved into a collapsed Run-details expander; user-facing
+    // copy avoids "seed" jargon; full info kept for debugging on demand.
     var pf = document.getElementById('mc-perf-footer');
     if (pf) {
       var elapsedStr = msg.elapsedMs < 1000
         ? msg.elapsedMs + 'ms'
         : (msg.elapsedMs / 1000).toFixed(1) + 's';
-      pf.textContent = msg.simCount.toLocaleString() + ' sims completed in ' + elapsedStr + ' · seed ' + msg.seed;
+      pf.textContent = msg.simCount.toLocaleString() + ' simulated lives · completed in ' + elapsedStr + ' · run id ' + msg.seed;
     }
   }
 
@@ -257,14 +263,22 @@
       text = 'Your plan is solid (' + minPct + '%+ success) through age ' + maxAge + '. Acceptable risk.';
     } else if (firstRiskyAge !== null && firstFailAge === null) {
       variant = 'warning'; icon = '⚠';
-      var safePhrase = lastSafeAge ? 'is great until age ' + lastSafeAge + ', then risky after' : 'shows risk early';
-      text = 'Your plan ' + safePhrase + '. Lowest success rate: ' + minPct + '% at age ' + maxAge + '.';
+      if (lastSafeAge && lastSafeAge < maxAge) {
+        text = 'Your plan looks good through age ' + lastSafeAge + ', but only ' + minPct + ' out of every 100 simulated lives still had money by age ' + maxAge + '. Consider increasing your monthly investment or trimming expenses.';
+      } else {
+        text = 'In ' + minPct + ' out of every 100 simulated lives, your plan still had money by age ' + maxAge + '. The other ' + (100 - minPct) + ' ran out earlier — usually because of bad luck in the first few retirement years.';
+      }
     } else {
       variant = 'danger'; icon = '✕';
-      var failPhrase = firstFailAge
-        ? 'starts failing at age ' + firstFailAge
-        : 'has only ' + minPct + '% confidence by age ' + maxAge;
-      text = 'Your plan ' + failPhrase + ' (lowest success rate: ' + minPct + '% at age ' + maxAge + '). Significant changes needed.';
+      // firstFailAge could be the first age where success% < 50%.
+      // If firstFailAge equals maxAge, the plan only fails AT the very end —
+      // phrase it positively (lasted to the end in 48% of futures).
+      if (firstFailAge && firstFailAge < maxAge) {
+        text = 'Your plan starts running out of money around age ' + firstFailAge + ' in more than half of simulated lives. Only ' + minPct + ' out of every 100 lives still had money by age ' + maxAge + '. Significant changes needed — increase monthly investment, retire later, or reduce post-retirement expenses.';
+      } else {
+        // firstFailAge === maxAge or null but minPct < 50: avoid the "starts failing AT 100" nonsense.
+        text = 'Only ' + minPct + ' out of every 100 simulated lives had money left by age ' + maxAge + ' — the other ' + (100 - minPct) + ' ran out before that. Consider increasing your monthly investment or reducing post-retirement expenses.';
+      }
     }
 
     return { variant: variant, icon: icon, text: text, showCta: variant === 'warning' || variant === 'danger' };
@@ -351,8 +365,32 @@
     ideal.addEventListener('click', function () { setToggle('ideal'); });
     mc.addEventListener('click', function () { setToggle('montecarlo'); });
 
+    // Sim-count dropdown — restore persisted choice, save on change
+    var simSelect = document.getElementById('mc-sim-count-select');
+    if (simSelect) {
+      try {
+        var saved = parseInt(localStorage.getItem(SIM_COUNT_KEY) || '', 10);
+        if (!isNaN(saved) && [1000, 10000, 50000, 100000, 1000000].indexOf(saved) >= 0) {
+          simSelect.value = String(saved);
+          currentSimCount = saved;
+        }
+      } catch (_) {}
+      simSelect.addEventListener('change', function () {
+        var n = parseInt(simSelect.value, 10);
+        if (!isNaN(n)) {
+          currentSimCount = n;
+          try { localStorage.setItem(SIM_COUNT_KEY, String(n)); } catch (_) {}
+        }
+      });
+    }
+
     var runBtn = document.getElementById('mc-run-btn');
-    if (runBtn) runBtn.addEventListener('click', function () { runMonteCarlo(); });
+    if (runBtn) runBtn.addEventListener('click', function () {
+      // Always use the latest dropdown value at click time
+      var n = simSelect ? parseInt(simSelect.value, 10) : currentSimCount;
+      if (isNaN(n) || n <= 0) n = DEFAULT_SIM_COUNT;
+      runMonteCarlo({ simCount: n });
+    });
 
     var cancelBtn = document.getElementById('mc-cancel-btn');
     if (cancelBtn) cancelBtn.addEventListener('click', function () {
@@ -361,16 +399,59 @@
       showState('idle');
     });
 
+    // Both empty-state and callout CTAs jump to Investments tab + focus the
+    // monthly-investment input. Setting location.hash triggers Phase 1's
+    // hashchange handler which calls switchTab + renders subtabs. Then we
+    // wait two RAFs so the panel is laid out and the body scroll happens
+    // before we move focus to the field.
+    function jumpToInvestments() {
+      // monthlyInvestAmt actually lives in the Financial Plan tab, NOT
+      // Investments. (The Investments tab has Asset Allocation %s and the
+      // mutual-fund matrix; Financial Plan has the monthly-investment field.)
+      if (typeof RP.switchTab === 'function') {
+        RP.switchTab('financial-plan');
+      } else {
+        location.hash = '#financial-plan';
+      }
+      // Wait two RAFs for tab visibility to flush, then measure + scroll.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          var input = document.getElementById('monthlyInvestAmt');
+          if (!input) return;
+          // scrollIntoView is the simplest way that works across all browsers
+          // even when the element was display:none milliseconds ago.
+          input.scrollIntoView({ block: 'center', behavior: 'auto' });
+          try { input.focus({ preventScroll: true }); } catch (_) { try { input.focus(); } catch (_) {} }
+          try { input.select(); } catch (_) {}
+          // Highlight ring + pulse so the user sees where they landed
+          input.classList.add('mc-input-pulse');
+          setTimeout(function () {
+            input.classList.remove('mc-input-pulse');
+          }, 2200);
+        });
+      });
+    }
     var emptyCta = document.getElementById('mc-empty-cta');
-    if (emptyCta) emptyCta.addEventListener('click', function () {
-      var calcTab = document.querySelector('[data-tab="basics"], [data-tab="calculator"]');
-      if (calcTab) calcTab.click();
+    if (emptyCta) emptyCta.addEventListener('click', jumpToInvestments);
+    var calloutCta = document.getElementById('mc-callout-cta');
+    if (calloutCta) calloutCta.addEventListener('click', jumpToInvestments);
+
+    // Re-run button (results state)
+    var rerunBtn = document.getElementById('mc-rerun-btn');
+    if (rerunBtn) rerunBtn.addEventListener('click', function () {
+      var n = simSelect ? parseInt(simSelect.value, 10) : currentSimCount;
+      if (isNaN(n) || n <= 0) n = DEFAULT_SIM_COUNT;
+      // New seed every time the user clicks re-run; clear lastResults so
+      // the run starts cleanly.
+      lastResults = null;
+      runMonteCarlo({ simCount: n });
     });
 
-    var calloutCta = document.getElementById('mc-callout-cta');
-    if (calloutCta) calloutCta.addEventListener('click', function () {
-      var calcTab = document.querySelector('[data-tab="basics"], [data-tab="calculator"]');
-      if (calcTab) calcTab.click();
+    // Edit-link in the inputs card
+    var editLink = document.getElementById('mc-inputs-edit-link');
+    if (editLink) editLink.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      jumpToInvestments();
     });
 
     // Data-table toggles
@@ -393,21 +474,81 @@
     var initialView = fromUrl.view || (function () {
       try { return localStorage.getItem(STORAGE_KEY) || 'ideal'; } catch (_) { return 'ideal'; }
     })();
+    // Set toggle visually right away so the active button + panel-visibility
+    // are correct even before inputs settle.
     setToggle(initialView);
+    // ALWAYS populate the inputs card on init (regardless of view) AND defer
+    // a re-evaluation of state in 800ms — Phase 1 computes currentSavings
+    // asynchronously after DOMContentLoaded, so a strict readInputs() at
+    // init time can falsely return null. Without this defer the user sees
+    // the empty-state on page load even when their inputs are valid.
+    refreshInputsCard();
+    setTimeout(function () {
+      refreshInputsCard();
+      if (initialView === 'montecarlo') {
+        // Re-evaluate state now that Phase 1 has had a chance to compute.
+        setToggle('montecarlo');
+      }
+    }, 800);
+
+    // Also keep the inputs card in sync with Phase 1 changes — listen for
+    // input events on relevant fields. Cheaper than a MutationObserver.
+    ['currentAge', 'retirementAge', 'lifeExpectancy', 'currentSavings',
+     'monthlyInvestAmt', 'stockPercent', 'safePercent', 'postRetireMonthly']
+      .forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', refreshInputsCard);
+      });
 
     if (fromUrl.view === 'montecarlo' && fromUrl.seed) {
-      // Auto-run with URL-provided seed. Delay 800ms to let Phase 1 finish
-      // populating computed fields (currentSavings is computed by tracker).
-      // After delay, re-check inputs and re-render state if they're now valid.
+      // Auto-run with URL-provided seed (after the 800ms inputs-settle defer).
       setTimeout(function () {
         if (readInputs()) {
           runMonteCarlo({ seed: fromUrl.seed });
-        } else {
-          // Inputs still missing — refresh state to empty/idle as appropriate
-          setToggle('montecarlo');
         }
-      }, 800);
+      }, 850);
     }
+  }
+
+  // ---------- Inputs-being-simulated card ----------
+  function fmtINRShort(v) {
+    if (v >= 1e7) return '₹' + (v / 1e7).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
+    if (v >= 1e5) return '₹' + (v / 1e5).toFixed(2).replace(/\.?0+$/, '') + ' L';
+    if (v >= 1e3) return '₹' + Math.round(v).toLocaleString('en-IN');
+    return '₹' + Math.round(v);
+  }
+  function refreshInputsCard() {
+    var setText = function (id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+    var raw = function (id) {
+      var el = document.getElementById(id);
+      if (!el || el.value === '' || el.value === null) return null;
+      var v = parseFloat(el.value);
+      return isNaN(v) ? null : v;
+    };
+    var ca = raw('currentAge');
+    var ra = raw('retirementAge');
+    var le = raw('lifeExpectancy');
+    var cs = raw('currentSavings');
+    var mi = raw('monthlyInvestAmt');
+    var sp = raw('stockPercent');
+    var sa = raw('safePercent');
+    var pr = raw('postRetireMonthly');
+    setText('mc-in-currentAge', ca !== null ? ca + ' yrs' : '— (set in Setup)');
+    setText('mc-in-retirementAge', ra !== null ? ra + ' yrs' : '— (set in Setup)');
+    setText('mc-in-lifeExpectancy', le !== null ? le + ' yrs' : '— (set in Setup)');
+    setText('mc-in-currentSavings', cs !== null ? fmtINRShort(cs) : '— (set in Setup)');
+    setText('mc-in-monthlyInvestAmt', mi !== null ? fmtINRShort(mi) + ' / month' : '— (set in Setup)');
+    if (sp !== null && sa !== null) {
+      setText('mc-in-allocation', sp + '% Stock / ' + sa + '% Safe');
+    } else if (sp !== null) {
+      setText('mc-in-allocation', sp + '% Stock / ' + (100 - sp) + '% Safe');
+    } else {
+      setText('mc-in-allocation', '— (set in Setup)');
+    }
+    setText('mc-in-postRetireMonthly', pr !== null ? fmtINRShort(pr) + ' / month' : '— (set in Setup)');
   }
 
   function parseUrlParams() {

@@ -33,9 +33,91 @@
   outline-offset: 2px;
 }
 
+/* ---------- Intro paragraph ---------- */
+.mc-intro {
+  background: rgba(37, 99, 235, 0.06);
+  border-left: 3px solid var(--accent, #2563eb);
+  padding: 12px 16px;
+  margin: 0 0 16px;
+  color: var(--text, #1e293b);
+  border-radius: 0 6px 6px 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.mc-intro strong { color: var(--text, #1e293b); }
+body.dark-mode .mc-intro { background: rgba(59, 130, 246, 0.10); color: #cbd5e1; }
+body.dark-mode .mc-intro strong { color: #f1f5f9; }
+
+/* ---------- Inputs-being-simulated card ---------- */
+.mc-inputs-card { padding: 16px 20px; margin: 0 0 16px; }
+.mc-inputs-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mc-inputs-card__header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.mc-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 24px;
+}
+.mc-input-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border, #e2e8f0);
+}
+.mc-input-row:last-child { border-bottom: none; }
+.mc-input-row__label {
+  color: var(--text-secondary, #64748b);
+  font-size: 13px;
+}
+.mc-input-row__value {
+  color: var(--text, #1e293b);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: 14px;
+}
+body.dark-mode .mc-input-row__value { color: #f1f5f9; }
+body.dark-mode .mc-input-row { border-bottom-color: rgba(148, 163, 184, 0.18); }
+
 /* ---------- Idle state ---------- */
-.mc-idle { padding: 32px 16px; text-align: center; }
-.mc-idle__desc { color: var(--text-secondary, #64748b); max-width: 580px; margin: 0 auto 16px; line-height: 1.5; }
+.mc-idle { padding: 24px 16px; text-align: center; }
+.mc-run-btn-big {
+  font-size: 16px;
+  padding: 12px 32px;
+  min-width: 200px;
+}
+.mc-advanced { margin-top: 16px; text-align: left; max-width: 480px; margin-left: auto; margin-right: auto; }
+.mc-advanced summary { cursor: pointer; color: var(--text-secondary, #64748b); font-size: 13px; padding: 8px 0; }
+.mc-advanced[open] summary { margin-bottom: 8px; }
+.mc-help { color: var(--text-secondary, #94a3b8); font-size: 12px; margin: 6px 0 0; line-height: 1.4; }
+.mc-sim-count { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; }
+.mc-sim-count label { color: var(--text-secondary, #64748b); font-size: 13px; font-weight: 500; }
+.mc-sim-count select {
+  padding: 6px 8px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-soft, #f8fafc);
+  color: var(--text, #1e293b);
+  font-size: 13px;
+  min-width: 220px;
+}
+.mc-sim-count select:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; }
+body.dark-mode .mc-sim-count select { background: rgba(30, 41, 59, 0.6); color: #e2e8f0; border-color: #475569; }
 
 /* ---------- Empty state ---------- */
 .mc-empty-state { padding: 48px 16px; text-align: center; color: var(--text-secondary, #64748b); }
@@ -70,8 +152,41 @@
 .alert--warning { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
 .alert--danger  { background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; }
 
-/* ---------- Section titles ---------- */
-.mc-chart-title { margin: 24px 0 8px; font-size: 16px; color: var(--text, #1e293b); font-weight: 600; }
+/* ---------- Section titles + helps ---------- */
+.mc-chart-title { margin: 24px 0 4px; font-size: 16px; color: var(--text, #1e293b); font-weight: 600; }
+body.dark-mode .mc-chart-title { color: #f1f5f9; }
+.mc-chart-help { margin: 0 0 8px; color: var(--text-secondary, #64748b); font-size: 13px; line-height: 1.4; }
+
+/* ---------- Focus-landing pulse (highlights monthlyInvestAmt after CTA jump) ---------- */
+.mc-input-pulse {
+  outline: 3px solid var(--accent, #2563eb) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18) !important;
+  transition: outline 200ms ease, box-shadow 200ms ease;
+  animation: mcPulse 0.6s ease-out 0s 2;
+}
+@keyframes mcPulse {
+  0%   { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.35); }
+  100% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+}
+
+/* ---------- Re-run + debug expander ---------- */
+.mc-results-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-bottom: 100px; /* breathing room above the Phase 1 sticky summary bar */
+}
+
+/* The whole MC panel needs bottom padding so the sticky-summary strip
+   (Phase 1, position:fixed at bottom of viewport, ~70px tall) doesn't
+   overlay chart content. */
+#mc-panel-mc { padding-bottom: 90px; }
+.mc-debug summary { cursor: pointer; color: var(--text-secondary, #94a3b8); font-size: 12px; }
+.mc-debug .mc-footer { margin-top: 4px; }
 
 /* ---------- Data table fallback ---------- */
 .mc-data-table {

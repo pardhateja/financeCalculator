@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Financial Planner</title>
-    <link rel="stylesheet" href="css/base.css?v=20260429105755">
-    <link rel="stylesheet" href="css/layout.css?v=20260429105755">
-    <link rel="stylesheet" href="css/forms.css?v=20260429105755">
-    <link rel="stylesheet" href="css/cards.css?v=20260429105755">
-    <link rel="stylesheet" href="css/tables.css?v=20260429105755">
-    <link rel="stylesheet" href="css/responsive.css?v=20260429105755">
-    <link rel="stylesheet" href="css/tracker.css?v=20260429105755">
-    <link rel="stylesheet" href="css/multigoal.css?v=20260429105755">
-    <link rel="stylesheet" href="css/dark.css?v=20260429105755">
+    <link rel="stylesheet" href="css/base.css?v=20260430011520">
+    <link rel="stylesheet" href="css/layout.css?v=20260430011520">
+    <link rel="stylesheet" href="css/forms.css?v=20260430011520">
+    <link rel="stylesheet" href="css/cards.css?v=20260430011520">
+    <link rel="stylesheet" href="css/tables.css?v=20260430011520">
+    <link rel="stylesheet" href="css/responsive.css?v=20260430011520">
+    <link rel="stylesheet" href="css/tracker.css?v=20260430011520">
+    <link rel="stylesheet" href="css/multigoal.css?v=20260430011520">
+    <link rel="stylesheet" href="css/montecarlo.css?v=20260430011520">
+    <link rel="stylesheet" href="css/dark.css?v=20260430011520">
 </head>
 <body>
     <div class="container">
@@ -510,18 +511,133 @@
         <div class="tab-content" id="tab-projections">
             <div class="panel" style="border-radius:0 16px 16px 16px;max-width:100%;">
                 <h2>Year-by-Year Projections</h2>
-                <div class="projection-summary" id="projectionSummary">
-                    <div class="summary-card success"><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div></div>
-                    <div class="summary-card"><div class="label">Years of Earning</div><div class="value" id="yearsEarning">0</div></div>
-                    <div class="summary-card warning"><div class="label">Years in Retirement</div><div class="value" id="yearsRetired">0</div></div>
-                    <div class="summary-card danger"><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div></div>
+
+                <!-- Phase 2: View toggle (Ideal Scenario vs Stress Test) -->
+                <div class="mc-toggle" role="tablist" aria-label="Projection view">
+                    <button id="mc-toggle-ideal" role="tab" class="mc-toggle__btn mc-toggle__btn--active"
+                            aria-selected="true" aria-controls="mc-panel-ideal" title="What you'll have if every year goes exactly as planned (one fixed return rate).">Ideal Scenario</button>
+                    <button id="mc-toggle-mc" role="tab" class="mc-toggle__btn"
+                            aria-selected="false" aria-controls="mc-panel-mc" title="Re-runs your plan against 35 years of real market history. Shows the chance your plan survives if the next 50 years look like the past.">Stress Test</button>
                 </div>
-                <div class="chart-container"><canvas id="projectionChart"></canvas></div>
-                <div class="projection-table-wrapper">
-                    <table class="projection-table">
-                        <thead><tr><th>Age</th><th>Starting</th><th>Annual Savings</th><th>Growth</th><th>Ending</th><th>Status</th><th>Expenses</th></tr></thead>
-                        <tbody id="projectionTableBody"></tbody>
-                    </table>
+
+                <!-- Existing Ideal Scenario panel — content unchanged from Phase 1 -->
+                <div role="tabpanel" id="mc-panel-ideal" aria-labelledby="mc-toggle-ideal">
+                    <div class="projection-summary" id="projectionSummary">
+                        <div class="summary-card success"><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div></div>
+                        <div class="summary-card"><div class="label">Years of Earning</div><div class="value" id="yearsEarning">0</div></div>
+                        <div class="summary-card warning"><div class="label">Years in Retirement</div><div class="value" id="yearsRetired">0</div></div>
+                        <div class="summary-card danger"><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div></div>
+                    </div>
+                    <div class="chart-container"><canvas id="projectionChart"></canvas></div>
+                    <div class="projection-table-wrapper">
+                        <table class="projection-table">
+                            <thead><tr><th>Age</th><th>Starting</th><th>Annual Savings</th><th>Growth</th><th>Ending</th><th>Status</th><th>Expenses</th></tr></thead>
+                            <tbody id="projectionTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Phase 2: Monte Carlo Stress Test panel -->
+                <div role="tabpanel" id="mc-panel-mc" aria-labelledby="mc-toggle-mc" hidden>
+
+                    <!-- One-line intro: what is this view? -->
+                    <p class="mc-intro">
+                        <strong>What is this?</strong> The Ideal Scenario assumes your investments earn the same return every year. In reality, markets swing — some years are 2008, some are 2017. The Stress Test re-runs your plan thousands of times against <strong>35 years of real Indian market history (NIFTY, debt, CPI 1991-2025)</strong>, picking a different sequence of years each time. The chart shows what fraction of those simulated lives still had money at each age.
+                    </p>
+
+                    <!-- INPUTS BEING SIMULATED — visible card, follows Phase 1 convention -->
+                    <div class="mc-inputs-card panel" id="mc-inputs-card">
+                        <div class="mc-inputs-card__header">
+                            <h3>Inputs being simulated</h3>
+                            <a class="btn-link" id="mc-inputs-edit-link" href="#financial-plan">Edit these inputs &rarr;</a>
+                        </div>
+                        <div class="mc-inputs-grid">
+                            <div class="mc-input-row"><span class="mc-input-row__label">Current age</span><span class="mc-input-row__value" id="mc-in-currentAge">—</span></div>
+                            <div class="mc-input-row"><span class="mc-input-row__label">Retirement age</span><span class="mc-input-row__value" id="mc-in-retirementAge">—</span></div>
+                            <div class="mc-input-row"><span class="mc-input-row__label">Life expectancy</span><span class="mc-input-row__value" id="mc-in-lifeExpectancy">—</span></div>
+                            <div class="mc-input-row"><span class="mc-input-row__label">Current corpus</span><span class="mc-input-row__value" id="mc-in-currentSavings">—</span></div>
+                            <div class="mc-input-row"><span class="mc-input-row__label">Monthly investment</span><span class="mc-input-row__value" id="mc-in-monthlyInvestAmt">—</span></div>
+                            <div class="mc-input-row"><span class="mc-input-row__label">Allocation (Stock / Safe)</span><span class="mc-input-row__value" id="mc-in-allocation">—</span></div>
+                            <div class="mc-input-row"><span class="mc-input-row__label">Retirement monthly expense (today's value)</span><span class="mc-input-row__value" id="mc-in-postRetireMonthly">—</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state: missing required inputs -->
+                    <div id="mc-empty-state" class="mc-empty-state" hidden>
+                        <p>One or more required inputs are missing. Fill in your age, retirement age, life expectancy, monthly investment and post-retirement expense in the Setup tab to run a Stress Test.</p>
+                        <button class="btn-primary" id="mc-empty-cta" type="button">Go to Setup &rarr; Financial Plan</button>
+                    </div>
+
+                    <!-- Idle state: ready to run -->
+                    <div id="mc-idle" class="mc-idle">
+                        <button class="btn-primary mc-run-btn-big" id="mc-run-btn" type="button">Run Stress Test</button>
+                        <details class="mc-advanced">
+                            <summary>Advanced options</summary>
+                            <div class="mc-sim-count">
+                                <label for="mc-sim-count-select">Simulations per run</label>
+                                <select id="mc-sim-count-select">
+                                    <option value="1000">1,000 (instant)</option>
+                                    <option value="10000" selected>10,000 (fast — recommended)</option>
+                                    <option value="50000">50,000 (steady)</option>
+                                    <option value="100000">100,000 (precise)</option>
+                                    <option value="1000000">1,000,000 (research-grade, ~4s)</option>
+                                </select>
+                                <p class="mc-help">More simulations = steadier numbers across re-runs. 10,000 is plenty for most plans.</p>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Running state: progress + cancel -->
+                    <div id="mc-progress" class="mc-progress" hidden>
+                        <div class="mc-progress__label">Simulating your plan against 35 years of market history…</div>
+                        <div class="mc-progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Simulating your plan">
+                            <div class="mc-progress__fill" id="mc-progress-fill" style="width:0%"></div>
+                        </div>
+                        <div class="mc-progress__count" id="mc-progress-count">0 / 10,000 simulated lives</div>
+                        <button class="btn-secondary" id="mc-cancel-btn" type="button">Cancel</button>
+                    </div>
+
+                    <!-- Results state: callout + charts + tables -->
+                    <div id="mc-results" hidden>
+                        <div class="alert" id="mc-callout" role="status">
+                            <span class="alert__icon" id="mc-callout-icon" aria-hidden="true"></span>
+                            <p class="alert__text" id="mc-callout-text"></p>
+                            <button class="alert__cta btn-primary" id="mc-callout-cta" type="button" hidden>Increase Monthly Investment &rarr;</button>
+                        </div>
+
+                        <h3 class="mc-chart-title">Chance your plan still has money at each age</h3>
+                        <p class="mc-chart-help">Out of every 100 simulated futures, this many ended that age with at least 6 months of expenses left.</p>
+                        <div class="chart-container"><canvas id="mc-bar-chart" tabindex="0" aria-label="Chance of having money at each age" aria-describedby="mc-bar-table"></canvas></div>
+                        <button class="btn-link" id="mc-bar-table-toggle" type="button" aria-expanded="false" aria-controls="mc-bar-table">Show as data table</button>
+                        <table id="mc-bar-table" class="mc-data-table" hidden>
+                            <caption>Chance of having money at each age</caption>
+                            <thead><tr><th scope="col">Age</th><th scope="col">% of futures with money left</th><th scope="col">Risk level</th></tr></thead>
+                            <tbody id="mc-bar-table-body"></tbody>
+                        </table>
+
+                        <h3 class="mc-chart-title">How much money you'll likely have, by age</h3>
+                        <p class="mc-chart-help">Median (the middle outcome) shown as the blue line; the band covers the range from the worst 10% to the best 10% of simulations.</p>
+                        <div class="chart-container"><canvas id="mc-line-chart" tabindex="0" aria-label="Corpus trajectory range over time" aria-describedby="mc-line-table"></canvas></div>
+                        <button class="btn-link" id="mc-line-table-toggle" type="button" aria-expanded="false" aria-controls="mc-line-table">Show as data table</button>
+                        <table id="mc-line-table" class="mc-data-table" hidden>
+                            <caption>Corpus range by age (worst 10th, median, best 10th)</caption>
+                            <thead><tr><th scope="col">Age</th><th scope="col">Worst 10%</th><th scope="col">Median (most likely)</th><th scope="col">Best 10%</th></tr></thead>
+                            <tbody id="mc-line-table-body"></tbody>
+                        </table>
+
+                        <div class="mc-results-actions">
+                            <button class="btn-secondary" id="mc-rerun-btn" type="button">Re-run with different luck</button>
+                            <details class="mc-debug">
+                                <summary>Run details</summary>
+                                <p class="mc-footer" id="mc-perf-footer"></p>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- Error state -->
+                    <div id="mc-error" class="alert alert--danger" role="alert" hidden>
+                        <p class="alert__text" id="mc-error-text">Simulation failed. Please refresh and try again.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1397,28 +1513,39 @@
         </button>
     </div>
 
-    <script src="js/utils.js?v=20260429105755"></script>
-    <script src="js/calc-income.js?v=20260429105755"></script>
-    <script src="js/calc-expenses.js?v=20260429105755"></script>
-    <script src="js/calc-investments.js?v=20260429105755"></script>
-    <script src="js/calc-financial-plan.js?v=20260429105755"></script>
-    <script src="js/calc-projections.js?v=20260429105755"></script>
-    <script src="js/chart.js?v=20260429105755"></script>
-    <script src="js/calc-dashboard.js?v=20260429105755"></script>
-    <script src="js/calc-whatif.js?v=20260429105755"></script>
-    <script src="js/calc-goals.js?v=20260429105755"></script>
-    <script src="js/calc-multigoal.js?v=20260429105755"></script>
-    <script src="js/calc-emergency.js?v=20260429105755"></script>
-    <script src="js/calc-sip.js?v=20260429105755"></script>
-    <script src="js/calc-tracker.js?v=20260429105755"></script>
-    <script src="js/calc-savings-rollup.js?v=20260429105755"></script>
-    <script src="js/calc-milestones.js?v=20260429105755"></script>
-    <script src="js/calc-loan.js?v=20260429105755"></script>
-    <script src="js/calc-exptrack.js?v=20260429105755"></script>
-    <script src="js/calc-networth.js?v=20260429105755"></script>
-    <script src="js/profiles.js?v=20260429105755"></script>
-    <script src="js/sharelink.js?v=20260429105755"></script>
-    <script src="js/darkmode.js?v=20260429105755"></script>
-    <script src="js/app.js?v=20260429105755"></script>
+    <script src="js/utils.js?v=20260430011520"></script>
+    <script src="js/calc-income.js?v=20260430011520"></script>
+    <script src="js/calc-expenses.js?v=20260430011520"></script>
+    <script src="js/calc-investments.js?v=20260430011520"></script>
+    <script src="js/calc-financial-plan.js?v=20260430011520"></script>
+    <script src="js/calc-projections.js?v=20260430011520"></script>
+    <script src="js/chart.js?v=20260430011520"></script>
+    <script src="js/calc-dashboard.js?v=20260430011520"></script>
+    <script src="js/calc-whatif.js?v=20260430011520"></script>
+    <script src="js/calc-goals.js?v=20260430011520"></script>
+    <script src="js/calc-multigoal.js?v=20260430011520"></script>
+    <script src="js/calc-emergency.js?v=20260430011520"></script>
+    <script src="js/calc-sip.js?v=20260430011520"></script>
+    <script src="js/calc-tracker.js?v=20260430011520"></script>
+    <script src="js/historical-returns-data.js?v=20260430011520"></script>
+    <script src="js/chart-montecarlo.js?v=20260430011520"></script>
+    <script src="js/calc-montecarlo.js?v=20260430011520"></script>
+    <script src="js/calc-savings-rollup.js?v=20260430011520"></script>
+    <script src="js/calc-milestones.js?v=20260430011520"></script>
+    <script src="js/calc-loan.js?v=20260430011520"></script>
+    <script src="js/calc-exptrack.js?v=20260430011520"></script>
+    <script src="js/calc-networth.js?v=20260430011520"></script>
+    <script src="js/profiles.js?v=20260430011520"></script>
+    <script src="js/sharelink.js?v=20260430011520"></script>
+    <script src="js/darkmode.js?v=20260430011520"></script>
+    <script src="js/app.js?v=20260430011520"></script>
+
+    <!-- Phase 2: Monte Carlo Worker source inlined as a string. The Web Worker
+         is loaded via Blob URL (works from file:// AND http://). This script
+         block runs after calc-montecarlo.js so window.RP is defined. -->
+    <script>
+    window.RP = window.RP || {};
+    window.RP._workerSource = "/* ============================================================================\n   Monte Carlo Worker (Phase 2)\n   ----------------------------------------------------------------------------\n   Runs in a Web Worker context. Receives RUN message with inputs + seed,\n   loops 10K simulations using historical bootstrap of NIFTY/debt/gold/CPI\n   1991-2025, postMessages PROGRESS every 1000 sims and DONE at completion.\n   Listens for CANCEL to exit early.\n\n   IMPORTANT: this file is loaded as a Blob URL by calc-montecarlo.js \u2014 it\n   must be self-contained (cannot importScripts other project files because\n   file:// origin doesn't allow that). The historical-returns dataset is\n   passed in via the RUN message payload, NOT importScripts'd.\n   ============================================================================ */\n\n'use strict';\n\n// ---------- Seeded PRNG (mulberry32) ----------\nfunction makePRNG(seed) {\n  var s = seed >>> 0;\n  return function () {\n    s = (s + 0x6d2b79f5) >>> 0;\n    var t = s;\n    t = Math.imul(t ^ (t >>> 15), t | 1);\n    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);\n    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;\n  };\n}\n\n// ---------- Single simulation ----------\nfunction runOneSim(inputs, hist, prng) {\n  // inputs: { currentAge, retirementAge, lifeExpectancy, currentSavings,\n  //           monthlyInvestment, stockPct, safePct, postRetireMonthly }\n  // hist:   { yearCount, nifty50[], debt[], gold[], cpi[] }\n  // Phase 1 model: Safe (debt) vs Stock (NIFTY) \u2014 no gold bucket.\n  // returns: { corpusByAge: Map<age, corpus>, finalMonthlyExp }\n\n  var corpusByAge = {};\n  var corpus = inputs.currentSavings;\n  var monthlyExpenseAtRet = inputs.postRetireMonthly;\n  // Apply CPI inflation from currentAge \u2192 retirementAge to compute\n  // expense-at-retirement in nominal terms (Phase 1 mental model: user\n  // enters today's-rupees expense, we inflate to retirement year).\n  var preRetYears = inputs.retirementAge - inputs.currentAge;\n  var inflatedMonthlyExpense = monthlyExpenseAtRet;\n\n  // Pre-retirement accumulation\n  for (var i = 0; i < preRetYears; i++) {\n    var idx = Math.floor(prng() * hist.yearCount);\n    var ret = (hist.nifty50[idx] * inputs.stockPct\n             + hist.debt[idx]    * inputs.safePct);\n    var infl = hist.cpi[idx];\n    corpus = corpus * (1 + ret) + (inputs.monthlyInvestment * 12);\n    inflatedMonthlyExpense *= (1 + infl);\n    corpusByAge[inputs.currentAge + i + 1] = corpus;\n  }\n\n  // Post-retirement drawdown\n  var monthlyExp = inflatedMonthlyExpense;\n  for (var j = 0; j < (inputs.lifeExpectancy - inputs.retirementAge); j++) {\n    var idx2 = Math.floor(prng() * hist.yearCount);\n    var ret2 = (hist.nifty50[idx2] * inputs.stockPct\n              + hist.debt[idx2]    * inputs.safePct);\n    var infl2 = hist.cpi[idx2];\n    var annualExpense = monthlyExp * 12;\n    corpus = corpus * (1 + ret2) - annualExpense;\n    if (corpus < 0) corpus = 0;\n    monthlyExp *= (1 + infl2);\n    corpusByAge[inputs.retirementAge + j + 1] = corpus;\n  }\n\n  return { corpusByAge: corpusByAge, finalMonthlyExp: monthlyExp };\n}\n\n// ---------- Aggregate N sims into success% + corpus percentiles ----------\nfunction aggregate(allSims, ages) {\n  // ages: target milestone ages [70,80,90,...]\n  // For each age: success% = pct of sims where corpus[age] > 6mo expense buffer\n  // Plus per-age P10/P50/P90 corpus values\n  var n = allSims.length;\n  var results = ages.map(function (age) {\n    var corpora = [];\n    var successes = 0;\n    for (var i = 0; i < n; i++) {\n      var c = allSims[i].corpusByAge[age];\n      if (c === undefined) continue;\n      corpora.push(c);\n      // 6-month buffer = monthly expense at this age \u00d7 6\n      // Use that sim's final monthly expense as proxy (close enough since\n      // we approach lifeExpectancy)\n      var sixMoBuffer = allSims[i].finalMonthlyExp * 6;\n      if (c > sixMoBuffer) successes++;\n    }\n    corpora.sort(function (a, b) { return a - b; });\n    var pct = function (p) {\n      var idx = Math.floor(corpora.length * p);\n      return corpora[Math.min(idx, corpora.length - 1)] || 0;\n    };\n    return {\n      age: age,\n      successPct: corpora.length > 0 ? Math.round((successes / corpora.length) * 100) : 0,\n      p10: pct(0.10),\n      p50: pct(0.50),\n      p90: pct(0.90)\n    };\n  });\n  return results;\n}\n\n// ---------- Determine age milestones (5 evenly spaced from retAge+1 \u2192 lifeExp) ----------\nfunction ageMilestones(retAge, lifeExp) {\n  var span = lifeExp - retAge;\n  if (span < 5) {\n    // very short retirement \u2014 show every year\n    var arr = [];\n    for (var a = retAge + 1; a <= lifeExp; a++) arr.push(a);\n    return arr;\n  }\n  // 5 evenly spaced milestones from retAge+span/5 to lifeExp\n  var step = span / 5;\n  var ages = [];\n  for (var k = 1; k <= 5; k++) {\n    ages.push(Math.round(retAge + k * step));\n  }\n  // Ensure final point is exactly lifeExp (rounding may have produced lifeExp-1)\n  ages[ages.length - 1] = lifeExp;\n  // Dedupe in case of small spans\n  return ages.filter(function (v, i, self) { return self.indexOf(v) === i; });\n}\n\n// ---------- Worker message handler ----------\nvar cancelled = false;\n\nself.onmessage = function (e) {\n  var msg = e.data;\n  if (msg.type === 'CANCEL') {\n    cancelled = true;\n    return;\n  }\n  if (msg.type !== 'RUN') return;\n\n  cancelled = false;\n  var inputs = msg.inputs;\n  var hist = msg.hist;\n  var seed = msg.seed || Date.now();\n  var simCount = msg.simCount || 10000;\n  var prng = makePRNG(seed);\n  var startMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();\n\n  var ages = ageMilestones(inputs.retirementAge, inputs.lifeExpectancy);\n  var allSims = [];\n\n  for (var i = 0; i < simCount; i++) {\n    if (cancelled) {\n      self.postMessage({ type: 'CANCELLED', completed: i });\n      return;\n    }\n    allSims.push(runOneSim(inputs, hist, prng));\n    if ((i + 1) % 1000 === 0) {\n      self.postMessage({ type: 'PROGRESS', completed: i + 1 });\n    }\n  }\n\n  var endMs = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();\n  var results = aggregate(allSims, ages);\n\n  self.postMessage({\n    type: 'DONE',\n    results: results,\n    elapsedMs: Math.round(endMs - startMs),\n    simCount: simCount,\n    seed: seed\n  });\n};\n";
+    </script>
 </body>
 </html>
