@@ -97,7 +97,7 @@
                         </div>
 
                         <h3 class="mc-chart-title">Chance your plan still has money at each age</h3>
-                        <p class="mc-chart-help">Out of every 100 simulated futures, this many ended that age with at least 6 months of expenses left.</p>
+                        <p class="mc-chart-help">Each bar is a probability. A 65% bar at age 80 means: <em>if you replayed your retirement 100 times with different market luck each time, you'd still have money at age 80 in roughly 65 of those 100 replays.</em></p>
                         <div class="chart-container"><canvas id="mc-bar-chart" tabindex="0" aria-label="Chance of having money at each age" aria-describedby="mc-bar-table"></canvas></div>
                         <button class="btn-link" id="mc-bar-table-toggle" type="button" aria-expanded="false" aria-controls="mc-bar-table">Show as data table</button>
                         <table id="mc-bar-table" class="mc-data-table" hidden>
@@ -107,7 +107,7 @@
                         </table>
 
                         <h3 class="mc-chart-title">How much money you'll likely have, by age</h3>
-                        <p class="mc-chart-help">Median (the middle outcome) shown as the blue line; the band covers the range from the worst 10% to the best 10% of simulations.</p>
+                        <p class="mc-chart-help">The blue line is the <em>middle</em> outcome — half of replays end up with more than this, half with less. The shaded band shows the range between an unlucky run (worst 10%) and a lucky run (best 10%) — most futures fall inside this band.</p>
                         <div class="chart-container"><canvas id="mc-line-chart" tabindex="0" aria-label="Corpus trajectory range over time" aria-describedby="mc-line-table"></canvas></div>
                         <button class="btn-link" id="mc-line-table-toggle" type="button" aria-expanded="false" aria-controls="mc-line-table">Show as data table</button>
                         <table id="mc-line-table" class="mc-data-table" hidden>

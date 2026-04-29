@@ -254,30 +254,49 @@
     var minPct = Math.min.apply(Math, results.map(function (r) { return r.successPct; }));
     var maxAge = results[results.length - 1].age;
 
+    // Helper: a single sentence framing the headline number in everyday terms
+    function colloquial(pct) {
+      if (pct >= 95) return 'almost guaranteed to last';
+      if (pct >= 85) return 'very likely to last';
+      if (pct >= 75) return 'likely to last';
+      if (pct >= 60) return 'more likely than not to last, but not safe';
+      if (pct >= 40) return 'roughly a coin flip';
+      if (pct >= 20) return 'unlikely to last';
+      return 'very unlikely to last';
+    }
+
     var variant, icon, text;
     if (minPct >= 85) {
       variant = 'success'; icon = '✓';
-      text = 'Your plan has high confidence (' + minPct + '%+) all the way through age ' + maxAge + '. Excellent.';
+      text = 'Your plan has a ' + minPct + '% chance of lasting all the way to age ' + maxAge + '. ' +
+             'In simple terms: if you replayed your retirement 100 times under different market conditions, ' +
+             'you\'d still have money in at least ' + minPct + ' of them. That\'s ' + colloquial(minPct) + '.';
     } else if (minPct >= 75) {
       variant = 'info'; icon = 'ℹ';
-      text = 'Your plan is solid (' + minPct + '%+ success) through age ' + maxAge + '. Acceptable risk.';
+      text = 'Your plan has a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
+             'Out of 100 possible futures (with different stock-market luck), about ' + minPct + ' end with money still in the bank at ' + maxAge + ' and ' + (100 - minPct) + ' run out before then. ' +
+             'It\'s ' + colloquial(minPct) + ' — acceptable, but worth monitoring.';
     } else if (firstRiskyAge !== null && firstFailAge === null) {
       variant = 'warning'; icon = '⚠';
       if (lastSafeAge && lastSafeAge < maxAge) {
-        text = 'Your plan looks good through age ' + lastSafeAge + ', but only ' + minPct + ' out of every 100 simulated lives still had money by age ' + maxAge + '. Consider increasing your monthly investment or trimming expenses.';
+        text = 'Your plan looks safe through age ' + lastSafeAge + ' but weakens after that. ' +
+               'By age ' + maxAge + ' the chance of still having money drops to ' + minPct + '% — meaning out of 100 possible futures, ' + (100 - minPct) + ' would run out of money before you turn ' + maxAge + '. ' +
+               'It\'s ' + colloquial(minPct) + '. Consider increasing your monthly investment or trimming post-retirement expenses.';
       } else {
-        text = 'In ' + minPct + ' out of every 100 simulated lives, your plan still had money by age ' + maxAge + '. The other ' + (100 - minPct) + ' ran out earlier — usually because of bad luck in the first few retirement years.';
+        text = 'Your plan has only a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
+               'Out of 100 possible futures, about ' + (100 - minPct) + ' run out of money before then — usually because of bad luck in the early retirement years. ' +
+               'It\'s ' + colloquial(minPct) + '. Consider increasing your monthly investment.';
       }
     } else {
       variant = 'danger'; icon = '✕';
-      // firstFailAge could be the first age where success% < 50%.
-      // If firstFailAge equals maxAge, the plan only fails AT the very end —
-      // phrase it positively (lasted to the end in 48% of futures).
       if (firstFailAge && firstFailAge < maxAge) {
-        text = 'Your plan starts running out of money around age ' + firstFailAge + ' in more than half of simulated lives. Only ' + minPct + ' out of every 100 lives still had money by age ' + maxAge + '. Significant changes needed — increase monthly investment, retire later, or reduce post-retirement expenses.';
+        text = 'Your plan has only a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
+               'Things start to break around age ' + firstFailAge + ' — in more than half of possible futures, you\'d be running out of money by then. ' +
+               'It\'s ' + colloquial(minPct) + '. Significant changes needed: increase monthly investment, retire later, or reduce post-retirement expenses.';
       } else {
-        // firstFailAge === maxAge or null but minPct < 50: avoid the "starts failing AT 100" nonsense.
-        text = 'Only ' + minPct + ' out of every 100 simulated lives had money left by age ' + maxAge + ' — the other ' + (100 - minPct) + ' ran out before that. Consider increasing your monthly investment or reducing post-retirement expenses.';
+        text = 'Your plan has only a ' + minPct + '% chance of lasting to age ' + maxAge + '. ' +
+               'Put another way: if you replayed your retirement 100 times with different market luck each time, you\'d run out of money before age ' + maxAge + ' in about ' + (100 - minPct) + ' of them. ' +
+               'It\'s ' + colloquial(minPct) + ' for the last stretch of your life. Consider increasing your monthly investment or reducing post-retirement expenses.';
       }
     }
 
