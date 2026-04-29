@@ -36,21 +36,53 @@
                         <strong>What is this?</strong> The Ideal Scenario assumes your investments earn the same return every year. In reality, markets swing — some years are 2008, some are 2017. The Stress Test re-runs your plan thousands of times against <strong>35 years of real Indian market history (NIFTY, debt, CPI 1991-2025)</strong>, picking a different sequence of years each time. The chart shows what fraction of those simulated lives still had money at each age.
                     </p>
 
-                    <!-- INPUTS BEING SIMULATED — visible card, follows Phase 1 convention -->
+                    <!-- EDITABLE INPUTS — change values inline + re-run without leaving this view.
+                         Values default from your Setup tab fields; edit here to explore "what if".
+                         Click "Reset to Setup values" to undo any local overrides. -->
                     <div class="mc-inputs-card panel" id="mc-inputs-card">
                         <div class="mc-inputs-card__header">
-                            <h3>Inputs being simulated</h3>
-                            <a class="btn-link" id="mc-inputs-edit-link" href="#financial-plan">Edit these inputs &rarr;</a>
+                            <h3>Inputs being simulated &mdash; click any value to change</h3>
+                            <button type="button" class="btn-link" id="mc-inputs-reset-btn" title="Discard your local overrides and re-read values from the Setup tab.">Reset to Setup values</button>
                         </div>
-                        <div class="mc-inputs-grid">
-                            <div class="mc-input-row"><span class="mc-input-row__label">Current age</span><span class="mc-input-row__value" id="mc-in-currentAge">—</span></div>
-                            <div class="mc-input-row"><span class="mc-input-row__label">Retirement age</span><span class="mc-input-row__value" id="mc-in-retirementAge">—</span></div>
-                            <div class="mc-input-row"><span class="mc-input-row__label">Life expectancy</span><span class="mc-input-row__value" id="mc-in-lifeExpectancy">—</span></div>
-                            <div class="mc-input-row"><span class="mc-input-row__label">Current corpus</span><span class="mc-input-row__value" id="mc-in-currentSavings">—</span></div>
-                            <div class="mc-input-row"><span class="mc-input-row__label">Monthly investment</span><span class="mc-input-row__value" id="mc-in-monthlyInvestAmt">—</span></div>
-                            <div class="mc-input-row"><span class="mc-input-row__label">Allocation (Stock / Safe)</span><span class="mc-input-row__value" id="mc-in-allocation">—</span></div>
-                            <div class="mc-input-row"><span class="mc-input-row__label">Retirement monthly expense (today's value)</span><span class="mc-input-row__value" id="mc-in-postRetireMonthly">—</span></div>
+                        <div class="mc-inputs-grid mc-inputs-grid--editable">
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Current age</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-currentAge" min="0" max="120" step="1"><span class="mc-input-edit__suffix">yrs</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Retirement age</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-retirementAge" min="0" max="120" step="1"><span class="mc-input-edit__suffix">yrs</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Life expectancy</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-lifeExpectancy" min="0" max="120" step="1"><span class="mc-input-edit__suffix">yrs</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Current corpus</span>
+                                <span class="mc-input-edit__field"><span class="mc-input-edit__prefix">&#8377;</span><input type="number" id="mc-edit-currentSavings" min="0" step="10000"></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Monthly investment</span>
+                                <span class="mc-input-edit__field"><span class="mc-input-edit__prefix">&#8377;</span><input type="number" id="mc-edit-monthlyInvestAmt" min="0" step="1000"><span class="mc-input-edit__suffix">/ month</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Stock allocation</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-stockPercent" min="0" max="100" step="1"><span class="mc-input-edit__suffix">% (Safe = 100 &minus; Stock)</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Post-retirement monthly expense (today's value)</span>
+                                <span class="mc-input-edit__field"><span class="mc-input-edit__prefix">&#8377;</span><input type="number" id="mc-edit-postRetireMonthly" min="0" step="1000"><span class="mc-input-edit__suffix">/ month</span></span></label>
                         </div>
+
+                        <!-- Realism knobs — taxes, fees, glide-down. Defaults are India-typical. -->
+                        <details class="mc-realism">
+                            <summary>Realism &mdash; taxes, fees, glide-down (defaults are typical India values)</summary>
+                            <div class="mc-realism__grid">
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="Long-Term Capital Gains tax applied to equity withdrawals in retirement. Indian LTCG on equity above &#8377;1.25L/yr is 12.5%.">Equity LTCG tax</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-equityTax" min="0" max="50" step="0.5" value="12.5"><span class="mc-input-edit__suffix">% on withdrawals</span></span></label>
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="Tax on debt fund gains held >3 years. Effectively your slab rate; 20% with indexation pre-2023, slab post-2023.">Debt withdrawal tax</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-debtTax" min="0" max="50" step="0.5" value="30"><span class="mc-input-edit__suffix">% on withdrawals</span></span></label>
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="Total Expense Ratio of your equity mutual funds. Direct funds: ~0.5-1%. Regular: ~1.5-2.5%.">Equity TER (annual fees)</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-equityTer" min="0" max="5" step="0.1" value="1.0"><span class="mc-input-edit__suffix">% per year</span></span></label>
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="TER for debt funds. Direct: ~0.3%. Regular: ~0.8%.">Debt TER</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-debtTer" min="0" max="5" step="0.1" value="0.5"><span class="mc-input-edit__suffix">% per year</span></span></label>
+                                <label class="mc-input-edit mc-input-edit--checkbox" title="As you age, automatically shift Stock &rarr; Safe to reduce sequence-of-returns risk near retirement. Common rule: Stock% = 110 &minus; age.">
+                                    <input type="checkbox" id="mc-edit-glideDown">
+                                    <span class="mc-input-edit__label">Auto-glide allocation toward Safe as you age (Stock% = 110 &minus; age)</span>
+                                </label>
+                                <label class="mc-input-edit mc-input-edit--checkbox" title="Models a one-time medical/family emergency (&#8377;5L in today's money, inflated) once per decade after age 60. Set to off if you carry health insurance covering this.">
+                                    <input type="checkbox" id="mc-edit-shocks">
+                                    <span class="mc-input-edit__label">Include occasional spending shocks (one &#8377;5L event per decade after 60)</span>
+                                </label>
+                            </div>
+                        </details>
                     </div>
 
                     <!-- Empty state: missing required inputs -->

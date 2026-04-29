@@ -29,27 +29,53 @@
   // Pre/post-retirement returns already blended in RP._preReturn / _postReturn.
   // We use stockPercent → bootstrap from NIFTY (volatile equity), safePercent
   // → bootstrap from debt (low-vol fixed income). Gold not modelled by Phase 1.
+  // Read inputs in priority order:
+  //   1. Editable MC fields (#mc-edit-*) if non-empty — these are local overrides
+  //   2. Phase 1 source fields — fallback for first-load and after Reset
+  // This means the user can scrub values inline AND we still default to their
+  // Setup tab inputs.
   function readInputs() {
-    // Strict reader: returns null for missing/empty/non-numeric values so the
-    // empty-state check actually triggers. Allocation %s default to 100/0
-    // (all-stock) so a partial setup doesn't crash, but core inputs must be
-    // present — currentAge is the only one with a generous default since
-    // most users have it set early in onboarding.
-    var strict = function (id) {
-      var el = document.getElementById(id);
-      if (!el || el.value === '' || el.value === null) return null;
-      var v = parseFloat(el.value);
-      return isNaN(v) ? null : v;
+    var fromEdit = function (editId, sourceId) {
+      var ed = document.getElementById(editId);
+      if (ed && ed.value !== '' && ed.value !== null) {
+        var v = parseFloat(ed.value);
+        if (!isNaN(v)) return v;
+      }
+      var src = document.getElementById(sourceId);
+      if (src && src.value !== '' && src.value !== null) {
+        var sv = parseFloat(src.value);
+        if (!isNaN(sv)) return sv;
+      }
+      return null;
     };
+    var fromEditNum = function (editId, fallback) {
+      var ed = document.getElementById(editId);
+      if (ed && ed.value !== '' && ed.value !== null) {
+        var v = parseFloat(ed.value);
+        if (!isNaN(v)) return v;
+      }
+      return fallback;
+    };
+    var fromCheckbox = function (id) {
+      var el = document.getElementById(id);
+      return el ? !!el.checked : false;
+    };
+
     var inputs = {
-      currentAge: strict('currentAge'),
-      retirementAge: strict('retirementAge'),
-      lifeExpectancy: strict('lifeExpectancy'),
-      currentSavings: strict('currentSavings'),
-      monthlyInvestment: strict('monthlyInvestAmt'),
-      stockPct: strict('stockPercent'),
-      safePct: strict('safePercent'),
-      postRetireMonthly: strict('postRetireMonthly')
+      currentAge:        fromEdit('mc-edit-currentAge',        'currentAge'),
+      retirementAge:     fromEdit('mc-edit-retirementAge',     'retirementAge'),
+      lifeExpectancy:    fromEdit('mc-edit-lifeExpectancy',    'lifeExpectancy'),
+      currentSavings:    fromEdit('mc-edit-currentSavings',    'currentSavings'),
+      monthlyInvestment: fromEdit('mc-edit-monthlyInvestAmt',  'monthlyInvestAmt'),
+      stockPct:          fromEdit('mc-edit-stockPercent',      'stockPercent'),
+      postRetireMonthly: fromEdit('mc-edit-postRetireMonthly', 'postRetireMonthly'),
+      // Realism knobs (no Phase 1 equivalent — pure MC additions)
+      equityTax:  fromEditNum('mc-edit-equityTax',  12.5) / 100,
+      debtTax:    fromEditNum('mc-edit-debtTax',    30)   / 100,
+      equityTer:  fromEditNum('mc-edit-equityTer',  1.0)  / 100,
+      debtTer:    fromEditNum('mc-edit-debtTer',    0.5)  / 100,
+      glideDown:  fromCheckbox('mc-edit-glideDown'),
+      shocks:     fromCheckbox('mc-edit-shocks')
     };
     // Validation — every required field must be set and sane
     if (inputs.currentAge === null || inputs.currentAge < 0) return null;
@@ -58,16 +84,13 @@
     if (inputs.currentSavings === null || inputs.currentSavings < 0) return null;
     if (inputs.monthlyInvestment === null || inputs.monthlyInvestment <= 0) return null;
     if (inputs.postRetireMonthly === null || inputs.postRetireMonthly <= 0) return null;
-    // Allocation %s — if both null, default to 100% stock (single-asset MC)
-    if (inputs.stockPct === null && inputs.safePct === null) {
-      inputs.stockPct = 100; inputs.safePct = 0;
-    } else {
-      if (inputs.stockPct === null) inputs.stockPct = 0;
-      if (inputs.safePct === null) inputs.safePct = 0;
-    }
-    // Convert percent to fraction
+    // Allocation %s — stockPct present, safePct = 100 - stockPct (the editable
+    // UI only exposes Stock; Safe is auto-computed for clarity).
+    if (inputs.stockPct === null) inputs.stockPct = 72; // sensible default
+    inputs.stockPct = Math.max(0, Math.min(100, inputs.stockPct));
+    inputs.safePct = 100 - inputs.stockPct;
     inputs.stockPct = inputs.stockPct / 100;
-    inputs.safePct = inputs.safePct / 100;
+    inputs.safePct  = inputs.safePct / 100;
     return inputs;
   }
 
@@ -517,11 +540,34 @@
       runMonteCarlo({ simCount: n });
     });
 
-    // Edit-link in the inputs card
-    var editLink = document.getElementById('mc-inputs-edit-link');
-    if (editLink) editLink.addEventListener('click', function (ev) {
-      ev.preventDefault();
-      jumpToInvestments();
+    // Reset button — re-pulls all values from Phase 1 source fields, clears
+    // realism overrides back to India-typical defaults.
+    var resetBtn = document.getElementById('mc-inputs-reset-btn');
+    if (resetBtn) resetBtn.addEventListener('click', function () {
+      refreshInputsCard(true);
+      // Discard run history because the inputs changed
+      runHistory = [];
+      lastResults = null;
+      var hist = document.getElementById('mc-history');
+      if (hist) hist.hidden = true;
+    });
+
+    // Any edit to an MC editable field invalidates run history (different inputs
+    // = not comparable to prior runs). Don't auto-rerun (cheap) — let user click Run.
+    [
+      'mc-edit-currentAge', 'mc-edit-retirementAge', 'mc-edit-lifeExpectancy',
+      'mc-edit-currentSavings', 'mc-edit-monthlyInvestAmt', 'mc-edit-stockPercent',
+      'mc-edit-postRetireMonthly',
+      'mc-edit-equityTax', 'mc-edit-debtTax', 'mc-edit-equityTer', 'mc-edit-debtTer',
+      'mc-edit-glideDown', 'mc-edit-shocks'
+    ].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        runHistory = [];
+        var hist = document.getElementById('mc-history');
+        if (hist) hist.hidden = true;
+      });
     });
 
     // Data-table toggles
@@ -580,45 +626,48 @@
     }
   }
 
-  // ---------- Inputs-being-simulated card ----------
+  // ---------- Inputs-being-simulated card (editable) ----------
   function fmtINRShort(v) {
     if (v >= 1e7) return '₹' + (v / 1e7).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
     if (v >= 1e5) return '₹' + (v / 1e5).toFixed(2).replace(/\.?0+$/, '') + ' L';
     if (v >= 1e3) return '₹' + Math.round(v).toLocaleString('en-IN');
     return '₹' + Math.round(v);
   }
-  function refreshInputsCard() {
-    var setText = function (id, text) {
-      var el = document.getElementById(id);
-      if (el) el.textContent = text;
-    };
+  // Populate the editable fields from Phase 1 source values, but ONLY when the
+  // editable field is currently empty (don't blast over user edits in flight).
+  // resetAll=true forces overwrite (for the Reset button).
+  function refreshInputsCard(resetAll) {
     var raw = function (id) {
       var el = document.getElementById(id);
       if (!el || el.value === '' || el.value === null) return null;
       var v = parseFloat(el.value);
       return isNaN(v) ? null : v;
     };
-    var ca = raw('currentAge');
-    var ra = raw('retirementAge');
-    var le = raw('lifeExpectancy');
-    var cs = raw('currentSavings');
-    var mi = raw('monthlyInvestAmt');
-    var sp = raw('stockPercent');
-    var sa = raw('safePercent');
-    var pr = raw('postRetireMonthly');
-    setText('mc-in-currentAge', ca !== null ? ca + ' yrs' : '— (set in Setup)');
-    setText('mc-in-retirementAge', ra !== null ? ra + ' yrs' : '— (set in Setup)');
-    setText('mc-in-lifeExpectancy', le !== null ? le + ' yrs' : '— (set in Setup)');
-    setText('mc-in-currentSavings', cs !== null ? fmtINRShort(cs) : '— (set in Setup)');
-    setText('mc-in-monthlyInvestAmt', mi !== null ? fmtINRShort(mi) + ' / month' : '— (set in Setup)');
-    if (sp !== null && sa !== null) {
-      setText('mc-in-allocation', sp + '% Stock / ' + sa + '% Safe');
-    } else if (sp !== null) {
-      setText('mc-in-allocation', sp + '% Stock / ' + (100 - sp) + '% Safe');
-    } else {
-      setText('mc-in-allocation', '— (set in Setup)');
+    var seedField = function (editId, sourceVal) {
+      var ed = document.getElementById(editId);
+      if (!ed) return;
+      if (resetAll || ed.value === '' || ed.value === null) {
+        if (sourceVal !== null && sourceVal !== undefined) ed.value = sourceVal;
+      }
+    };
+    seedField('mc-edit-currentAge',        raw('currentAge'));
+    seedField('mc-edit-retirementAge',     raw('retirementAge'));
+    seedField('mc-edit-lifeExpectancy',    raw('lifeExpectancy'));
+    seedField('mc-edit-currentSavings',    raw('currentSavings'));
+    seedField('mc-edit-monthlyInvestAmt',  raw('monthlyInvestAmt'));
+    seedField('mc-edit-stockPercent',      raw('stockPercent'));
+    seedField('mc-edit-postRetireMonthly', raw('postRetireMonthly'));
+    if (resetAll) {
+      // Realism knobs back to India-typical defaults
+      var setVal = function (id, v) { var el = document.getElementById(id); if (el) el.value = v; };
+      var setChk = function (id, v) { var el = document.getElementById(id); if (el) el.checked = v; };
+      setVal('mc-edit-equityTax', 12.5);
+      setVal('mc-edit-debtTax',   30);
+      setVal('mc-edit-equityTer', 1.0);
+      setVal('mc-edit-debtTer',   0.5);
+      setChk('mc-edit-glideDown', false);
+      setChk('mc-edit-shocks',    false);
     }
-    setText('mc-in-postRetireMonthly', pr !== null ? fmtINRShort(pr) + ' / month' : '— (set in Setup)');
   }
 
   function parseUrlParams() {

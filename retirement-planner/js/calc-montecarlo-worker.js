@@ -26,46 +26,94 @@ function makePRNG(seed) {
   };
 }
 
-// ---------- Single simulation ----------
+// ---------- Allocation helper (with optional age-based glide-down) ----------
+// Glide rule (industry-standard "rule of 110"): Stock% = max(20, min(100, 110 - age)).
+// User-set stockPct is honored UNLESS glideDown is enabled, in which case the
+// glide rule wins for each year of the simulation.
+function allocAt(age, inputs) {
+  if (inputs.glideDown) {
+    var s = 110 - age;
+    if (s < 20) s = 20;
+    if (s > 100) s = 100;
+    return { stockPct: s / 100, safePct: 1 - (s / 100) };
+  }
+  return { stockPct: inputs.stockPct, safePct: inputs.safePct };
+}
+
+// ---------- Single simulation (taxes + fees + glide + shocks) ----------
 function runOneSim(inputs, hist, prng) {
   // inputs: { currentAge, retirementAge, lifeExpectancy, currentSavings,
-  //           monthlyInvestment, stockPct, safePct, postRetireMonthly }
+  //           monthlyInvestment, stockPct, safePct, postRetireMonthly,
+  //           equityTax (decimal), debtTax, equityTer, debtTer,
+  //           glideDown (bool), shocks (bool) }
   // hist:   { yearCount, nifty50[], debt[], gold[], cpi[] }
-  // Phase 1 model: Safe (debt) vs Stock (NIFTY) — no gold bucket.
-  // returns: { corpusByAge: Map<age, corpus>, finalMonthlyExp }
+  // returns: { corpusByAge: {age: corpus}, finalMonthlyExp }
 
   var corpusByAge = {};
   var corpus = inputs.currentSavings;
-  var monthlyExpenseAtRet = inputs.postRetireMonthly;
-  // Apply CPI inflation from currentAge → retirementAge to compute
-  // expense-at-retirement in nominal terms (Phase 1 mental model: user
-  // enters today's-rupees expense, we inflate to retirement year).
+  var inflatedMonthlyExpense = inputs.postRetireMonthly;
   var preRetYears = inputs.retirementAge - inputs.currentAge;
-  var inflatedMonthlyExpense = monthlyExpenseAtRet;
 
-  // Pre-retirement accumulation
+  // ---- Pre-retirement: accumulation ----
+  // Annual return = stock% * NIFTY - equityTer + safe% * debt - debtTer.
+  // TER (Total Expense Ratio) drags returns down every year, regardless of
+  // whether the year is good or bad. SEBI-mandated, you cannot avoid it.
   for (var i = 0; i < preRetYears; i++) {
+    var age = inputs.currentAge + i;
+    var alloc = allocAt(age, inputs);
     var idx = Math.floor(prng() * hist.yearCount);
-    var ret = (hist.nifty50[idx] * inputs.stockPct
-             + hist.debt[idx]    * inputs.safePct);
+    var equityRet = hist.nifty50[idx] - inputs.equityTer;
+    var debtRet   = hist.debt[idx]    - inputs.debtTer;
+    var ret  = (equityRet * alloc.stockPct + debtRet * alloc.safePct);
     var infl = hist.cpi[idx];
     corpus = corpus * (1 + ret) + (inputs.monthlyInvestment * 12);
     inflatedMonthlyExpense *= (1 + infl);
-    corpusByAge[inputs.currentAge + i + 1] = corpus;
+    corpusByAge[age + 1] = corpus;
   }
 
-  // Post-retirement drawdown
+  // ---- Post-retirement: drawdown with tax + fees ----
+  // Each year:
+  //   1. Apply growth (after TER drag) to corpus
+  //   2. Compute annual expense (includes any shocks)
+  //   3. Gross-up the withdrawal so AFTER paying tax on it, net cash = expense
+  //      Use blended tax rate weighted by current allocation
+  //   4. Subtract gross withdrawal from corpus
+  //   5. Inflate expense for next year
   var monthlyExp = inflatedMonthlyExpense;
   for (var j = 0; j < (inputs.lifeExpectancy - inputs.retirementAge); j++) {
+    var ageRet = inputs.retirementAge + j;
+    var allocR = allocAt(ageRet, inputs);
     var idx2 = Math.floor(prng() * hist.yearCount);
-    var ret2 = (hist.nifty50[idx2] * inputs.stockPct
-              + hist.debt[idx2]    * inputs.safePct);
+    var eqRet = hist.nifty50[idx2] - inputs.equityTer;
+    var dbRet = hist.debt[idx2]    - inputs.debtTer;
+    var ret2  = (eqRet * allocR.stockPct + dbRet * allocR.safePct);
     var infl2 = hist.cpi[idx2];
+
+    // Growth
+    corpus = corpus * (1 + ret2);
+
+    // Annual expense + spending shocks
     var annualExpense = monthlyExp * 12;
-    corpus = corpus * (1 + ret2) - annualExpense;
+    if (inputs.shocks && ageRet >= 60 && ((ageRet - 60) % 10) === 0) {
+      // ₹5L in today's value, inflated to current year of sim
+      var shockInTodaysRupees = 500000;
+      // Estimate inflation factor between today (currentAge) and now (ageRet)
+      var yearsFromToday = ageRet - inputs.currentAge;
+      var avgCpi = 0.06; // 6% nominal — just used as a deterministic proxy here
+      var shockNow = shockInTodaysRupees * Math.pow(1 + avgCpi, yearsFromToday);
+      annualExpense += shockNow;
+    }
+
+    // Tax gross-up. Withdrawals are split by current allocation:
+    //   stock portion → taxed at equityTax (LTCG), safe portion → debtTax.
+    // Effective tax rate on the gross withdrawal:
+    var effTax = (allocR.stockPct * inputs.equityTax) + (allocR.safePct * inputs.debtTax);
+    var grossWithdrawal = annualExpense / (1 - effTax);
+
+    corpus = corpus - grossWithdrawal;
     if (corpus < 0) corpus = 0;
     monthlyExp *= (1 + infl2);
-    corpusByAge[inputs.retirementAge + j + 1] = corpus;
+    corpusByAge[ageRet + 1] = corpus;
   }
 
   return { corpusByAge: corpusByAge, finalMonthlyExp: monthlyExp };
