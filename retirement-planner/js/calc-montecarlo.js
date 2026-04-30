@@ -117,7 +117,18 @@
       showError('Historical returns data not loaded.');
       return;
     }
-    cancelMonteCarlo(); // clean up any in-flight
+    // Clean up any in-flight worker SYNCHRONOUSLY (do NOT call
+    // cancelMonteCarlo here — that schedules a delayed cleanupWorker that
+    // would kill the NEW worker we're about to spawn, the bug Pardha found
+    // 2026-04-30 where re-run produced identical output).
+    if (workerInstance) {
+      try { workerInstance.terminate(); } catch (_) {}
+      workerInstance = null;
+    }
+    if (workerBlobUrl) {
+      try { URL.revokeObjectURL(workerBlobUrl); } catch (_) {}
+      workerBlobUrl = null;
+    }
     cancelRequested = false;
 
     showState('progress');
@@ -167,13 +178,20 @@
     });
   }
 
+  // User-initiated cancel (Cancel button). Different from internal cleanup
+  // when starting a NEW run — cancel must NOT schedule a delayed cleanup
+  // because if the user clicks Run again before that cleanup fires, it
+  // would kill the new worker. Just terminate immediately.
   function cancelMonteCarlo() {
     if (workerInstance) {
       cancelRequested = true;
       try { workerInstance.postMessage({ type: 'CANCEL' }); } catch (_) {}
-      // Give it a moment to ack via CANCELLED msg, but also force-cleanup
-      // after 1s in case worker is busy
-      setTimeout(cleanupWorker, 1000);
+      try { workerInstance.terminate(); } catch (_) {}
+      workerInstance = null;
+    }
+    if (workerBlobUrl) {
+      try { URL.revokeObjectURL(workerBlobUrl); } catch (_) {}
+      workerBlobUrl = null;
     }
   }
 
