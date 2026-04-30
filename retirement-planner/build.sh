@@ -20,6 +20,7 @@ cat > "$OUT" << 'HEAD'
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/tracker.css">
     <link rel="stylesheet" href="css/multigoal.css">
+    <link rel="stylesheet" href="css/montecarlo.css">
     <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>
@@ -124,6 +125,9 @@ cat >> "$OUT" << 'FOOT'
     <script src="js/calc-emergency.js"></script>
     <script src="js/calc-sip.js"></script>
     <script src="js/calc-tracker.js"></script>
+    <script src="js/historical-returns-data.js"></script>
+    <script src="js/chart-montecarlo.js"></script>
+    <script src="js/calc-montecarlo.js"></script>
     <script src="js/calc-savings-rollup.js"></script>
     <script src="js/calc-milestones.js"></script>
     <script src="js/calc-loan.js"></script>
@@ -133,9 +137,31 @@ cat >> "$OUT" << 'FOOT'
     <script src="js/sharelink.js"></script>
     <script src="js/darkmode.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- Phase 2: Monte Carlo Worker source inlined as a string. The Web Worker
+         is loaded via Blob URL (works from file:// AND http://). This script
+         block runs after calc-montecarlo.js so window.RP is defined. -->
+    <script>
+    window.RP = window.RP || {};
+    window.RP._workerSource = __WORKER_SOURCE_PLACEHOLDER__;
+    </script>
 </body>
 </html>
 FOOT
+
+# Phase 2: inline the Monte Carlo worker source as a JS string literal so the
+# main thread can wrap it in a Blob URL. Worker scripts cannot importScripts()
+# from file:// origins, so inlining is required. Use python3 for both the
+# JSON encoding AND the substitution so newlines stay escaped (\n, not raw).
+python3 - "$OUT" "$DIR/js/calc-montecarlo-worker.js" <<'PY'
+import json, sys, pathlib
+out_path = sys.argv[1]
+worker_path = sys.argv[2]
+worker_json = json.dumps(pathlib.Path(worker_path).read_text())
+html = pathlib.Path(out_path).read_text()
+html = html.replace('__WORKER_SOURCE_PLACEHOLDER__', worker_json)
+pathlib.Path(out_path).write_text(html)
+PY
 
 # v1.1 audit: cache-busting. Append a unique build version to every CSS/JS
 # asset URL so the browser MUST refetch each rebuild. Without this, Chrome
