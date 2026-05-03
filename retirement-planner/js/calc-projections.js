@@ -176,7 +176,6 @@ RP.generateProjections = function () {
   const yearsTotal = lifeExp - anchorAge + 1;
   const rows = [];
   let balance = seed;
-  let plannedAnnualSIP = monthlyInvest * 12; // for FUTURE rows; stepped up each year
   let corpusAtRetirement = 0;
   let runsOutAge = null;
   RP._chartData = [];
@@ -212,7 +211,13 @@ RP.generateProjections = function () {
       }
     }
     if (isFuture && status === 'Earning') {
-      for (let m = 0; m < 12; m++) sips[m] = plannedAnnualSIP / 12;
+      // Step-up: each future year's planned SIP grows from the CURRENT-row
+      // baseline. yearsSinceCurrent = i - currentRowIdx. If currentRowIdx
+      // hasn't been set yet (anchor in future), use i (years since anchor).
+      const baseIdx = (RP._currentRowIdx >= 0) ? RP._currentRowIdx : 0;
+      const yearsSinceCurrent = i - baseIdx;
+      const steppedAnnual = monthlyInvest * 12 * Math.pow(1 + stepUpPct, yearsSinceCurrent);
+      for (let m = 0; m < 12; m++) sips[m] = steppedAnnual / 12;
     }
 
     // Retirement: drain monthly inflated expenses; no SIPs.
@@ -263,9 +268,6 @@ RP.generateProjections = function () {
       if (ending < 0 && runsOutAge === null) runsOutAge = age;
       if (age === retAge - 1) corpusAtRetirement = ending;
       balance = ending;
-      if (status === 'Earning' && isFuture) {
-        plannedAnnualSIP *= (1 + stepUpPct);
-      }
     }
 
     rows.push(row);
