@@ -18,6 +18,7 @@
 .summary-card.success { border-top-color: var(--secondary-color); }
 .summary-card.warning { border-top-color: var(--warning-color); }
 .summary-card.danger { border-top-color: var(--danger-color); }
+.summary-card.legacy { border-top-color: #c026d3; }
 
 .summary-card .label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
 .summary-card .value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }

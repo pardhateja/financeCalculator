@@ -136,6 +136,18 @@
 .status-badge.earning { background: var(--secondary-light); color: #065f46; }
 .status-badge.retired { background: var(--primary-light); color: var(--primary-dark); }
 .status-badge.dead { background: #f1f5f9; color: var(--dead-color); }
+.status-badge.legacy { background: #fdf4ff; color: #86198f; }
+.projection-table tbody tr.row-legacy { background: #fdf4ff; }
+.projection-table tbody tr.row-legacy td:nth-child(6) { color: #86198f; font-weight: 600; }
+.projection-table .legacy-cell {
+  text-align: center;
+  font-weight: 600;
+  color: #86198f;
+  background: rgba(232, 121, 249, 0.12);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: help;
+}
 
 /* Past / Current row markers (anchored projection model). Past rows show
  * what already happened (from Tracker actuals); the Current row contains
