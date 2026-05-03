@@ -21,6 +21,7 @@ cat > "$OUT" << 'HEAD'
     <link rel="stylesheet" href="css/tracker.css">
     <link rel="stylesheet" href="css/multigoal.css">
     <link rel="stylesheet" href="css/montecarlo.css">
+    <link rel="stylesheet" href="css/persistence.css">
     <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>
@@ -56,6 +57,11 @@ cat > "$OUT" << 'HEAD'
                             <span class="settings-item-icon">⚠️</span>
                             <span class="settings-item-label">Reset to defaults</span>
                         </button>
+                        <!-- Phase 3-A: Cloud sync drawer (sign-in + status + manual backup) -->
+                        <div class="persistence-drawer">
+                            <h4 class="persistence-drawer__title">Cloud sync</h4>
+                            <div id="persistence-box"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -137,6 +143,7 @@ cat >> "$OUT" << 'FOOT'
     <script src="js/sharelink.js"></script>
     <script src="js/darkmode.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/persistence.js"></script>
 
     <!-- Phase 2: Monte Carlo Worker source inlined as a string. The Web Worker
          is loaded via Blob URL (works from file:// AND http://). This script

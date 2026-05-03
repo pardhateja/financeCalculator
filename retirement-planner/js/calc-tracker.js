@@ -11,6 +11,27 @@
 RP._trackerMode = 'default';
 RP._trackerEntries = {}; // key: "y0m3" -> {actual: 50000, completed: true, date: '2026-04-03'}
 RP._trackerModalTarget = null;
+RP._trackerStartDate = null; // Anchor month for the grid. Persisted on first run; never auto-changes.
+
+// Phase 3-A fix: persistent grid anchor. Default the FIRST time the user
+// opens Tracker; from then on, all grid offsets are computed from this date,
+// so past months stay visible + editable forever (don't slide off as time
+// passes). Format: "YYYY-MM" (no day component — month-anchor only).
+RP._getTrackerStart = function () {
+    if (RP._trackerStartDate) return RP._trackerStartDate;
+    const saved = localStorage.getItem('rp_tracker_start_date');
+    if (saved && /^\d{4}-\d{2}$/.test(saved)) {
+        const [y, m] = saved.split('-').map(Number);
+        RP._trackerStartDate = { year: y, month: m - 1 }; // store 0-indexed month
+        return RP._trackerStartDate;
+    }
+    // First-ever load: anchor to today's month.
+    const today = new Date();
+    RP._trackerStartDate = { year: today.getFullYear(), month: today.getMonth() };
+    const formatted = RP._trackerStartDate.year + '-' + String(RP._trackerStartDate.month + 1).padStart(2, '0');
+    try { localStorage.setItem('rp_tracker_start_date', formatted); } catch (_) {}
+    return RP._trackerStartDate;
+};
 
 RP.initTracker = function () {
     // Load from localStorage
@@ -19,6 +40,9 @@ RP.initTracker = function () {
 
     const savedMode = localStorage.getItem('rp_tracker_mode');
     if (savedMode) RP._trackerMode = savedMode;
+
+    // Initialize the grid anchor (first run = today; subsequent runs = persisted)
+    RP._getTrackerStart();
 
     // View mode toggle
     document.querySelectorAll('.view-mode-btn').forEach(btn => {
@@ -54,13 +78,18 @@ RP.getTrackerMonths = function () {
     const retAge = RP.val('retirementAge');
     const totalMonths = (retAge - curAge) * 12;
 
-    // Tracker grid starts at the current calendar month (today). DOB is now
-    // captured separately on the Basics tab (v1.1 Feature A) and feeds
-    // Current Age, but Tracker months are about "what should you save from
-    // now until retirement," which is anchored to today.
+    // v3 (Phase 3-A): grid is anchored to a PERSISTED start month
+    // (RP._getTrackerStart()). On first ever load this is today's month;
+    // after that, it never moves automatically — so past months stay visible
+    // + editable forever. The "today" cell gets a separate visual highlight
+    // (added in renderTracker via a 'is-current-month' class).
+    const start = RP._getTrackerStart();
+    const startYear = start.year;
+    const startMonth = start.month; // 0-indexed
+
     const today = new Date();
-    const startYear = today.getFullYear();
-    const startMonth = today.getMonth(); // 0-indexed
+    const todayY = today.getFullYear();
+    const todayM = today.getMonth();
 
     const months = [];
     for (let i = 0; i < totalMonths; i++) {
@@ -85,11 +114,16 @@ RP.getTrackerMonths = function () {
             planned = entry.customTarget;
         }
 
+        // Time-position flag for styling: past / current / future
+        const isPast = (date.getFullYear() < todayY) || (date.getFullYear() === todayY && date.getMonth() < todayM);
+        const isCurrent = date.getFullYear() === todayY && date.getMonth() === todayM;
+
         months.push({
             yearIndex, monthIndex, label, planned: Math.round(planned),
             actual: entry ? entry.actual : 0,
             completed: entry ? entry.completed : false,
-            key
+            key,
+            isPast, isCurrent
         });
     }
     return months;
@@ -144,6 +178,11 @@ RP.renderTracker = function () {
                     cardClass = 'partial';
                 }
             }
+            // Add visual flags so past months feel different from current/future
+            // (past = editable history; current = "right now"; future = projected)
+            if (m.isCurrent) cardClass += ' is-current-month';
+            else if (m.isPast) cardClass += ' is-past-month';
+
             return '<div class="month-card ' + cardClass + '" onclick="RP.openTrackerModal(\'' + m.key + '\')">' +
                 '<span class="month-status">' + statusIcon + '</span>' +
                 '<div class="month-label">' + m.label + '</div>' +
@@ -292,6 +331,15 @@ RP.resetTrackerMonth = function () {
 
 RP.saveTrackerToStorage = function () {
     localStorage.setItem('rp_tracker_entries', JSON.stringify(RP._trackerEntries));
+    // Phase 3-A: tell the cloud-sync layer that data changed (since Tracker
+    // mutates localStorage directly without any input events the generic
+    // auto-sync would catch).
+    if (RP.persistence && typeof RP.persistence.pushNow === 'function') {
+        // Schedule via the same debounce path; pushNow forces immediate.
+        // We use a setTimeout as a micro-debounce so multiple rapid edits batch.
+        clearTimeout(RP._trackerPushTimer);
+        RP._trackerPushTimer = setTimeout(function () { RP.persistence.pushNow(); }, 800);
+    }
     // v1.1 Feature B: any tracker mutation flows into Current Total Savings rollup.
     // The rollup helper guards against missing globals + DOM absence.
     if (typeof RP._computeSavingsRollup === 'function') {
