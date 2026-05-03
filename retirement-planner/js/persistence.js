@@ -33,7 +33,11 @@
   var SUPABASE_URL = 'https://xjyebiztvfxgkounymfh.supabase.co';
   var SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ocOvtPFrv6Jf4i_Rf2EC5g_QeS5iIgA';
   var TABLE = 'app_data';
-  var DEBOUNCE_MS = 1500; // batch rapid input edits
+  // Aggressive debounce: 300ms. Long enough to batch rapid keystrokes (typing
+  // a number doesn't fire 5 separate pushes); short enough that refresh
+  // immediately after a delete is unlikely to lose the push. Original 1500ms
+  // was too long — Pardha could refresh in <1s and see deleted data return.
+  var DEBOUNCE_MS = 300;
 
   // Will be set once the Supabase JS SDK loads from CDN
   var supabase = null;
