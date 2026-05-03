@@ -42,6 +42,15 @@
   var pullingInProgress = false;
   var pushingInProgress = false;
   var lastPushedPayloadJson = ''; // dedupe — don't push if nothing changed
+  // Guards against the "phantom phase comes back after delete" bug:
+  //   initialPullDone — tracks whether we've done the once-per-load pull
+  //                     (after that, we never auto-pull again — local wins)
+  //   localChangedSinceLastPull — set true on any rp_* setItem; means a
+  //                     pending push has unsaved local edits, so a pull
+  //                     would clobber them
+  var initialPullDone = false;
+  var localChangedSinceLastPull = false;
+  var restoringInProgress = false; // suppress dirty-flag during restoreAppState writes
 
   // ---- Snapshot the entire app state into a JSON object ----
   // Two layers of capture, both automatic so future Phase 4/5/N additions
@@ -81,6 +90,7 @@
   // ---- Restore app state from a snapshot ----
   function restoreAppState(snapshot) {
     if (!snapshot || typeof snapshot !== 'object') return;
+    restoringInProgress = true; // localStorage writes below are NOT user edits
     var inputs = snapshot.inputs || {};
     Object.keys(inputs).forEach(function (id) {
       var el = document.getElementById(id);
@@ -159,11 +169,23 @@
       var stored = localStorage.getItem('rp_tracker_start_date');
       if (stored) sel.value = stored;
     }
+    // Clear the restore guard NOW that everything has been written + re-rendered.
+    // From this point any further setItem IS a user edit and should sync.
+    restoringInProgress = false;
   }
 
   // ---- Pull latest from cloud ----
-  function pullFromCloud() {
+  // BUG FIX (2026-05-04): if local has unsaved edits (deleted phase still
+  // in push debounce queue), pulling here would clobber them. Refuse the
+  // pull and force-push instead.
+  function pullFromCloud(opts) {
+    opts = opts || {};
     if (!supabase || !currentUser || pullingInProgress) return Promise.resolve();
+    if (localChangedSinceLastPull && !opts.force) {
+      // We have unsaved local edits — flush those first instead of pulling.
+      console.info('[persistence] skipping auto-pull because local has unsaved edits; pushing instead');
+      return pushToCloud(true);
+    }
     pullingInProgress = true;
     setStatus('Syncing...');
     return supabase.from(TABLE).select('payload, updated_at').eq('user_id', currentUser.id).maybeSingle()
@@ -181,6 +203,11 @@
         }
         restoreAppState(res.data.payload);
         lastPushedPayloadJson = JSON.stringify(res.data.payload);
+        // After a successful pull, the in-memory + localStorage state matches
+        // cloud. Reset the dirty flag so subsequent local edits will trigger
+        // pushes again (and prevent further auto-pulls until the next load).
+        initialPullDone = true;
+        localChangedSinceLastPull = false;
         setStatus('Synced ' + new Date(res.data.updated_at).toLocaleTimeString(), 'ok');
       })
       .catch(function (err) {
@@ -207,6 +234,9 @@
           return;
         }
         lastPushedPayloadJson = snapshotJson;
+        // Push successful — local state is now in cloud. Local-changes flag
+        // can be cleared so next pull (if any) won't be blocked unnecessarily.
+        localChangedSinceLastPull = false;
         setStatus('Saved ' + new Date().toLocaleTimeString(), 'ok');
       })
       .catch(function (err) {
@@ -368,13 +398,17 @@
       var origRemoveItem = localStorage.removeItem.bind(localStorage);
       localStorage.setItem = function (key, value) {
         origSetItem(key, value);
+        if (restoringInProgress) return; // writes during cloud restore are not user edits
         if (typeof key === 'string' && key.indexOf('rp_') === 0 && !UI_ONLY_KEYS_RE.test(key)) {
+          localChangedSinceLastPull = true;
           schedulePush();
         }
       };
       localStorage.removeItem = function (key) {
         origRemoveItem(key);
+        if (restoringInProgress) return;
         if (typeof key === 'string' && key.indexOf('rp_') === 0 && !UI_ONLY_KEYS_RE.test(key)) {
+          localChangedSinceLastPull = true;
           schedulePush();
         }
       };
