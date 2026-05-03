@@ -1,185 +1,321 @@
 /**
- * Projection engine — THE CORE
- * Earning: ending = starting * (1 + preReturn) + annualSavings (step-up each year)
- * Retired: ending = starting * (1 + postReturn) - inflatedExpenses
- * Dead: everything = 0
+ * Projection engine — ANCHORED MODEL (Pardha v2026-05-03)
  *
- * v1.1 audit (Pardha): partial first year. If DOB is set and today is past
- * the user's birthday, only `monthsRemaining` months of birthday-year remain
- * BEFORE the next birthday. Pardha-explicit: "this month I invested already
- * so I can only invest for 11 more months" → savings AND growth for the
- * current-age year are scaled to monthsRemaining/12. Years thereafter run
- * the normal 12-month logic. This prevents double-counting the months
- * already past in the user's birthday-year.
+ * Replaces the old "start from currentSavings, project forward, lose past
+ * rows as you age" model with a CALENDAR-anchored timeline:
+ *
+ *   - Anchor date = Tracker start date (rp_tracker_start_date),
+ *     fallback = today's birthday-year start.
+ *   - Past rows STAY visible permanently.
+ *   - Each row = one birthday-year window: [anchor + N years] -> [anchor + N+1 years].
+ *   - Past rows: SIP comes from actual Tracker entries; intra-year monthly
+ *     compounding using calc-sip.js style loop (FIXES bug #1: year-1 SIP
+ *     used to earn zero interest).
+ *   - Current row: hybrid = past Tracker entries already in this window +
+ *     planned SIPs for remaining months.
+ *   - Future rows: planned monthlyInvestAmt with step-up, monthly compounding.
+ *   - Seed enters the chain ONCE at the anchor and grows naturally year over
+ *     year (FIXES bug #2: seed used to never earn interest).
+ *
+ * Single compounding chain throughout. No rate-jump at "today". The
+ * Tracker's "Interest earned" display becomes redundant — that interest is
+ * now visible in past projection rows directly.
+ *
+ * `currentSavings` field becomes a computed display: it shows the running
+ * balance at "today" (the boundary inside the current row), not an input.
  */
 
-/* Compute remaining months in the user's CURRENT birthday-year.
- *
- * Pardha v2026-05-03: simplified the dropout logic.
- *   Cutoff day = DOB's day-of-month (e.g. 19 for DOB 1998-04-19),
- *                or 1 if DOB is missing.
- *   Inclusive on cutoff day: today's day <= cutoff -> current month
- *                            STILL counts as remaining.
- *   Today's day  > cutoff -> current month already invested, drop it.
- *
- * Example for DOB 1998-04-19, today = 2026-05-03:
- *   - Cutoff = 19. Today's day = 3. 3 <= 19 -> count May as remaining.
- *   - Months: May, Jun, Jul, ..., Mar = 11 months.
- *   - Drops to 10 on May 20 (when day > 19).
- *
- * Returns 12 if DOB is missing/invalid AND today's day == 1 (full year ahead).
- * Returns 11 if DOB is missing/invalid AND today's day > 1 (current month dropped). */
-RP._monthsRemainingThisBirthdayYear = function () {
-    const now = new Date();
-    const dobEl = document.getElementById('dateOfBirth');
-    let dobMonth, dobDay;
+/* ---------- Helpers ---------- */
 
-    if (!dobEl || !dobEl.value) {
-        // Fallback: default cutoff = day 1 (most defensive — drop current
-        // month from day 2 onwards, matches typical SIP-on-the-1st flows).
-        dobMonth = now.getMonth();
-        dobDay = 1;
-    } else {
-        const dob = new Date(dobEl.value);
-        if (isNaN(dob.getTime())) {
-            dobMonth = now.getMonth();
-            dobDay = 1;
-        } else {
-            dobMonth = dob.getMonth();
-            dobDay = dob.getDate();
-        }
-    }
-
-    // Find next birthday in the future (strictly after today).
-    let nextBday = new Date(now.getFullYear(), dobMonth, dobDay);
-    if (nextBday <= now) {
-        nextBday = new Date(now.getFullYear() + 1, dobMonth, dobDay);
-    }
-
-    // Whole months from this month's "remaining" count up to next birthday's
-    // month (exclusive — birthday's month is the start of the NEW birthday-year).
-    let months = (nextBday.getFullYear() - now.getFullYear()) * 12
-               + (nextBday.getMonth() - now.getMonth());
-
-    // Cutoff rule: if today's day-of-month is past the SIP cutoff (DOB day),
-    // the current month is "already invested" and drops out of the count.
-    // Inclusive on the cutoff itself: today.day == cutoff -> still counts.
-    if (now.getDate() > dobDay) {
-        months -= 1;
-    }
-
-    return Math.max(0, Math.min(12, months));
+/* Tracker start date YYYY-MM-DD. Falls back to today if not set. */
+RP._anchorDate = function () {
+  let raw = null;
+  try { raw = localStorage.getItem('rp_tracker_start_date'); } catch (_) {}
+  if (raw && /^\d{4}-\d{2}/.test(raw)) {
+    // raw is "YYYY-MM" or "YYYY-MM-DD". Normalize to first of month.
+    const parts = raw.split('-');
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parts[2] ? parseInt(parts[2], 10) : 1;
+    const dt = new Date(y, m, d);
+    if (!isNaN(dt.getTime())) return dt;
+  }
+  return new Date();
 };
 
+/* DOB-day-of-month, used as the SIP cutoff. Fallback = day 1. */
+RP._sipCutoffDay = function () {
+  const dobEl = document.getElementById('dateOfBirth');
+  if (!dobEl || !dobEl.value) return 1;
+  const dob = new Date(dobEl.value);
+  if (isNaN(dob.getTime())) return 1;
+  return dob.getDate();
+};
+
+/* Months remaining in the user's CURRENT birthday-year (for legacy callers
+ * like What-If/Loan that still use the old partial-year scaling). */
+RP._monthsRemainingThisBirthdayYear = function () {
+  const now = new Date();
+  const dobEl = document.getElementById('dateOfBirth');
+  let dobMonth, dobDay;
+  if (!dobEl || !dobEl.value) {
+    dobMonth = now.getMonth();
+    dobDay = 1;
+  } else {
+    const dob = new Date(dobEl.value);
+    if (isNaN(dob.getTime())) { dobMonth = now.getMonth(); dobDay = 1; }
+    else { dobMonth = dob.getMonth(); dobDay = dob.getDate(); }
+  }
+  let nextBday = new Date(now.getFullYear(), dobMonth, dobDay);
+  if (nextBday <= now) nextBday = new Date(now.getFullYear() + 1, dobMonth, dobDay);
+  let months = (nextBday.getFullYear() - now.getFullYear()) * 12
+             + (nextBday.getMonth() - now.getMonth());
+  if (now.getDate() > dobDay) months -= 1;
+  return Math.max(0, Math.min(12, months));
+};
+
+/* Actual Tracker contributions inside [windowStart, windowEnd). Returns a
+ * 12-element array of monthly amounts, indexed 0..11 from windowStart. */
+RP._trackerSipsInWindow = function (windowStart, windowEnd) {
+  const out = new Array(12).fill(0);
+  const entries = RP._trackerEntries || {};
+  Object.keys(entries).forEach(function (key) {
+    const e = entries[key];
+    if (!e || !e.completed) return;
+    const amt = parseFloat(e.actual) || 0;
+    if (amt <= 0) return;
+    let date;
+    if (e.date) date = new Date(e.date);
+    else if (/^\d{4}-\d{2}$/.test(key)) date = new Date(key + '-01');
+    else return;
+    if (isNaN(date.getTime())) return;
+    if (date < windowStart || date >= windowEnd) return;
+    const monthIdx = (date.getFullYear() - windowStart.getFullYear()) * 12
+                   + (date.getMonth() - windowStart.getMonth());
+    if (monthIdx >= 0 && monthIdx < 12) out[monthIdx] += amt;
+  });
+  return out;
+};
+
+/* Run a 12-month SIP loop using calc-sip.js style monthly compounding.
+ * sips[i] = amount invested at start of month i. Returns { ending, sipTotal,
+ * growthOnSeed, growthOnSips }. seed earns full N months of interest;
+ * each SIP earns interest for the months remaining after its own deposit. */
+RP._compoundYear = function (seedStart, sips, monthlyRate, expensesMonthly) {
+  let balance = seedStart;
+  let sipTotal = 0;
+  let expenseTotal = 0;
+  for (let m = 0; m < 12; m++) {
+    if (sips && sips[m]) {
+      balance += sips[m];
+      sipTotal += sips[m];
+    }
+    if (expensesMonthly) {
+      balance -= expensesMonthly;
+      expenseTotal += expensesMonthly;
+    }
+    balance *= (1 + monthlyRate);
+  }
+  // Decompose growth: total - (seed + sipTotal - expenseTotal) = growth.
+  const growth = balance - (seedStart + sipTotal - expenseTotal);
+  return { ending: balance, sipTotal: sipTotal, growth: growth, expenses: expenseTotal };
+};
+
+/* ---------- Main projection ---------- */
+
 RP.generateProjections = function () {
-    const curAge = RP.val('currentAge');
-    const retAge = RP.val('retirementAge');
-    const lifeExp = RP.val('lifeExpectancy');
-    const savings = RP.val('currentSavings');
-    const monthlyInvest = RP.val('monthlyInvestAmt');
-    const stepUp = RP.val('stepUpRate') / 100;
-    const inflation = RP.val('inflationRate') / 100;
-    const postRetireMonthly = RP.val('postRetireMonthly');
+  const seed = RP.val('currentSavingsSeed');
+  const monthlyInvest = RP.val('monthlyInvestAmt');
+  const stepUpPct = RP.val('stepUpRate') / 100;
+  const inflation = RP.val('inflationRate') / 100;
+  const postRetireMonthly = RP.val('postRetireMonthly');
+  const retAge = RP.val('retirementAge');
+  const lifeExp = RP.val('lifeExpectancy');
 
-    const preReturn = RP._preReturn || 0.08;
-    const postReturn = RP._postReturn || 0.05;
+  const preReturn = RP._preReturn || 0.08;
+  const postReturn = RP._postReturn || 0.05;
+  const monthlyPre = Math.pow(1 + preReturn, 1 / 12) - 1;
+  const monthlyPost = Math.pow(1 + postReturn, 1 / 12) - 1;
 
-    const monthsRemainingFirstYear = RP._monthsRemainingThisBirthdayYear();
+  const anchor = RP._anchorDate();
+  const cutoffDay = RP._sipCutoffDay();
+  const today = new Date();
 
-    const rows = [];
-    let starting = savings;
-    let annualInvest = monthlyInvest * 12;
-    let corpusAtRetirement = 0;
-    let runsOutAge = null;
-    RP._chartData = [];
+  // Anchor age = how old the user was at the anchor date.
+  const dobEl = document.getElementById('dateOfBirth');
+  let dob = null;
+  if (dobEl && dobEl.value) {
+    const d = new Date(dobEl.value);
+    if (!isNaN(d.getTime())) dob = d;
+  }
+  // Anchor age = the user's age in the BIRTHDAY-YEAR that contains the anchor.
+  // Since each projection row spans birthday-to-birthday (anchored on the
+  // anchor day), the row's age is the age the user is during MOST of that row.
+  // Concretely: if anchor is in the calendar month of (or after) the user's
+  // birthday in that year, anchorAge = year-diff. If anchor is BEFORE the
+  // birthday in that calendar year, anchorAge = year-diff - 1.
+  // BUT: we want the row to represent "the year you started tracking AS X
+  // years old", so we use the upcoming/just-passed birthday closest to anchor.
+  let anchorAge;
+  if (dob) {
+    anchorAge = anchor.getFullYear() - dob.getFullYear();
+    // If anchor is BEFORE this year's birthday, the user hasn't turned
+    // (year-diff) yet — they're still (year-diff - 1).
+    const thisYearBday = new Date(anchor.getFullYear(), dob.getMonth(), dob.getDate());
+    if (anchor < thisYearBday) anchorAge -= 1;
+    // If anchor is within ~1 month BEFORE this year's birthday, consumers
+    // typically think of it as "year I turn X" — round up to that age so
+    // the first row reads as the upcoming birthday-year.
+    const daysUntilBday = (thisYearBday - anchor) / (1000 * 60 * 60 * 24);
+    if (daysUntilBday > 0 && daysUntilBday <= 31) anchorAge += 1;
+  } else {
+    anchorAge = RP.val('currentAge') || 28;
+  }
 
-    for (let age = curAge; age <= lifeExp; age++) {
-        let status, ending, growth, expenses;
-        // First-year fraction: only applies to the very first iteration (age == curAge).
-        const isFirstYear = (age === curAge);
-        const yearFraction = isFirstYear ? (monthsRemainingFirstYear / 12) : 1;
+  // Build rows from anchor up to lifeExp.
+  const yearsTotal = lifeExp - anchorAge + 1;
+  const rows = [];
+  let balance = seed;
+  let plannedAnnualSIP = monthlyInvest * 12; // for FUTURE rows; stepped up each year
+  let corpusAtRetirement = 0;
+  let runsOutAge = null;
+  RP._chartData = [];
+  RP._currentRowIdx = -1;
+  let runningTodayBalance = null; // captured when we cross "today" inside CURRENT row
 
-        if (age < retAge) {
-            status = 'Earning';
-            // Compound growth for fractional year: (1+r)^(N/12) - 1
-            // For full year, this reduces to r exactly (N=12 → (1+r)^1 - 1 = r).
-            growth = starting * (Math.pow(1 + preReturn, yearFraction) - 1);
-            expenses = 0;
-            const partialAnnualInvest = annualInvest * yearFraction;
-            ending = starting + growth + partialAnnualInvest;
-            rows.push({
-                age, starting,
-                annualSavings: partialAnnualInvest,
-                growth, ending, status, expenses,
-                yearFraction: yearFraction,
-                monthsInYear: Math.round(yearFraction * 12)
-            });
-            starting = ending;
-            annualInvest = annualInvest * (1 + stepUp);
-            if (age === retAge - 1) {
-                corpusAtRetirement = ending;
-            }
-        } else if (age >= retAge && age < lifeExp) {
-            status = 'Retired';
-            const yearsFromNow = age - curAge;
-            const inflatedAnnualExpense = postRetireMonthly * Math.pow(1 + inflation, yearsFromNow) * 12;
-            growth = starting * (Math.pow(1 + postReturn, yearFraction) - 1);
-            expenses = inflatedAnnualExpense * yearFraction;
-            ending = starting + growth - expenses;
+  for (let i = 0; i < yearsTotal; i++) {
+    const windowStart = new Date(anchor.getFullYear() + i, anchor.getMonth(), anchor.getDate());
+    const windowEnd   = new Date(anchor.getFullYear() + i + 1, anchor.getMonth(), anchor.getDate());
+    const age = anchorAge + i;
+    const isPast    = windowEnd <= today;
+    const isCurrent = windowStart <= today && today < windowEnd;
+    const isFuture  = windowStart > today;
+    const status = age < retAge ? 'Earning' : (age < lifeExp ? 'Retired' : 'Dead');
+    const monthlyRate = age < retAge ? monthlyPre : monthlyPost;
 
-            if (ending < 0 && runsOutAge === null) {
-                runsOutAge = age;
-            }
+    // Build the 12-element SIP array for this window.
+    let sips;
+    if (isPast || isCurrent) {
+      // Past part = real Tracker entries within window.
+      sips = RP._trackerSipsInWindow(windowStart, windowEnd);
+    } else {
+      sips = new Array(12).fill(0);
+    }
+    if (isCurrent && status === 'Earning') {
+      // Fill remaining months with planned SIPs (months from "today" to windowEnd).
+      const todayMonthIdx = (today.getFullYear() - windowStart.getFullYear()) * 12
+                          + (today.getMonth() - windowStart.getMonth());
+      const cutoffPassedThisMonth = today.getDate() > cutoffDay;
+      const firstPlannedMonth = cutoffPassedThisMonth ? todayMonthIdx + 1 : todayMonthIdx;
+      for (let m = firstPlannedMonth; m < 12; m++) {
+        if (!sips[m]) sips[m] = monthlyInvest;
+      }
+    }
+    if (isFuture && status === 'Earning') {
+      for (let m = 0; m < 12; m++) sips[m] = plannedAnnualSIP / 12;
+    }
 
-            rows.push({
-                age, starting, annualSavings: 0,
-                growth, ending, status, expenses,
-                yearFraction: yearFraction,
-                monthsInYear: Math.round(yearFraction * 12)
-            });
-            starting = ending;
-        } else {
-            status = 'Dead';
-            rows.push({ age, starting: 0, annualSavings: 0, growth: 0, ending: 0,
-                        status: 'Dead', expenses: 0,
-                        yearFraction: 1, monthsInYear: 12 });
+    // Retirement: drain monthly inflated expenses; no SIPs.
+    let expensesMonthly = 0;
+    let inflatedAnnualExpense = 0;
+    if (status === 'Retired') {
+      const yearsFromAnchor = i; // calendar years since anchor
+      inflatedAnnualExpense = postRetireMonthly * Math.pow(1 + inflation, yearsFromAnchor) * 12;
+      expensesMonthly = inflatedAnnualExpense / 12;
+      sips = new Array(12).fill(0);
+    }
+
+    let row;
+    if (status === 'Dead') {
+      row = { age, starting: 0, annualSavings: 0, growth: 0, ending: 0,
+              status: 'Dead', expenses: 0, monthsInYear: 12, isPast: true,
+              isCurrent: false, isFuture: false, windowStart: windowStart };
+    } else {
+      const starting = balance;
+      const result = RP._compoundYear(starting, sips, monthlyRate, expensesMonthly);
+      const ending = result.ending;
+
+      // For CURRENT row, capture running balance at "today" so currentSavings
+      // can reflect today's actual corpus (not start-of-year).
+      if (isCurrent) {
+        let bal = starting;
+        const todayMonthIdx = (today.getFullYear() - windowStart.getFullYear()) * 12
+                            + (today.getMonth() - windowStart.getMonth());
+        for (let m = 0; m <= todayMonthIdx; m++) {
+          if (sips[m]) bal += sips[m];
+          if (m < todayMonthIdx) bal *= (1 + monthlyRate);
         }
+        runningTodayBalance = bal;
+        RP._currentRowIdx = rows.length;
+      }
 
-        RP._chartData.push({ age, ending: rows[rows.length - 1].ending });
+      row = {
+        age, starting,
+        annualSavings: result.sipTotal,
+        growth: result.growth,
+        ending: ending,
+        status, expenses: result.expenses,
+        monthsInYear: 12,
+        isPast, isCurrent, isFuture,
+        windowStart: windowStart
+      };
+
+      if (ending < 0 && runsOutAge === null) runsOutAge = age;
+      if (age === retAge - 1) corpusAtRetirement = ending;
+      balance = ending;
+      if (status === 'Earning' && isFuture) {
+        plannedAnnualSIP *= (1 + stepUpPct);
+      }
     }
 
-    RP._projectionRows = rows;
+    rows.push(row);
+    RP._chartData.push({ age: row.age, ending: row.ending });
+  }
 
-    // Summary cards
-    RP.setText('corpusAtRetirement', RP.formatCurrencyShort(corpusAtRetirement));
-    RP.setText('yearsEarning', retAge - curAge);
-    RP.setText('yearsRetired', lifeExp - retAge);
-    RP.setText('runsOutAge', runsOutAge ? 'Age ' + runsOutAge : 'Never');
+  RP._projectionRows = rows;
 
-    // Render table
-    const tbody = document.getElementById('projectionTableBody');
-    tbody.innerHTML = rows.map(r => {
-        let rowClass = 'row-' + r.status.toLowerCase();
-        if (r.ending < 0) rowClass += ' row-warning';
-        // v1.1 audit: surface partial-year months in the Age cell so user
-        // sees why year 28 has smaller numbers than year 29.
-        const ageLabel = (r.monthsInYear < 12)
-            ? r.age + ' <span style="font-size:0.78em;color:var(--text-secondary,#94a3b8);font-weight:normal;">(' + r.monthsInYear + ' mo)</span>'
-            : r.age;
-        return '<tr class="' + rowClass + '">' +
-            '<td>' + ageLabel + '</td>' +
-            '<td>' + RP.formatCurrency(r.starting) + '</td>' +
-            '<td>' + RP.formatCurrency(r.annualSavings) + '</td>' +
-            '<td>' + RP.formatCurrency(r.growth) + '</td>' +
-            '<td>' + RP.formatCurrency(r.ending) + '</td>' +
-            '<td><span class="status-badge ' + r.status.toLowerCase() + '">' + r.status + '</span></td>' +
-            '<td>' + (r.expenses ? RP.formatCurrency(r.expenses) : '-') + '</td>' +
-            '</tr>';
+  // Update currentSavings field to reflect today's running balance (computed,
+  // not user-input). Falls back to anchor seed if no current row found.
+  const csEl = document.getElementById('currentSavings');
+  if (csEl && runningTodayBalance !== null) {
+    csEl.value = Math.round(runningTodayBalance);
+  } else if (csEl) {
+    csEl.value = Math.round(seed);
+  }
+
+  // Summary cards
+  RP.setText('corpusAtRetirement', RP.formatCurrencyShort(corpusAtRetirement));
+  RP.setText('yearsEarning', Math.max(0, retAge - anchorAge));
+  RP.setText('yearsRetired', Math.max(0, lifeExp - retAge));
+  RP.setText('runsOutAge', runsOutAge ? 'Age ' + runsOutAge : 'Never');
+
+  // Render table
+  const tbody = document.getElementById('projectionTableBody');
+  if (tbody) {
+    tbody.innerHTML = rows.map(function (r) {
+      let rowClass = 'row-' + r.status.toLowerCase();
+      if (r.ending < 0) rowClass += ' row-warning';
+      if (r.isPast) rowClass += ' row-past';
+      if (r.isCurrent) rowClass += ' row-current';
+      const yr = r.windowStart ? r.windowStart.getFullYear() : '';
+      const phaseTag = r.isPast    ? '<span class="phase-tag past">Past</span>'
+                     : r.isCurrent ? '<span class="phase-tag current">Now</span>'
+                     :               '';
+      const ageLabel = r.age + ' <span style="font-size:0.78em;color:var(--text-secondary,#94a3b8);font-weight:normal;">(' + yr + ') ' + phaseTag + '</span>';
+      return '<tr class="' + rowClass + '">' +
+        '<td>' + ageLabel + '</td>' +
+        '<td>' + RP.formatCurrency(r.starting) + '</td>' +
+        '<td>' + RP.formatCurrency(r.annualSavings) + '</td>' +
+        '<td>' + RP.formatCurrency(r.growth) + '</td>' +
+        '<td>' + RP.formatCurrency(r.ending) + '</td>' +
+        '<td><span class="status-badge ' + r.status.toLowerCase() + '">' + r.status + '</span></td>' +
+        '<td>' + (r.expenses ? RP.formatCurrency(r.expenses) : '-') + '</td>' +
+        '</tr>';
     }).join('');
+  }
 
-    // Render chart if projections tab is visible
-    const projTab = document.getElementById('tab-projections');
-    if (projTab.classList.contains('active')) {
-        RP.renderChart();
-    }
+  const projTab = document.getElementById('tab-projections');
+  if (projTab && projTab.classList.contains('active') && typeof RP.renderChart === 'function') {
+    RP.renderChart();
+  }
 };

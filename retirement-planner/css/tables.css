@@ -136,3 +136,14 @@
 .status-badge.earning { background: var(--secondary-light); color: #065f46; }
 .status-badge.retired { background: var(--primary-light); color: var(--primary-dark); }
 .status-badge.dead { background: #f1f5f9; color: var(--dead-color); }
+
+/* Past / Current row markers (anchored projection model). Past rows show
+ * what already happened (from Tracker actuals); the Current row contains
+ * "today" and is the bridge between past and projected. */
+.projection-table tbody tr.row-past { opacity: 0.78; }
+.projection-table tbody tr.row-past td:first-child { background: rgba(100, 116, 139, 0.08); }
+.projection-table tbody tr.row-current { box-shadow: inset 4px 0 0 var(--accent, #2563eb); }
+.projection-table tbody tr.row-current td:first-child { background: rgba(37, 99, 235, 0.10); }
+.phase-tag { display: inline-block; margin-left: 4px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
+.phase-tag.past { background: rgba(100, 116, 139, 0.18); color: #475569; }
+.phase-tag.current { background: rgba(37, 99, 235, 0.18); color: #1d4ed8; }
