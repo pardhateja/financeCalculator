@@ -344,10 +344,22 @@ RP.generateProjections = function () {
       const ageLabel = r.age + ' <span style="font-size:0.78em;color:var(--text-secondary,#94a3b8);font-weight:normal;">(' + yr + ') ' + phaseTag + '</span>';
       const lumpG = r.growthOnLumpsum || 0;
       const sipG  = r.growthOnSips || 0;
-      const growthCell = '<div class="growth-total">' + RP.formatCurrency(r.growth) + '</div>'
-        + '<div class="growth-split">'
-        +   '<span class="growth-lumpsum" title="Interest earned on the existing corpus carried over from prior year">📦 ' + RP.formatCurrency(lumpG) + '</span>'
-        +   '<span class="growth-sip" title="Interest earned on this year’s SIP contributions, compounded month by month">💧 ' + RP.formatCurrency(sipG) + '</span>'
+      const growthCell = '<div class="growth-stack">'
+        +   '<div class="growth-row growth-row--lumpsum" title="Interest on the corpus carried in from prior years">'
+        +     '<span class="growth-icon">📦</span>'
+        +     '<span class="growth-label">Lumpsum</span>'
+        +     '<span class="growth-value">' + RP.formatCurrency(lumpG) + '</span>'
+        +   '</div>'
+        +   '<div class="growth-row growth-row--sip" title="Interest on this year’s SIP contributions, compounded month by month">'
+        +     '<span class="growth-icon">💧</span>'
+        +     '<span class="growth-label">SIP</span>'
+        +     '<span class="growth-value">' + RP.formatCurrency(sipG) + '</span>'
+        +   '</div>'
+        +   '<div class="growth-row growth-row--total" title="Total growth = Lumpsum + SIP">'
+        +     '<span class="growth-icon">∑</span>'
+        +     '<span class="growth-label">Total</span>'
+        +     '<span class="growth-value">' + RP.formatCurrency(r.growth) + '</span>'
+        +   '</div>'
         + '</div>';
       return '<tr class="' + rowClass + '">' +
         '<td>' + ageLabel + '</td>' +

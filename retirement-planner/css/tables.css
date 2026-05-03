@@ -148,24 +148,34 @@
 .phase-tag.past { background: rgba(100, 116, 139, 0.18); color: #475569; }
 .phase-tag.current { background: rgba(37, 99, 235, 0.18); color: #1d4ed8; }
 
-/* Growth column split: total on top, lumpsum + SIP breakdown beneath. */
-.projection-table .growth-total { font-weight: 600; }
-.projection-table .growth-split {
+/* Growth column = stacked rows: 📦 Lumpsum / 💧 SIP / ∑ Total. */
+.projection-table .growth-stack {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 2px;
-  font-size: 0.72rem;
-  color: var(--text-secondary, #64748b);
-  font-weight: 500;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.85rem;
 }
-.projection-table .growth-lumpsum,
-.projection-table .growth-sip {
-  white-space: nowrap;
-  padding: 1px 6px;
+.projection-table .growth-row {
+  display: grid;
+  grid-template-columns: 18px 64px 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(100, 116, 139, 0.08);
   cursor: help;
 }
-.projection-table .growth-lumpsum { color: #475569; }
-.projection-table .growth-sip { color: #0d9488; background: rgba(13, 148, 136, 0.10); }
+.projection-table .growth-icon { text-align: center; }
+.projection-table .growth-label { color: var(--text-secondary, #64748b); font-weight: 500; }
+.projection-table .growth-value { font-weight: 600; text-align: right; }
+.projection-table .growth-row--lumpsum { background: rgba(100, 116, 139, 0.08); color: #475569; }
+.projection-table .growth-row--sip     { background: rgba(13, 148, 136, 0.10); color: #0d9488; }
+.projection-table .growth-row--total {
+  background: rgba(37, 99, 235, 0.10);
+  color: #1e3a8a;
+  border-top: 1px solid rgba(37, 99, 235, 0.25);
+  margin-top: 2px;
+  padding-top: 4px;
+  font-weight: 700;
+}
+.projection-table .growth-row--total .growth-label,
+.projection-table .growth-row--total .growth-value { color: #1e3a8a; font-weight: 700; }
