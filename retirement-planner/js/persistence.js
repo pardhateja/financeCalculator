@@ -44,10 +44,18 @@
   var lastPushedPayloadJson = ''; // dedupe — don't push if nothing changed
 
   // ---- Snapshot the entire app state into a JSON object ----
-  // Reuses Phase 1's RP.getAllInputIds() so any new input added in Phase 4/5/N
-  // automatically gets persisted without changes here.
+  // Two layers of capture, both automatic so future Phase 4/5/N additions
+  // get persisted without touching this file:
+  //   1. inputs: every form-control id from RP.getAllInputIds()
+  //   2. localStorage: EVERY key that starts with "rp_" except known UI-only
+  //      keys (active tab, last-sub-tab — these are local navigation state,
+  //      not data, and syncing them would override what device you're on).
+  // The wholesale-localStorage approach replaces the previous hand-coded
+  // list which was missing Net Worth, Expense Log, milestone source, tracker
+  // mode, AND the new tracker start date — same bug class as the y0m3 issue.
+  var UI_ONLY_KEYS_RE = /^rp_(active_tab|last_tab_in_group_)/;
   function snapshotAppState() {
-    var out = { _v: 1, _ts: new Date().toISOString(), inputs: {}, extras: {} };
+    var out = { _v: 2, _ts: new Date().toISOString(), inputs: {}, storage: {} };
     if (typeof RP.getAllInputIds === 'function') {
       RP.getAllInputIds().forEach(function (id) {
         var el = document.getElementById(id);
@@ -57,30 +65,15 @@
         else out.inputs[id] = el.value;
       });
     }
-    // Also persist the Phase 1 multi-goal phases (kept in RP._multigoal.phases)
-    if (RP._multigoal && Array.isArray(RP._multigoal.phases)) {
-      out.extras.multigoalPhases = RP._multigoal.phases;
-    }
-    // Phase 1 tracker entries (assumed under RP.tracker.entries — adapt if different)
+    // Sweep ALL localStorage keys starting with "rp_" (anything the app
+    // owns), excluding UI-only navigation state.
     try {
-      var trackerJson = localStorage.getItem('rp_tracker_entries');
-      if (trackerJson) out.extras.trackerEntries = JSON.parse(trackerJson);
-    } catch (_) {}
-    // Phase 1 active profile + all profiles
-    try {
-      var profilesJson = localStorage.getItem('rp_profiles');
-      if (profilesJson) out.extras.profiles = JSON.parse(profilesJson);
-      var activeProfile = localStorage.getItem('rp_active_profile');
-      if (activeProfile) out.extras.activeProfile = activeProfile;
-    } catch (_) {}
-    // Phase 2 toggle state + sim count + MC editable overrides
-    try {
-      out.extras.mcView = localStorage.getItem('rp_projection_view') || 'ideal';
-      out.extras.mcSimCount = localStorage.getItem('rp_mc_sim_count') || '10000';
-    } catch (_) {}
-    // Theme
-    try {
-      out.extras.darkMode = localStorage.getItem('rp_dark_mode') || 'false';
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (!k || !k.startsWith('rp_')) continue;
+        if (UI_ONLY_KEYS_RE.test(k)) continue;
+        out.storage[k] = localStorage.getItem(k);
+      }
     } catch (_) {}
     return out;
   }
@@ -97,29 +90,48 @@
       else if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', val ? 'true' : 'false');
       else el.value = val;
     });
+    // v2 storage payload: full localStorage map. Restore every rp_* key.
+    var storage = snapshot.storage || {};
+    Object.keys(storage).forEach(function (k) {
+      if (UI_ONLY_KEYS_RE.test(k)) return;
+      try { localStorage.setItem(k, storage[k]); } catch (_) {}
+    });
+    // v1 payload backward-compat: older snapshots had `extras.*` instead of
+    // a generic `storage` map. Translate them so we don't lose old backups.
     var extras = snapshot.extras || {};
-    if (extras.multigoalPhases && RP._multigoal) {
-      RP._multigoal.phases = extras.multigoalPhases;
-      try { localStorage.setItem('rp_multigoal_phases', JSON.stringify(extras.multigoalPhases)); } catch (_) {}
+    var v1Map = {
+      multigoalPhases:  { key: 'rp_multigoal_phases', stringify: true },
+      trackerEntries:   { key: 'rp_tracker_entries',  stringify: true },
+      profiles:         { key: 'rp_profiles',         stringify: true },
+      activeProfile:    { key: 'rp_active_profile',   stringify: false },
+      mcView:           { key: 'rp_projection_view',  stringify: false },
+      mcSimCount:       { key: 'rp_mc_sim_count',     stringify: false },
+      darkMode:         { key: 'rp_dark_mode',        stringify: false }
+    };
+    Object.keys(v1Map).forEach(function (extraKey) {
+      if (extras[extraKey] === undefined || extras[extraKey] === null) return;
+      var spec = v1Map[extraKey];
+      try {
+        var val = spec.stringify ? JSON.stringify(extras[extraKey]) : String(extras[extraKey]);
+        localStorage.setItem(spec.key, val);
+      } catch (_) {}
+    });
+    // Apply theme immediately (Phase 1 darkmode.js otherwise reads the class on init)
+    if (localStorage.getItem('rp_dark_mode') === 'true') document.body.classList.add('dark-mode');
+    else document.body.classList.remove('dark-mode');
+    // Re-hydrate Phase 1/2/3 in-memory caches from the restored localStorage
+    if (RP._multigoal) {
+      try {
+        var phasesJson = localStorage.getItem('rp_multigoal_phases');
+        if (phasesJson) RP._multigoal.phases = JSON.parse(phasesJson);
+      } catch (_) {}
     }
-    if (extras.trackerEntries) {
-      try { localStorage.setItem('rp_tracker_entries', JSON.stringify(extras.trackerEntries)); } catch (_) {}
-    }
-    if (extras.profiles) {
-      try { localStorage.setItem('rp_profiles', JSON.stringify(extras.profiles)); } catch (_) {}
-    }
-    if (extras.activeProfile) {
-      try { localStorage.setItem('rp_active_profile', extras.activeProfile); } catch (_) {}
-    }
-    if (extras.mcView) {
-      try { localStorage.setItem('rp_projection_view', extras.mcView); } catch (_) {}
-    }
-    if (extras.mcSimCount) {
-      try { localStorage.setItem('rp_mc_sim_count', extras.mcSimCount); } catch (_) {}
-    }
-    if (extras.darkMode === 'true') {
-      try { localStorage.setItem('rp_dark_mode', 'true'); document.body.classList.add('dark-mode'); } catch (_) {}
-    }
+    try {
+      var trackerJson = localStorage.getItem('rp_tracker_entries');
+      RP._trackerEntries = trackerJson ? JSON.parse(trackerJson) : {};
+      RP._trackerStartDate = null; // force re-read of rp_tracker_start_date
+      if (typeof RP._getTrackerStart === 'function') RP._getTrackerStart();
+    } catch (_) {}
     // Re-fire Phase 1 calculations so the restored values produce projections
     if (typeof RP._updateAgeFromDOB === 'function') RP._updateAgeFromDOB();
     if (typeof RP._computeSavingsRollup === 'function') RP._computeSavingsRollup();
@@ -127,6 +139,14 @@
     if (typeof RP.renderPhases === 'function') RP.renderPhases();
     if (typeof RP.calculateMultiGoal === 'function') RP.calculateMultiGoal();
     if (typeof RP.renderTracker === 'function') RP.renderTracker();
+    if (typeof RP.renderNetWorth === 'function') RP.renderNetWorth();
+    if (typeof RP.renderExpenseTracker === 'function') RP.renderExpenseTracker();
+    // Refresh the "Started using app from" dropdown to show restored anchor
+    var sel = document.getElementById('trackerStartSelect');
+    if (sel && sel._wired) {
+      var stored = localStorage.getItem('rp_tracker_start_date');
+      if (stored) sel.value = stored;
+    }
   }
 
   // ---- Pull latest from cloud ----
@@ -312,25 +332,41 @@
     });
   }
 
-  // ---- Wire input events to schedulePush() ----
+  // ---- Wire input events + monkey-patch localStorage to schedule sync ----
+  // Two layers:
+  //   1. listen for change/input on every form control (covers normal editing)
+  //   2. monkey-patch localStorage.setItem so ANY write to an "rp_*" key
+  //      triggers a push, even from code that doesn't use form events
+  //      (Tracker, Net Worth, Expense Log, Milestone source, future tabs).
+  // This is the bug-class fix: instead of remembering to add hooks per tab,
+  // we capture all writes at the storage layer.
   function attachAutoSync() {
-    if (typeof RP.getAllInputIds !== 'function') return;
-    RP.getAllInputIds().forEach(function (id) {
-      var el = document.getElementById(id);
-      if (!el || el._persistenceWired) return;
-      el._persistenceWired = true;
-      el.addEventListener('change', schedulePush);
-      el.addEventListener('input', schedulePush);
-    });
-    // Catch programmatic changes (Tracker add/edit/delete) by listening on the
-    // tab-tracker container if it exists
-    var trackerTab = document.getElementById('tab-tracker');
-    if (trackerTab) {
-      trackerTab.addEventListener('change', schedulePush, true);
-      trackerTab.addEventListener('click', function (e) {
-        // Tracker mutations happen on Save / Delete buttons
-        if (e.target.matches('button')) setTimeout(schedulePush, 100);
-      }, true);
+    if (typeof RP.getAllInputIds === 'function') {
+      RP.getAllInputIds().forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el || el._persistenceWired) return;
+        el._persistenceWired = true;
+        el.addEventListener('change', schedulePush);
+        el.addEventListener('input', schedulePush);
+      });
+    }
+    // Monkey-patch localStorage.setItem (idempotent — guard with a flag)
+    if (!localStorage._rpPatched) {
+      var origSetItem = localStorage.setItem.bind(localStorage);
+      var origRemoveItem = localStorage.removeItem.bind(localStorage);
+      localStorage.setItem = function (key, value) {
+        origSetItem(key, value);
+        if (typeof key === 'string' && key.indexOf('rp_') === 0 && !UI_ONLY_KEYS_RE.test(key)) {
+          schedulePush();
+        }
+      };
+      localStorage.removeItem = function (key) {
+        origRemoveItem(key);
+        if (typeof key === 'string' && key.indexOf('rp_') === 0 && !UI_ONLY_KEYS_RE.test(key)) {
+          schedulePush();
+        }
+      };
+      localStorage._rpPatched = true;
     }
   }
 
