@@ -98,9 +98,12 @@
     });
     // v1 payload backward-compat: older snapshots had `extras.*` instead of
     // a generic `storage` map. Translate them so we don't lose old backups.
+    // BUG FIX (2026-05-04): multigoalPhases must map to rp_phases (the key
+    // calc-multigoal.js actually reads), NOT rp_multigoal_phases — which was
+    // a wrong-key in v1 that meant multigoal data never restored.
     var extras = snapshot.extras || {};
     var v1Map = {
-      multigoalPhases:  { key: 'rp_multigoal_phases', stringify: true },
+      multigoalPhases:  { key: 'rp_phases',           stringify: true },
       trackerEntries:   { key: 'rp_tracker_entries',  stringify: true },
       profiles:         { key: 'rp_profiles',         stringify: true },
       activeProfile:    { key: 'rp_active_profile',   stringify: false },
@@ -119,19 +122,28 @@
     // Apply theme immediately (Phase 1 darkmode.js otherwise reads the class on init)
     if (localStorage.getItem('rp_dark_mode') === 'true') document.body.classList.add('dark-mode');
     else document.body.classList.remove('dark-mode');
-    // Re-hydrate Phase 1/2/3 in-memory caches from the restored localStorage
-    if (RP._multigoal) {
-      try {
-        var phasesJson = localStorage.getItem('rp_multigoal_phases');
-        if (phasesJson) RP._multigoal.phases = JSON.parse(phasesJson);
-      } catch (_) {}
-    }
-    try {
-      var trackerJson = localStorage.getItem('rp_tracker_entries');
-      RP._trackerEntries = trackerJson ? JSON.parse(trackerJson) : {};
-      RP._trackerStartDate = null; // force re-read of rp_tracker_start_date
-      if (typeof RP._getTrackerStart === 'function') RP._getTrackerStart();
-    } catch (_) {}
+    // Re-hydrate every module's in-memory cache from the now-restored
+    // localStorage. CRITICAL: each module loaded its cache at BOOT time
+    // (before cloud pull completed), so without this re-hydration the
+    // renderer uses stale boot-time data even though localStorage now has
+    // the cloud version.
+    //
+    // Bug Pardha hit: multi-goal phases "going off after refresh" —
+    // restoreAppState wrote localStorage but RP._multigoal.phases (in-mem)
+    // was never refreshed.
+    //
+    // Fix is bulletproof: re-call every init/_load function we know exists.
+    // Each module's init reads localStorage and rebuilds its cache. This
+    // covers all modules at once and is future-proof for new tabs.
+    var rehydrators = [
+      function () { return RP._multigoal && RP._multigoal._load && RP._multigoal._load(); },
+      function () { return RP.initTracker && RP.initTracker(); },
+      function () { return RP.initNetWorth && RP.initNetWorth(); },
+      function () { return RP.initExpenseTracker && RP.initExpenseTracker(); },
+      function () { return RP.initGoals && RP.initGoals(); },
+      function () { return RP.initDarkMode && RP.initDarkMode(); }
+    ];
+    rehydrators.forEach(function (fn) { try { fn(); } catch (e) { console.warn('[persistence] rehydrator failed:', e); } });
     // Re-fire Phase 1 calculations so the restored values produce projections
     if (typeof RP._updateAgeFromDOB === 'function') RP._updateAgeFromDOB();
     if (typeof RP._computeSavingsRollup === 'function') RP._computeSavingsRollup();
