@@ -14,28 +14,61 @@
  */
 
 /* Compute remaining months in the user's CURRENT birthday-year.
- * Returns 12 if DOB is not set or invalid (preserves legacy behavior). */
+ *
+ * Pardha v2026-05-03: simplified the dropout logic.
+ *   Cutoff day = DOB's day-of-month (e.g. 19 for DOB 1998-04-19),
+ *                or 1 if DOB is missing.
+ *   Inclusive on cutoff day: today's day <= cutoff -> current month
+ *                            STILL counts as remaining.
+ *   Today's day  > cutoff -> current month already invested, drop it.
+ *
+ * Example for DOB 1998-04-19, today = 2026-05-03:
+ *   - Cutoff = 19. Today's day = 3. 3 <= 19 -> count May as remaining.
+ *   - Months: May, Jun, Jul, ..., Mar = 11 months.
+ *   - Drops to 10 on May 20 (when day > 19).
+ *
+ * Returns 12 if DOB is missing/invalid AND today's day == 1 (full year ahead).
+ * Returns 11 if DOB is missing/invalid AND today's day > 1 (current month dropped). */
 RP._monthsRemainingThisBirthdayYear = function () {
-    const dobEl = document.getElementById('dateOfBirth');
-    if (!dobEl || !dobEl.value) return 12;
-    const dob = new Date(dobEl.value);
-    if (isNaN(dob.getTime())) return 12;
     const now = new Date();
-    // Find the next birthday (after today). The full year before it has
-    // already had (12 - monthsRemaining) months of life happen.
-    let nextBday = new Date(now.getFullYear(), dob.getMonth(), dob.getDate());
-    if (nextBday <= now) {
-        nextBday = new Date(now.getFullYear() + 1, dob.getMonth(), dob.getDate());
+    const dobEl = document.getElementById('dateOfBirth');
+    let dobMonth, dobDay;
+
+    if (!dobEl || !dobEl.value) {
+        // Fallback: default cutoff = day 1 (most defensive — drop current
+        // month from day 2 onwards, matches typical SIP-on-the-1st flows).
+        dobMonth = now.getMonth();
+        dobDay = 1;
+    } else {
+        const dob = new Date(dobEl.value);
+        if (isNaN(dob.getTime())) {
+            dobMonth = now.getMonth();
+            dobDay = 1;
+        } else {
+            dobMonth = dob.getMonth();
+            dobDay = dob.getDate();
+        }
     }
-    // Months between now and nextBday (inclusive of partial month → round up)
-    const monthsDiff = (nextBday.getFullYear() - now.getFullYear()) * 12
-                     + (nextBday.getMonth() - now.getMonth())
-                     + (nextBday.getDate() < now.getDate() ? -1 : 0)
-                     + 1; // +1 because we count the current month as "still has investment opportunity"
-    // Pardha-explicit: "this month I invested already" → DON'T count current month.
-    // So actually subtract 1. Net effect: months remaining = months until next birthday EXCLUDING current.
-    const monthsRemaining = Math.max(0, Math.min(12, monthsDiff - 1));
-    return monthsRemaining;
+
+    // Find next birthday in the future (strictly after today).
+    let nextBday = new Date(now.getFullYear(), dobMonth, dobDay);
+    if (nextBday <= now) {
+        nextBday = new Date(now.getFullYear() + 1, dobMonth, dobDay);
+    }
+
+    // Whole months from this month's "remaining" count up to next birthday's
+    // month (exclusive — birthday's month is the start of the NEW birthday-year).
+    let months = (nextBday.getFullYear() - now.getFullYear()) * 12
+               + (nextBday.getMonth() - now.getMonth());
+
+    // Cutoff rule: if today's day-of-month is past the SIP cutoff (DOB day),
+    // the current month is "already invested" and drops out of the count.
+    // Inclusive on the cutoff itself: today.day == cutoff -> still counts.
+    if (now.getDate() > dobDay) {
+        months -= 1;
+    }
+
+    return Math.max(0, Math.min(12, months));
 };
 
 RP.generateProjections = function () {
