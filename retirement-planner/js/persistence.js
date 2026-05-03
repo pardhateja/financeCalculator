@@ -66,9 +66,35 @@
   // The wholesale-localStorage approach replaces the previous hand-coded
   // list which was missing Net Worth, Expense Log, milestone source, tracker
   // mode, AND the new tracker start date — same bug class as the y0m3 issue.
-  var UI_ONLY_KEYS_RE = /^rp_(active_tab|last_tab_in_group_)/;
+  // Keys we never sync:
+  //   - active_tab / last_tab_in_group_* — UI navigation state per device
+  //   - multigoal_phases — DEAD KEY from a v1 bug; canonical key is rp_phases.
+  //     Was getting empty "[]" written from somewhere and confusing the restore.
+  var UI_ONLY_KEYS_RE = /^rp_(active_tab|last_tab_in_group_|multigoal_phases$)/;
+  // Build a SECTIONED snapshot — one bag per logical area of the app, so the
+  // Supabase Table Editor shows readable named columns instead of one giant
+  // unreadable blob.
   function snapshotAppState() {
-    var out = { _v: 2, _ts: new Date().toISOString(), inputs: {}, storage: {} };
+    var out = {
+      // form inputs (Phase 1 + Phase 2 editable fields)
+      inputs: {},
+      // multigoal phases array
+      phases: [],
+      // tracker bundle (entries + anchor + view mode)
+      tracker: { entries: {}, startDate: null, mode: 'default' },
+      // networth log array
+      networth: [],
+      // expenses log object (keyed by month)
+      expenses: {},
+      // profiles bundle (all profiles + which is active)
+      profiles: { all: {}, active: null },
+      // MC + view settings
+      mc_settings: { view: 'ideal', simCount: '10000', milestoneSrc: null },
+      // Misc meta (theme, snapshot timestamp)
+      meta: { darkMode: 'false', lastSnap: new Date().toISOString() }
+    };
+
+    // 1. form inputs
     if (typeof RP.getAllInputIds === 'function') {
       RP.getAllInputIds().forEach(function (id) {
         var el = document.getElementById(id);
@@ -78,23 +104,69 @@
         else out.inputs[id] = el.value;
       });
     }
-    // Sweep ALL localStorage keys starting with "rp_" (anything the app
-    // owns), excluding UI-only navigation state.
-    try {
-      for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i);
-        if (!k || !k.startsWith('rp_')) continue;
-        if (UI_ONLY_KEYS_RE.test(k)) continue;
-        out.storage[k] = localStorage.getItem(k);
-      }
-    } catch (_) {}
+
+    // 2. read each section from localStorage
+    var readJson = function (key, fallback) {
+      try {
+        var raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (_) { return fallback; }
+    };
+    var readStr = function (key, fallback) {
+      try { return localStorage.getItem(key) || fallback; } catch (_) { return fallback; }
+    };
+
+    out.phases = readJson('rp_phases', []);
+    out.tracker.entries = readJson('rp_tracker_entries', {});
+    out.tracker.startDate = readStr('rp_tracker_start_date', null);
+    out.tracker.mode = readStr('rp_tracker_mode', 'default');
+    out.networth = readJson('rp_networth_log', []);
+    out.expenses = readJson('rp_expense_log', {});
+    out.profiles.all = readJson('rp_profiles', {});
+    out.profiles.active = readStr('rp_active_profile', null);
+    out.mc_settings.view = readStr('rp_projection_view', 'ideal');
+    out.mc_settings.simCount = readStr('rp_mc_sim_count', '10000');
+    out.mc_settings.milestoneSrc = readStr('rp_milestone_source', null);
+    out.meta.darkMode = readStr('rp_dark_mode', 'false');
     return out;
   }
 
-  // ---- Restore app state from a snapshot ----
+  // ---- Restore app state from a snapshot (v6 sectioned format) ----
+  // The snapshot is a SECTIONED object: { inputs, phases, tracker, networth,
+  // expenses, profiles, mc_settings, meta }. Each section maps cleanly to
+  // a Supabase column. We keep backward-compat for the old v2 single-blob
+  // format (still readable from older Supabase rows or JSON exports).
   function restoreAppState(snapshot) {
     if (!snapshot || typeof snapshot !== 'object') return;
-    restoringInProgress = true; // localStorage writes below are NOT user edits
+    restoringInProgress = true;
+
+    // v2-blob backward compat: detect old shape and translate to sectioned
+    if (snapshot.storage && !snapshot.phases) {
+      var oldStorage = snapshot.storage;
+      snapshot = {
+        inputs: snapshot.inputs || {},
+        phases: oldStorage.rp_phases ? JSON.parse(oldStorage.rp_phases) : [],
+        tracker: {
+          entries: oldStorage.rp_tracker_entries ? JSON.parse(oldStorage.rp_tracker_entries) : {},
+          startDate: oldStorage.rp_tracker_start_date || null,
+          mode: oldStorage.rp_tracker_mode || 'default'
+        },
+        networth: oldStorage.rp_networth_log ? JSON.parse(oldStorage.rp_networth_log) : [],
+        expenses: oldStorage.rp_expense_log ? JSON.parse(oldStorage.rp_expense_log) : {},
+        profiles: {
+          all: oldStorage.rp_profiles ? JSON.parse(oldStorage.rp_profiles) : {},
+          active: oldStorage.rp_active_profile || null
+        },
+        mc_settings: {
+          view: oldStorage.rp_projection_view || 'ideal',
+          simCount: oldStorage.rp_mc_sim_count || '10000',
+          milestoneSrc: oldStorage.rp_milestone_source || null
+        },
+        meta: { darkMode: oldStorage.rp_dark_mode || 'false' }
+      };
+    }
+
+    // 1. Form inputs
     var inputs = snapshot.inputs || {};
     Object.keys(inputs).forEach(function (id) {
       var el = document.getElementById(id);
@@ -104,36 +176,43 @@
       else if (el.tagName === 'BUTTON') el.setAttribute('aria-pressed', val ? 'true' : 'false');
       else el.value = val;
     });
-    // v2 storage payload: full localStorage map. Restore every rp_* key.
-    var storage = snapshot.storage || {};
-    Object.keys(storage).forEach(function (k) {
-      if (UI_ONLY_KEYS_RE.test(k)) return;
-      try { localStorage.setItem(k, storage[k]); } catch (_) {}
-    });
-    // v1 payload backward-compat: older snapshots had `extras.*` instead of
-    // a generic `storage` map. Translate them so we don't lose old backups.
-    // BUG FIX (2026-05-04): multigoalPhases must map to rp_phases (the key
-    // calc-multigoal.js actually reads), NOT rp_multigoal_phases — which was
-    // a wrong-key in v1 that meant multigoal data never restored.
-    var extras = snapshot.extras || {};
-    var v1Map = {
-      multigoalPhases:  { key: 'rp_phases',           stringify: true },
-      trackerEntries:   { key: 'rp_tracker_entries',  stringify: true },
-      profiles:         { key: 'rp_profiles',         stringify: true },
-      activeProfile:    { key: 'rp_active_profile',   stringify: false },
-      mcView:           { key: 'rp_projection_view',  stringify: false },
-      mcSimCount:       { key: 'rp_mc_sim_count',     stringify: false },
-      darkMode:         { key: 'rp_dark_mode',        stringify: false }
+
+    // 2. Each section → its localStorage key
+    var writeJson = function (key, val) {
+      if (val === undefined || val === null) return;
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
     };
-    Object.keys(v1Map).forEach(function (extraKey) {
-      if (extras[extraKey] === undefined || extras[extraKey] === null) return;
-      var spec = v1Map[extraKey];
-      try {
-        var val = spec.stringify ? JSON.stringify(extras[extraKey]) : String(extras[extraKey]);
-        localStorage.setItem(spec.key, val);
-      } catch (_) {}
-    });
-    // Apply theme immediately (Phase 1 darkmode.js otherwise reads the class on init)
+    var writeStr = function (key, val) {
+      if (val === undefined || val === null) return;
+      try { localStorage.setItem(key, String(val)); } catch (_) {}
+    };
+    writeJson('rp_phases', snapshot.phases || []);
+    if (snapshot.tracker) {
+      writeJson('rp_tracker_entries', snapshot.tracker.entries || {});
+      if (snapshot.tracker.startDate) writeStr('rp_tracker_start_date', snapshot.tracker.startDate);
+      if (snapshot.tracker.mode) writeStr('rp_tracker_mode', snapshot.tracker.mode);
+    }
+    writeJson('rp_networth_log', snapshot.networth || []);
+    writeJson('rp_expense_log', snapshot.expenses || {});
+    if (snapshot.profiles) {
+      writeJson('rp_profiles', snapshot.profiles.all || {});
+      if (snapshot.profiles.active) writeStr('rp_active_profile', snapshot.profiles.active);
+    }
+    if (snapshot.mc_settings) {
+      writeStr('rp_projection_view', snapshot.mc_settings.view || 'ideal');
+      writeStr('rp_mc_sim_count', snapshot.mc_settings.simCount || '10000');
+      if (snapshot.mc_settings.milestoneSrc) writeStr('rp_milestone_source', snapshot.mc_settings.milestoneSrc);
+    }
+    if (snapshot.meta) {
+      writeStr('rp_dark_mode', snapshot.meta.darkMode || 'false');
+    }
+
+    // Cleanup: dead keys from v1 should never be in localStorage. If they
+    // are (left over from a previous app version), remove them so they
+    // don't pollute future snapshots.
+    try { localStorage.removeItem('rp_multigoal_phases'); } catch (_) {}
+
+    // Apply theme immediately
     if (localStorage.getItem('rp_dark_mode') === 'true') document.body.classList.add('dark-mode');
     else document.body.classList.remove('dark-mode');
     // Re-hydrate every module's in-memory cache from the now-restored
@@ -186,13 +265,16 @@
     opts = opts || {};
     if (!supabase || !currentUser || pullingInProgress) return Promise.resolve();
     if (localChangedSinceLastPull && !opts.force) {
-      // We have unsaved local edits — flush those first instead of pulling.
       console.info('[persistence] skipping auto-pull because local has unsaved edits; pushing instead');
       return pushToCloud(true);
     }
     pullingInProgress = true;
     setStatus('Syncing...');
-    return supabase.from(TABLE).select('payload, updated_at').eq('user_id', currentUser.id).maybeSingle()
+    // v6: select all sectioned columns. The fallback `payload` column is
+    // kept for one-shot migration of old rows that haven't been split yet.
+    return supabase.from(TABLE)
+      .select('inputs, phases, tracker, networth, expenses, profiles, mc_settings, meta, payload, updated_at')
+      .eq('user_id', currentUser.id).maybeSingle()
       .then(function (res) {
         pullingInProgress = false;
         if (res.error) {
@@ -200,16 +282,36 @@
           setStatus('Sync error — check console', 'error');
           return;
         }
-        if (!res.data || !res.data.payload) {
-          // First-time user — push current local state up so we don't lose it
+        if (!res.data) {
           setStatus('First sync — saving current state...');
           return pushToCloud(true);
         }
-        restoreAppState(res.data.payload);
-        lastPushedPayloadJson = JSON.stringify(res.data.payload);
-        // After a successful pull, the in-memory + localStorage state matches
-        // cloud. Reset the dirty flag so subsequent local edits will trigger
-        // pushes again (and prevent further auto-pulls until the next load).
+        // v6: prefer sectioned columns. If they're empty (old row that hasn't
+        // been migrated yet), fall back to the legacy `payload` blob.
+        var hasSectioned = res.data.inputs || res.data.phases || res.data.tracker;
+        var snap;
+        if (hasSectioned) {
+          snap = {
+            inputs: res.data.inputs || {},
+            phases: res.data.phases || [],
+            tracker: res.data.tracker || {},
+            networth: res.data.networth || [],
+            expenses: res.data.expenses || {},
+            profiles: res.data.profiles || {},
+            mc_settings: res.data.mc_settings || {},
+            meta: res.data.meta || {}
+          };
+        } else if (res.data.payload) {
+          // Legacy row — restoreAppState handles the v2-blob backward compat
+          snap = res.data.payload;
+        } else {
+          setStatus('First sync — saving current state...');
+          return pushToCloud(true);
+        }
+        var pulledPhases = (snap.phases || []).map(function (p) { return p.name; });
+        console.info('[persist] PULL got cloud snapshot with phases:', pulledPhases);
+        restoreAppState(snap);
+        lastPushedPayloadJson = JSON.stringify(snap);
         initialPullDone = true;
         localChangedSinceLastPull = false;
         setStatus('Synced ' + new Date(res.data.updated_at).toLocaleTimeString(), 'ok');
@@ -221,17 +323,52 @@
       });
   }
 
-  // ---- Push current state to cloud (debounced via schedulePush) ----
+  // ---- Push current state to cloud ----
+  // If a push is already in-flight when called, mark "another push needed"
+  // and re-fire when the in-flight one finishes. Without this, rapid edits
+  // would silently drop later changes (3 deletes in 100ms = only first
+  // makes it to cloud).
+  var pushQueued = false;
   function pushToCloud(force) {
-    if (!supabase || !currentUser || pushingInProgress) return Promise.resolve();
+    if (!supabase || !currentUser) {
+      console.warn('[persist] pushToCloud SKIPPED — no user yet (signed_in=' + !!currentUser + ')');
+      return Promise.resolve();
+    }
+    if (pushingInProgress) {
+      console.info('[persist] push already in-flight, queuing');
+      pushQueued = true;
+      return Promise.resolve();
+    }
     var snapshot = snapshotAppState();
     var snapshotJson = JSON.stringify(snapshot);
-    if (!force && snapshotJson === lastPushedPayloadJson) return Promise.resolve();
+    if (!force && snapshotJson === lastPushedPayloadJson) {
+      console.info('[persist] push skipped — no diff vs lastPushed');
+      return Promise.resolve();
+    }
     pushingInProgress = true;
     setStatus('Saving...');
-    return supabase.from(TABLE).upsert({ user_id: currentUser.id, payload: snapshot }, { onConflict: 'user_id' })
+    var phasesPreview = (snapshot.phases || []).map(function (p) { return p.name; });
+    console.info('[persist] PUSH STARTING with phases:', phasesPreview);
+    // v6: upsert sectioned columns. Each section is its own JSONB column.
+    return supabase.from(TABLE).upsert({
+      user_id: currentUser.id,
+      inputs: snapshot.inputs,
+      phases: snapshot.phases,
+      tracker: snapshot.tracker,
+      networth: snapshot.networth,
+      expenses: snapshot.expenses,
+      profiles: snapshot.profiles,
+      mc_settings: snapshot.mc_settings,
+      meta: snapshot.meta
+    }, { onConflict: 'user_id' })
       .then(function (res) {
         pushingInProgress = false;
+        if (res.error) {
+          console.error('[persist] PUSH FAILED:', res.error);
+        } else {
+          console.info('[persist] PUSH OK with phases:', phasesPreview);
+        }
+        if (pushQueued) { pushQueued = false; setTimeout(function () { pushToCloud(true); }, 50); }
         if (res.error) {
           console.error('[persistence] push error:', res.error);
           setStatus('Save error — check console', 'error');
@@ -250,6 +387,9 @@
       });
   }
 
+  // Debounced push — used for input-event auto-sync only (typing in form
+  // fields). Mutator writes use pushToCloud(true) directly via the monkey-
+  // patched localStorage.setItem above.
   function schedulePush() {
     if (!currentUser) return;
     if (pushTimer) clearTimeout(pushTimer);
@@ -396,28 +536,97 @@
         el.addEventListener('input', schedulePush);
       });
     }
-    // Monkey-patch localStorage.setItem (idempotent — guard with a flag)
-    if (!localStorage._rpPatched) {
-      var origSetItem = localStorage.setItem.bind(localStorage);
-      var origRemoveItem = localStorage.removeItem.bind(localStorage);
-      localStorage.setItem = function (key, value) {
-        origSetItem(key, value);
-        if (restoringInProgress) return; // writes during cloud restore are not user edits
-        if (typeof key === 'string' && key.indexOf('rp_') === 0 && !UI_ONLY_KEYS_RE.test(key)) {
+    // Explicit save-hook approach (replaces the brittle localStorage.setItem
+    // monkey-patch which got reverted by browser extensions like uBlock).
+    // Wrap each module's _save / save function so it ALSO triggers a cloud
+    // push. This is direct + cannot be reverted by anything external.
+    // Run multiple times since some modules (like _multigoal) may not yet
+    // exist or may redefine themselves later in the boot sequence.
+    wrapModuleSavers();
+    setTimeout(wrapModuleSavers, 100);
+    setTimeout(wrapModuleSavers, 500);
+    setTimeout(wrapModuleSavers, 2000);
+  }
+
+  // Wrap each known mutator function so it auto-pushes after saving locally.
+  // Idempotent — guards via _rpWrapped flag on each wrapped function.
+  function wrapModuleSavers() {
+    // Multi-Goal phases
+    if (RP._multigoal && typeof RP._multigoal._save === 'function' && !RP._multigoal._save._rpWrapped) {
+      var origMG = RP._multigoal._save;
+      RP._multigoal._save = function () {
+        var r = origMG.apply(this, arguments);
+        if (!restoringInProgress) {
+          console.info('[persist] _multigoal._save fired — pushing');
           localChangedSinceLastPull = true;
-          schedulePush();
+          pushToCloud(true);
         }
+        return r;
       };
-      localStorage.removeItem = function (key) {
-        origRemoveItem(key);
-        if (restoringInProgress) return;
-        if (typeof key === 'string' && key.indexOf('rp_') === 0 && !UI_ONLY_KEYS_RE.test(key)) {
-          localChangedSinceLastPull = true;
-          schedulePush();
-        }
-      };
-      localStorage._rpPatched = true;
+      RP._multigoal._save._rpWrapped = true;
     }
+    // Tracker
+    if (typeof RP.saveTrackerToStorage === 'function' && !RP.saveTrackerToStorage._rpWrapped) {
+      var origT = RP.saveTrackerToStorage;
+      RP.saveTrackerToStorage = function () {
+        var r = origT.apply(this, arguments);
+        if (!restoringInProgress) {
+          console.info('[persist] saveTrackerToStorage fired — pushing');
+          localChangedSinceLastPull = true;
+          pushToCloud(true);
+        }
+        return r;
+      };
+      RP.saveTrackerToStorage._rpWrapped = true;
+    }
+    // Net Worth (uses raw localStorage in calc-networth.js)
+    ['addNetWorthEntry', 'deleteNetWorthEntry'].forEach(function (fn) {
+      if (typeof RP[fn] === 'function' && !RP[fn]._rpWrapped) {
+        var orig = RP[fn];
+        RP[fn] = function () {
+          var r = orig.apply(this, arguments);
+          if (!restoringInProgress) {
+            console.info('[persist] ' + fn + ' fired — pushing');
+            localChangedSinceLastPull = true;
+            pushToCloud(true);
+          }
+          return r;
+        };
+        RP[fn]._rpWrapped = true;
+      }
+    });
+    // Expense Log
+    if (typeof RP.saveExpenseMonth === 'function' && !RP.saveExpenseMonth._rpWrapped) {
+      var origE = RP.saveExpenseMonth;
+      RP.saveExpenseMonth = function () {
+        var r = origE.apply(this, arguments);
+        if (!restoringInProgress) {
+          console.info('[persist] saveExpenseMonth fired — pushing');
+          localChangedSinceLastPull = true;
+          pushToCloud(true);
+        }
+        return r;
+      };
+      RP.saveExpenseMonth._rpWrapped = true;
+    }
+    // Profiles (saveProfile / loadProfile / deleteProfile / _setActiveProfileName).
+    // _setActiveProfileName is the actual localStorage writer for active-profile;
+    // loadProfile calls it and also restores all the input values.
+    ['saveProfile', 'loadProfile', 'deleteProfile', '_setActiveProfileName'].forEach(function (fn) {
+      if (typeof RP[fn] === 'function' && !RP[fn]._rpWrapped) {
+        var orig = RP[fn];
+        RP[fn] = function () {
+          var r = orig.apply(this, arguments);
+          if (!restoringInProgress) {
+            console.info('[persist] ' + fn + ' fired — pushing');
+            localChangedSinceLastPull = true;
+            pushToCloud(true);
+          }
+          return r;
+        };
+        RP[fn]._rpWrapped = true;
+      }
+    });
   }
 
   // ---- Init ----
