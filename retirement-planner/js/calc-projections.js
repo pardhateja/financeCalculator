@@ -260,14 +260,32 @@ RP.generateProjections = function () {
 
       // For CURRENT row, capture running balance at "today" so currentSavings
       // can reflect today's actual corpus (not start-of-year).
+      // Only count SIPs from FULLY-COMPLETED months before today's month.
+      // Today's own month is "in progress" — not yet deposited (the engine
+      // adds the user's monthly SIP only when the cutoff day passes; until
+      // then it's not in the actual balance).
+      // Pardha bug catch 2026-05-03: previously included today's-month SIP
+      // (e.g. May 2.1L on May 3), inflating "Current Total Savings" by that
+      // amount of money the user hadn't actually invested yet.
       if (isCurrent) {
         let bal = starting;
         const todayMonthIdx = (today.getFullYear() - windowStart.getFullYear()) * 12
                             + (today.getMonth() - windowStart.getMonth());
-        for (let m = 0; m <= todayMonthIdx; m++) {
+        // Walk through fully-completed months (m < todayMonthIdx).
+        for (let m = 0; m < todayMonthIdx; m++) {
           if (sips[m]) bal += sips[m];
-          if (m < todayMonthIdx) bal *= (1 + monthlyRate);
+          bal *= (1 + monthlyRate);
         }
+        // Today's-month: include the SIP only if today's day has passed the
+        // SIP cutoff day (e.g. on May 20 May's 2.1L is already invested).
+        // Compound from start-of-month to today proportionally (days/30).
+        if (today.getDate() > cutoffDay && sips[todayMonthIdx]) {
+          bal += sips[todayMonthIdx];
+        }
+        // Partial-month interest from start-of-month to today.
+        const dayOfMonth = today.getDate();
+        const partialMonthFraction = (dayOfMonth - 1) / 30;
+        bal *= Math.pow(1 + monthlyRate, partialMonthFraction);
         runningTodayBalance = bal;
         RP._currentRowIdx = rows.length;
       }
