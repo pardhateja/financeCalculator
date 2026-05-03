@@ -250,9 +250,12 @@ RP.generateProjections = function () {
 
     let row;
     if (status === 'Dead') {
+      // Dead row inherits the same past/current/future flags as any
+      // row — based on whether its window has passed today's date.
       row = { age, starting: 0, annualSavings: 0, growth: 0, ending: 0,
-              status: 'Dead', expenses: 0, monthsInYear: 12, isPast: true,
-              isCurrent: false, isFuture: false, windowStart: windowStart };
+              status: 'Dead', expenses: 0, monthsInYear: 12,
+              isPast: isPast, isCurrent: isCurrent, isFuture: isFuture,
+              windowStart: windowStart };
     } else {
       const starting = balance;
       const result = RP._compoundYear(starting, sips, monthlyRate, expensesMonthly);
@@ -344,7 +347,9 @@ RP.generateProjections = function () {
       const ageLabel = r.age + ' <span style="font-size:0.78em;color:var(--text-secondary,#94a3b8);font-weight:normal;">(' + yr + ') ' + phaseTag + '</span>';
       const lumpG = r.growthOnLumpsum || 0;
       const sipG  = r.growthOnSips || 0;
-      const growthCell = '<div class="growth-stack">'
+      const growthCell = (r.status === 'Dead')
+        ? '<div style="text-align:center;color:var(--text-secondary,#94a3b8);">—</div>'
+        : '<div class="growth-stack">'
         +   '<div class="growth-row growth-row--lumpsum" title="Interest on the corpus carried in from prior years">'
         +     '<span class="growth-icon">📦</span>'
         +     '<span class="growth-label">Lumpsum</span>'
