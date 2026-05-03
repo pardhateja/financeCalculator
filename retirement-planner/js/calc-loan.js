@@ -51,26 +51,45 @@ RP.calculateLoan = function () {
 };
 
 RP.simulateProjection = function (curAge, retAge, lifeExp, savings, monthlyInvest, emiDeduction, stepUp, preReturn, postReturn, inflation, postRetireMonthly, loanYears) {
+    // Pardha audit fix #6: monthly compounding + year-1 partial fraction
+    // matching the anchored projection engine.
+    const monthlyPre  = Math.pow(1 + preReturn,  1/12) - 1;
+    const monthlyPost = Math.pow(1 + postReturn, 1/12) - 1;
+    const monthsRemFirstYear = (typeof RP._monthsRemainingThisBirthdayYear === 'function')
+        ? RP._monthsRemainingThisBirthdayYear() : 12;
+
     let starting = savings;
-    let annualInvest = (monthlyInvest - emiDeduction) * 12;
     let corpus = 0;
     let runsOut = null;
 
     for (let age = curAge; age <= lifeExp; age++) {
+        const isFirstYear = (age === curAge);
+        const monthsThisYear = isFirstYear ? monthsRemFirstYear : 12;
+
         if (age < retAge) {
-            const growth = starting * preReturn;
-            starting = starting + growth + Math.max(0, annualInvest);
-            // After loan tenure, restore full investment
-            if (loanYears && (age - curAge) >= loanYears) {
-                annualInvest = monthlyInvest * 12 * Math.pow(1 + stepUp, age - curAge);
-            } else {
-                annualInvest = (monthlyInvest - emiDeduction) * 12 * Math.pow(1 + stepUp, age - curAge);
+            const yearsFromCurrent = age - curAge;
+            const stepFactor = Math.pow(1 + stepUp, yearsFromCurrent);
+            // After loan tenure, restore full SIP; during loan, deduct EMI.
+            const monthlyContribFull = monthlyInvest * stepFactor;
+            const monthlyContribDuringLoan = Math.max(0, (monthlyInvest - emiDeduction) * stepFactor);
+            const isLoanActive = loanYears && yearsFromCurrent < loanYears;
+            const planned = isLoanActive ? monthlyContribDuringLoan : monthlyContribFull;
+            let bal = starting;
+            for (let m = 0; m < monthsThisYear; m++) {
+                bal += planned;
+                bal *= (1 + monthlyPre);
             }
+            starting = bal;
             if (age === retAge - 1) corpus = starting;
         } else if (age < lifeExp) {
             const yearsFromNow = age - curAge;
-            const expense = postRetireMonthly * Math.pow(1 + inflation, yearsFromNow) * 12;
-            starting = starting + starting * postReturn - expense;
+            const monthlyExp = postRetireMonthly * Math.pow(1 + inflation, yearsFromNow);
+            let bal = starting;
+            for (let m = 0; m < monthsThisYear; m++) {
+                bal -= monthlyExp;
+                bal *= (1 + monthlyPost);
+            }
+            starting = bal;
             if (starting < 0 && runsOut === null) runsOut = age;
         }
     }
