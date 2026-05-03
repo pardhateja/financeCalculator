@@ -98,27 +98,45 @@ RP._trackerSipsInWindow = function (windowStart, windowEnd) {
 };
 
 /* Run a 12-month SIP loop using calc-sip.js style monthly compounding.
- * sips[i] = amount invested at start of month i. Returns { ending, sipTotal,
- * growthOnSeed, growthOnSips }. seed earns full N months of interest;
- * each SIP earns interest for the months remaining after its own deposit. */
+ * sips[i] = amount invested at start of month i.
+ *
+ * Returns { ending, sipTotal, growth, growthOnLumpsum, growthOnSips,
+ * expenses }. To split growth between "interest on the existing corpus
+ * (lumpsum)" and "interest on new SIPs deposited this year", we track
+ * two parallel balances:
+ *   - lumpBalance: starts at seedStart, only compounds (no SIP added)
+ *   - sipBalance:  starts at 0, accumulates sips and compounds them
+ * In retirement, expenses are debited from the lumpsum balance first
+ * (since SIPs are zero anyway). */
 RP._compoundYear = function (seedStart, sips, monthlyRate, expensesMonthly) {
-  let balance = seedStart;
+  let lumpBalance = seedStart;
+  let sipBalance = 0;
   let sipTotal = 0;
   let expenseTotal = 0;
   for (let m = 0; m < 12; m++) {
     if (sips && sips[m]) {
-      balance += sips[m];
+      sipBalance += sips[m];
       sipTotal += sips[m];
     }
     if (expensesMonthly) {
-      balance -= expensesMonthly;
+      lumpBalance -= expensesMonthly;
       expenseTotal += expensesMonthly;
     }
-    balance *= (1 + monthlyRate);
+    lumpBalance *= (1 + monthlyRate);
+    sipBalance  *= (1 + monthlyRate);
   }
-  // Decompose growth: total - (seed + sipTotal - expenseTotal) = growth.
-  const growth = balance - (seedStart + sipTotal - expenseTotal);
-  return { ending: balance, sipTotal: sipTotal, growth: growth, expenses: expenseTotal };
+  const balance = lumpBalance + sipBalance;
+  const growthOnLumpsum = lumpBalance - (seedStart - expenseTotal);
+  const growthOnSips    = sipBalance - sipTotal;
+  const growth = growthOnLumpsum + growthOnSips;
+  return {
+    ending: balance,
+    sipTotal: sipTotal,
+    growth: growth,
+    growthOnLumpsum: growthOnLumpsum,
+    growthOnSips: growthOnSips,
+    expenses: expenseTotal
+  };
 };
 
 /* ---------- Main projection ---------- */
@@ -258,6 +276,8 @@ RP.generateProjections = function () {
         age, starting,
         annualSavings: result.sipTotal,
         growth: result.growth,
+        growthOnLumpsum: result.growthOnLumpsum,
+        growthOnSips: result.growthOnSips,
         ending: ending,
         status, expenses: result.expenses,
         monthsInYear: 12,
@@ -304,11 +324,18 @@ RP.generateProjections = function () {
                      : r.isCurrent ? '<span class="phase-tag current">Now</span>'
                      :               '';
       const ageLabel = r.age + ' <span style="font-size:0.78em;color:var(--text-secondary,#94a3b8);font-weight:normal;">(' + yr + ') ' + phaseTag + '</span>';
+      const lumpG = r.growthOnLumpsum || 0;
+      const sipG  = r.growthOnSips || 0;
+      const growthCell = '<div class="growth-total">' + RP.formatCurrency(r.growth) + '</div>'
+        + '<div class="growth-split">'
+        +   '<span class="growth-lumpsum" title="Interest earned on the existing corpus carried over from prior year">📦 ' + RP.formatCurrency(lumpG) + '</span>'
+        +   '<span class="growth-sip" title="Interest earned on this year’s SIP contributions, compounded month by month">💧 ' + RP.formatCurrency(sipG) + '</span>'
+        + '</div>';
       return '<tr class="' + rowClass + '">' +
         '<td>' + ageLabel + '</td>' +
         '<td>' + RP.formatCurrency(r.starting) + '</td>' +
         '<td>' + RP.formatCurrency(r.annualSavings) + '</td>' +
-        '<td>' + RP.formatCurrency(r.growth) + '</td>' +
+        '<td>' + growthCell + '</td>' +
         '<td>' + RP.formatCurrency(r.ending) + '</td>' +
         '<td><span class="status-badge ' + r.status.toLowerCase() + '">' + r.status + '</span></td>' +
         '<td>' + (r.expenses ? RP.formatCurrency(r.expenses) : '-') + '</td>' +

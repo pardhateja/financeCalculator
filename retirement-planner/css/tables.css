@@ -147,3 +147,25 @@
 .phase-tag { display: inline-block; margin-left: 4px; padding: 1px 6px; border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; }
 .phase-tag.past { background: rgba(100, 116, 139, 0.18); color: #475569; }
 .phase-tag.current { background: rgba(37, 99, 235, 0.18); color: #1d4ed8; }
+
+/* Growth column split: total on top, lumpsum + SIP breakdown beneath. */
+.projection-table .growth-total { font-weight: 600; }
+.projection-table .growth-split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--text-secondary, #64748b);
+  font-weight: 500;
+}
+.projection-table .growth-lumpsum,
+.projection-table .growth-sip {
+  white-space: nowrap;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(100, 116, 139, 0.08);
+  cursor: help;
+}
+.projection-table .growth-lumpsum { color: #475569; }
+.projection-table .growth-sip { color: #0d9488; background: rgba(13, 148, 136, 0.10); }
