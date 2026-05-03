@@ -9,9 +9,13 @@
  * lied. Cleaned up to make the data flow honest.
  */
 RP._trackerMode = 'default';
-RP._trackerEntries = {}; // key: "y0m3" -> {actual: 50000, completed: true, date: '2026-04-03'}
+// v3 key format: ABSOLUTE "YYYY-MM" keys (e.g. "2026-04" for April 2026).
+// Older relative format ("y0m3") was buggy — changing the anchor month
+// would silently re-label every existing entry. v3 stores the real date
+// in the key so the anchor is purely a view filter.
+RP._trackerEntries = {};
 RP._trackerModalTarget = null;
-RP._trackerStartDate = null; // Anchor month for the grid. Persisted on first run; never auto-changes.
+RP._trackerStartDate = null; // Anchor month for the grid (view filter only — never affects data).
 
 // Phase 3-A fix: persistent grid anchor. Default the FIRST time the user
 // opens Tracker; from then on, all grid offsets are computed from this date,
@@ -33,6 +37,77 @@ RP._getTrackerStart = function () {
     return RP._trackerStartDate;
 };
 
+// One-time migration from legacy relative keys ("y0m3") to absolute
+// year-month keys ("2026-04"). Runs at every init; safely no-ops once done.
+// Why: the old key encoding embedded the anchor offset, so changing the
+// anchor month silently re-labeled every entry. Absolute keys make the
+// anchor purely a view filter — data is anchor-independent.
+RP._migrateTrackerKeysToAbsolute = function () {
+    const start = RP._getTrackerStart();
+    const legacyRe = /^y(\d+)m(\d+)$/;
+    let migrated = 0;
+    Object.keys(RP._trackerEntries).forEach(function (k) {
+        const m = legacyRe.exec(k);
+        if (!m) return; // already absolute or unknown shape — leave alone
+        const yi = parseInt(m[1], 10);
+        const mi = parseInt(m[2], 10);
+        const d = new Date(start.year, start.month + (yi * 12) + mi, 1);
+        const newKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        // If a real absolute entry already exists at this slot, keep it
+        // (don't overwrite); otherwise move the legacy entry over.
+        if (!RP._trackerEntries[newKey]) {
+            RP._trackerEntries[newKey] = RP._trackerEntries[k];
+        }
+        delete RP._trackerEntries[k];
+        migrated++;
+    });
+    if (migrated > 0) {
+        try { localStorage.setItem('rp_tracker_entries', JSON.stringify(RP._trackerEntries)); } catch (_) {}
+        console.info('[tracker] migrated ' + migrated + ' legacy key(s) to absolute YYYY-MM format');
+    }
+};
+
+// Populate the "Started using app from" dropdown in Settings popover with 36
+// past months + current month. Pre-selects the persisted anchor. On change:
+// saves new anchor + re-renders the grid + cloud-syncs. Safe to call multiple
+// times — guards via _wired flag.
+RP._wireTrackerStartSelect = function () {
+    const sel = document.getElementById('trackerStartSelect');
+    if (!sel || sel._wired) return;
+    sel._wired = true;
+
+    const today = new Date();
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const opts = [];
+    for (let i = 36; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        const label = monthNames[d.getMonth()] + ' ' + d.getFullYear() + (i === 0 ? '  (this month)' : '');
+        opts.push({ key: k, label: label });
+    }
+    sel.innerHTML = opts.map(o => '<option value="' + o.key + '">' + o.label + '</option>').join('');
+
+    // Pre-select the currently-stored anchor
+    const stored = localStorage.getItem('rp_tracker_start_date');
+    if (stored && /^\d{4}-\d{2}$/.test(stored)) {
+        sel.value = stored;
+    } else {
+        sel.value = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+    }
+
+    sel.addEventListener('change', function () {
+        const newVal = sel.value;
+        if (!/^\d{4}-\d{2}$/.test(newVal)) return;
+        localStorage.setItem('rp_tracker_start_date', newVal);
+        RP._trackerStartDate = null; // force re-read from localStorage
+        RP._getTrackerStart();
+        RP.renderTracker();
+        if (RP.persistence && typeof RP.persistence.pushNow === 'function') {
+            RP.persistence.pushNow();
+        }
+    });
+};
+
 RP.initTracker = function () {
     // Load from localStorage
     const saved = localStorage.getItem('rp_tracker_entries');
@@ -43,6 +118,24 @@ RP.initTracker = function () {
 
     // Initialize the grid anchor (first run = today; subsequent runs = persisted)
     RP._getTrackerStart();
+
+    // v3 migration: convert any legacy "y0m3" keys to absolute "YYYY-MM" keys
+    // using the CURRENT anchor as the reference point. Idempotent — running
+    // this twice on already-migrated data is a no-op since absolute keys
+    // don't match the legacy regex.
+    RP._migrateTrackerKeysToAbsolute();
+
+    // Wire the Settings dropdown ("Started using app from"). Try once now;
+    // also re-try when the Settings popover opens (in case other code
+    // re-renders that area).
+    RP._wireTrackerStartSelect();
+    const settingsBtn = document.getElementById('settingsToggleBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function () {
+            // Defer one tick so the popover content is in the DOM
+            setTimeout(RP._wireTrackerStartSelect, 50);
+        });
+    }
 
     // View mode toggle
     document.querySelectorAll('.view-mode-btn').forEach(btn => {
@@ -106,8 +199,9 @@ RP.getTrackerMonths = function () {
             planned = baseSIP * Math.pow(1 + stepUp, yearIndex);
         }
 
-        // Custom mode: check if user has a custom target saved
-        const key = 'y' + yearIndex + 'm' + monthIndex;
+        // v3: ABSOLUTE key — survives any anchor change. The user-visible
+        // identity of an entry is the actual year+month it represents.
+        const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
         const entry = RP._trackerEntries[key];
 
         if (RP._trackerMode === 'custom' && entry && entry.customTarget != null) {

@@ -57,6 +57,16 @@ cat > "$OUT" << 'HEAD'
                             <span class="settings-item-icon">⚠️</span>
                             <span class="settings-item-label">Reset to defaults</span>
                         </button>
+                        <!-- Phase 3-A: Tracker history start (so you can backdate the
+                             grid to whatever month you actually started using the app) -->
+                        <div class="persistence-drawer">
+                            <h4 class="persistence-drawer__title">Tracker history</h4>
+                            <div class="persistence-row">
+                                <label for="trackerStartSelect" class="persistence-row__label">Started using app from</label>
+                                <select id="trackerStartSelect" class="persistence-email-input" style="flex:1;min-width:140px"></select>
+                            </div>
+                            <p class="persistence-row__hint" style="margin-top:6px">Pick the earliest month you want to see in Tracker. Past months will be visible &amp; editable so you can backfill data.</p>
+                        </div>
                         <!-- Phase 3-A: Cloud sync drawer (sign-in + status + manual backup) -->
                         <div class="persistence-drawer">
                             <h4 class="persistence-drawer__title">Cloud sync</h4>
