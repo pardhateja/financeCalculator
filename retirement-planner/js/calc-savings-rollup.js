@@ -14,15 +14,18 @@
 (function () {
     'use strict';
 
-    /* Read post-tax annual rate. Falls back to defaults if Financial Plan
-     * hasn't computed yet at first render. */
-    function getPostTaxAnnualRate() {
-        const preReturn = (typeof RP._preReturn === 'number' && isFinite(RP._preReturn) && RP._preReturn > 0)
-            ? RP._preReturn
-            : 0.10; // 10% default if not yet computed
-        const taxRatePct = (typeof RP.val === 'function') ? RP.val('taxRate') : 30;
-        const taxRate = (Number.isFinite(taxRatePct) ? taxRatePct : 30) / 100;
-        return preReturn * (1 - taxRate);
+    /* Read the active annual return used to compound past Tracker contributions
+     * forward to today. Aligned with the same rate Projections uses, so the
+     * compounded value of a contribution doesn't change at the today/tomorrow
+     * boundary (Pardha v2026-05-03: V1 was applying a redundant flat-30% tax
+     * to a portfolio that's mostly equity, producing 8.84% here while
+     * Projections grew the same money at 12.63% — internally inconsistent).
+     * Falls back to a sane default if Financial Plan hasn't computed yet. */
+    function getActiveAnnualRate() {
+        if (typeof RP._preReturn === 'number' && isFinite(RP._preReturn) && RP._preReturn > 0) {
+            return RP._preReturn;
+        }
+        return 0.10; // 10% default if not yet computed
     }
 
     /* Walk RP._trackerEntries (object keyed by "y{N}m{N}"), compound each
@@ -35,11 +38,11 @@
             return { contributions: 0, interest: 0, total: 0 };
         }
         const entries = RP._trackerEntries;
-        const postTaxAnnual = getPostTaxAnnualRate();
-        if (!Number.isFinite(postTaxAnnual) || postTaxAnnual < 0) {
+        const annualRate = getActiveAnnualRate();
+        if (!Number.isFinite(annualRate) || annualRate < 0) {
             return { contributions: 0, interest: 0, total: 0 };
         }
-        const monthlyRate = Math.pow(1 + postTaxAnnual, 1 / 12) - 1;
+        const monthlyRate = Math.pow(1 + annualRate, 1 / 12) - 1;
 
         const today = new Date();
         let contributions = 0;
@@ -137,12 +140,11 @@
             seedEl.addEventListener('input', RP._computeSavingsRollup);
             seedEl._rollupWired = true;
         }
-        // Re-compute when the tax rate changes (affects monthly compounding rate)
-        const taxEl = document.getElementById('taxRate');
-        if (taxEl && !taxEl._rollupWired) {
-            taxEl.addEventListener('input', RP._computeSavingsRollup);
-            taxEl._rollupWired = true;
-        }
+        // Pardha v2026-05-03: dropped taxRate listener — Tracker rollup now
+        // uses the same gross blended return as Projections (no separate tax
+        // multiplier), so changes to the global taxRate field don't affect
+        // it anymore. The Financial Plan inputs (returns/shares) still
+        // trigger recompute via calc-financial-plan's calculateAll cascade.
         // Initial compute after Financial Plan + Tracker have populated their state
         // (small delay so calc-financial-plan's RP._preReturn is set first).
         setTimeout(() => {
