@@ -482,6 +482,36 @@
         wireVariant(variant);
         try { compute(variant); } catch (e) { console.warn('RT initial compute failed:', e); }
       });
+      // Pardha 2026-05-04: when currentSavings changes upstream (e.g. user
+      // adds a Tracker entry → cascade rewrites currentSavings), update
+      // both Retire Today corpus inputs to match — but ONLY if the user
+      // hasn't manually overridden the corpus value (we can't tell user-
+      // edits from auto-prefills, so a simple heuristic: only auto-update
+      // when the field shows the OLD currentSavings value).
+      var csEl = document.getElementById('currentSavings');
+      if (csEl && !csEl._rtListenerWired) {
+        var lastSeen = csEl.value;
+        function onCsChange() {
+          var newVal = csEl.value;
+          ['rtCorpusToday', 'rtMgCorpusToday'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && el.value === lastSeen) {
+              el.value = newVal;
+              el.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          });
+          lastSeen = newVal;
+        }
+        csEl.addEventListener('change', onCsChange);
+        // currentSavings is set programmatically (no input event), so also
+        // observe via MutationObserver on its value attribute. Browsers
+        // don't fire input/change for programmatic .value writes; use a
+        // periodic poll as the simplest cross-browser option.
+        setInterval(function () {
+          if (csEl.value !== lastSeen) onCsChange();
+        }, 800);
+        csEl._rtListenerWired = true;
+      }
     }, 600);
   }
 

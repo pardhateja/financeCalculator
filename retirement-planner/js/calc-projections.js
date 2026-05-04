@@ -288,10 +288,18 @@ RP._runProjection = function (preReturn, postReturn) {
           if (sips[m]) bal += sips[m];
           bal *= (1 + monthlyRate);
         }
-        // Today's-month: include the SIP only if today's day has passed the
-        // SIP cutoff day (e.g. on May 20 May's 2.1L is already invested).
-        // Compound from start-of-month to today proportionally (days/30).
-        if (today.getDate() > cutoffDay && sips[todayMonthIdx]) {
+        // Today's-month: include the SIP if EITHER:
+        //   (a) the user logged an actual Tracker entry for this month
+        //       (real money already invested — Pardha catch 2026-05-04)
+        //   (b) today's day has passed the SIP cutoff day (e.g. May 20
+        //       and May's 2.1L planned SIP is by-now invested)
+        // Tracker entry presence is the source of truth: if it's there,
+        // include it regardless of cutoff. Otherwise fall back to the
+        // cutoff-based rule for planned SIPs.
+        const todayMonthKey = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+        const hasActualTrackerEntry = !!(RP._trackerEntries && RP._trackerEntries[todayMonthKey] && RP._trackerEntries[todayMonthKey].completed);
+        const cutoffPassed = today.getDate() > cutoffDay;
+        if ((hasActualTrackerEntry || cutoffPassed) && sips[todayMonthIdx]) {
           bal += sips[todayMonthIdx];
         }
         // Partial-month interest from start-of-month to today.
