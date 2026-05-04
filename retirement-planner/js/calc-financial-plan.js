@@ -47,6 +47,24 @@ RP.calculateFinancialPlan = function () {
     RP._preReturn = preBlendedR / 100;
     RP._postReturn = postBlendedR / 100;
 
+    // Pardha 2026-05-04: also compute AFTER-TAX blended returns (per-asset
+    // tax × share, summed). Surfaced ONLY in summary cards as a "after-tax:
+    // ₹X" subtitle. Not used inside projection chain — main table stays
+    // untaxed (the YouTuber-standard view) for trust + simplicity.
+    let prePostTaxR = 0, postPostTaxR = 0;
+    if (preSumShares > 0) {
+        prePostTaxR = preShares.reduce(function (sum, s, i) {
+            return sum + s * preReturns[i] * (1 - preTaxes[i] / 100);
+        }, 0) / preSumShares;
+    }
+    if (postSumShares > 0) {
+        postPostTaxR = postShares.reduce(function (sum, s, i) {
+            return sum + s * postReturns[i] * (1 - postTaxes[i] / 100);
+        }, 0) / postSumShares;
+    }
+    RP._preReturnAfterTax  = prePostTaxR / 100;
+    RP._postReturnAfterTax = postPostTaxR / 100;
+
     // Savings dashboard
     const savings = RP.val('currentSavings');
     const monthlyInvest = RP.val('monthlyInvestAmt');

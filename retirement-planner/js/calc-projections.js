@@ -141,7 +141,11 @@ RP._compoundYear = function (seedStart, sips, monthlyRate, expensesMonthly) {
 
 /* ---------- Main projection ---------- */
 
-RP.generateProjections = function () {
+/* Pure projection: returns rows + summary numbers for the given rate pair.
+ * Used twice — once at gross blended (main table) and once at after-tax
+ * (overlay subtitles on summary cards). Pure-ish: reads localStorage +
+ * inputs, but doesn't write to DOM. */
+RP._runProjection = function (preReturn, postReturn) {
   const seed = RP.val('currentSavingsSeed');
   const monthlyInvest = RP.val('monthlyInvestAmt');
   const stepUpPct = RP.val('stepUpRate') / 100;
@@ -150,8 +154,6 @@ RP.generateProjections = function () {
   const retAge = RP.val('retirementAge');
   const lifeExp = RP.val('lifeExpectancy');
 
-  const preReturn = RP._preReturn || 0.08;
-  const postReturn = RP._postReturn || 0.05;
   const monthlyPre = Math.pow(1 + preReturn, 1 / 12) - 1;
   const monthlyPost = Math.pow(1 + postReturn, 1 / 12) - 1;
 
@@ -321,29 +323,60 @@ RP.generateProjections = function () {
     RP._chartData.push({ age: row.age, ending: row.ending });
   }
 
+  // Compute summary numbers (consumed by both gross + after-tax overlay).
+  const legacyRowFound = rows.find(function (r) { return r.isLegacy; });
+  const legacyCorpus = (legacyRowFound && legacyRowFound.ending > 0) ? legacyRowFound.ending : 0;
+
+  return {
+    rows: rows,
+    corpusAtRetirement: corpusAtRetirement,
+    legacyCorpus: legacyCorpus,
+    runsOutAge: runsOutAge,
+    runningTodayBalance: runningTodayBalance,
+    anchorAge: anchorAge,
+    retAge: retAge,
+    lifeExp: lifeExp,
+    seed: seed
+  };
+};
+
+/* Public entry point. Runs the gross-rate projection (main table), then
+ * runs an after-tax projection in the background just for the overlay.
+ * No DOM render in _runProjection — all DOM writes happen here. */
+RP.generateProjections = function () {
+  const preReturn = RP._preReturn || 0.08;
+  const postReturn = RP._postReturn || 0.05;
+  const result = RP._runProjection(preReturn, postReturn);
+  const rows = result.rows;
   RP._projectionRows = rows;
 
-  // Update currentSavings field to reflect today's running balance (computed,
-  // not user-input). Falls back to anchor seed if no current row found.
+  // Update currentSavings field to reflect today's running balance.
   const csEl = document.getElementById('currentSavings');
-  if (csEl && runningTodayBalance !== null) {
-    csEl.value = Math.round(runningTodayBalance);
+  if (csEl && result.runningTodayBalance !== null) {
+    csEl.value = Math.round(result.runningTodayBalance);
   } else if (csEl) {
-    csEl.value = Math.round(seed);
+    csEl.value = Math.round(result.seed);
   }
 
-  // Summary cards
-  RP.setText('corpusAtRetirement', RP.formatCurrencyShort(corpusAtRetirement));
-  RP.setText('yearsEarning', Math.max(0, retAge - anchorAge));
-  RP.setText('yearsRetired', Math.max(0, lifeExp - retAge));
-  RP.setText('runsOutAge', runsOutAge ? 'Age ' + runsOutAge : 'Never');
-  // Legacy: corpus left at end of life-expectancy. Pulled from the row
-  // tagged isLegacy (or last Retired row's ending if no legacy row was
-  // built). 0 if money ran out before life expectancy.
-  const legacyRow = rows.find(function (r) { return r.isLegacy; });
-  let legacyCorpus = 0;
-  if (legacyRow && legacyRow.ending > 0) legacyCorpus = legacyRow.ending;
-  RP.setText('legacyCorpus', RP.formatCurrencyShort(legacyCorpus));
+  // Summary cards (gross numbers)
+  RP.setText('corpusAtRetirement', RP.formatCurrencyShort(result.corpusAtRetirement));
+  RP.setText('yearsEarning', Math.max(0, result.retAge - result.anchorAge));
+  RP.setText('yearsRetired', Math.max(0, result.lifeExp - result.retAge));
+  RP.setText('runsOutAge', result.runsOutAge ? 'Age ' + result.runsOutAge : 'Never');
+  RP.setText('legacyCorpus', RP.formatCurrencyShort(result.legacyCorpus));
+
+  // After-tax overlay: re-run the projection at the after-tax rates and
+  // show the resulting Corpus + Legacy as small subtitles beneath the
+  // headline numbers. Same engine, different rates → consistent math.
+  if (typeof RP._preReturnAfterTax === 'number' && RP._preReturnAfterTax > 0) {
+    const afterTax = RP._runProjection(RP._preReturnAfterTax, RP._postReturnAfterTax || RP._postReturn);
+    const corpusSubEl = document.getElementById('corpusAtRetirementAfterTax');
+    const legacySubEl = document.getElementById('legacyCorpusAfterTax');
+    const runsOutSubEl = document.getElementById('runsOutAgeAfterTax');
+    if (corpusSubEl) corpusSubEl.textContent = 'After-tax: ' + RP.formatCurrencyShort(afterTax.corpusAtRetirement);
+    if (legacySubEl) legacySubEl.textContent = 'After-tax: ' + RP.formatCurrencyShort(afterTax.legacyCorpus);
+    if (runsOutSubEl) runsOutSubEl.textContent = 'After-tax: ' + (afterTax.runsOutAge ? 'Age ' + afterTax.runsOutAge : 'Never');
+  }
 
   // Render table
   const tbody = document.getElementById('projectionTableBody');

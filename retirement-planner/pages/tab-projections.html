@@ -14,11 +14,11 @@
                 <!-- Existing Ideal Scenario panel — content unchanged from Phase 1 -->
                 <div role="tabpanel" id="mc-panel-ideal" aria-labelledby="mc-toggle-ideal">
                     <div class="projection-summary" id="projectionSummary">
-                        <div class="summary-card success"><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div></div>
+                        <div class="summary-card success" title="Main number = pre-tax (matches the YouTuber-standard formula). After-tax = same math with each asset's gain reduced by its tax rate (LTCG / FD slab) before blending."><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div><div class="value-sub" id="corpusAtRetirementAfterTax"></div></div>
                         <div class="summary-card"><div class="label">Years of Earning</div><div class="value" id="yearsEarning">0</div></div>
                         <div class="summary-card warning"><div class="label">Years in Retirement</div><div class="value" id="yearsRetired">0</div></div>
-                        <div class="summary-card danger"><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div></div>
-                        <div class="summary-card legacy" title="Whatever your corpus has at the end of your life-expectancy gets passed to the next generation."><div class="label">🎁 Legacy / Inheritance</div><div class="value" id="legacyCorpus">&#8377;0</div></div>
+                        <div class="summary-card danger" title="Main number = pre-tax. After-tax shows when money runs out if every gain is taxed at your input tax rates."><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div><div class="value-sub" id="runsOutAgeAfterTax"></div></div>
+                        <div class="summary-card legacy" title="Whatever your corpus has at the end of your life-expectancy gets passed to the next generation. After-tax shows what's left after paying tax along the way."><div class="label">🎁 Legacy / Inheritance</div><div class="value" id="legacyCorpus">&#8377;0</div><div class="value-sub" id="legacyCorpusAfterTax"></div></div>
                     </div>
                     <div class="chart-container"><canvas id="projectionChart"></canvas></div>
                     <div class="projection-table-wrapper">
