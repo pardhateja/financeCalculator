@@ -7,7 +7,7 @@
                 </p>
 
                 <p class="sub-text" style="margin-bottom:14px;font-size:0.82rem;background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.18);padding:8px 12px;border-radius:8px;">
-                    Each metric below shows two horizons: <b>Good case</b> (plan to age 80) and <b>Best case</b> (plan to age 100).
+                    Each metric below shows three horizons: <b>Short</b> (plan to age 60), <b>Good</b> (plan to age 80), <b>Best</b> (plan to age 100).
                 </p>
 
                 <!-- Per-phase coverage table — renders after compute -->
@@ -39,6 +39,16 @@
                 <div class="rt-strategy-grid">
                     <div class="rt-strategy-card rt-strategy-card--mc">
                         <div class="rt-strategy-title">Monte Carlo 85% Safe</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgStratMCShort">&#8377;—</div>
+
+                            <div class="rt-dual-meta"><span id="rtMgStratMCYearsShort">—</span></div>
+
+                        </div>
+
                         <div class="rt-dual-row">
                             <div class="rt-dual-tag">Good (to 80)</div>
                             <div class="rt-dual-val" id="rtMgStratMCGood">&#8377;—</div>
@@ -53,6 +63,16 @@
                     </div>
                     <div class="rt-strategy-card rt-strategy-card--rule">
                         <div class="rt-strategy-title">4% Rule (Bengen)</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgStrat4pctShort">&#8377;—</div>
+
+                            <div class="rt-dual-meta">4% of corpus / 12</div>
+
+                        </div>
+
                         <div class="rt-dual-row">
                             <div class="rt-dual-tag">Good (to 80)</div>
                             <div class="rt-dual-val" id="rtMgStrat4pctGood">&#8377;—</div>
@@ -67,6 +87,16 @@
                     </div>
                     <div class="rt-strategy-card rt-strategy-card--blended">
                         <div class="rt-strategy-title">Annuity-Style</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgStratBlendedShort">&#8377;—</div>
+
+                            <div class="rt-dual-meta"><span id="rtMgStratBlendedYearsShort">—</span></div>
+
+                        </div>
+
                         <div class="rt-dual-row">
                             <div class="rt-dual-tag">Good (to 80)</div>
                             <div class="rt-dual-val" id="rtMgStratBlendedGood">&#8377;—</div>
@@ -87,6 +117,16 @@
                 <div class="rt-survival-grid">
                     <div class="rt-survival-card rt-survival-card--det">
                         <div class="rt-survival-title">Deterministic</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgSurvDetShort">— mo</div>
+
+                            <div class="rt-dual-meta" id="rtMgSurvDetYearsShort">—</div>
+
+                        </div>
+
                         <div class="rt-dual-row">
                             <div class="rt-dual-tag">Good (to 80)</div>
                             <div class="rt-dual-val" id="rtMgSurvDetGood">— mo</div>
@@ -101,6 +141,16 @@
                     </div>
                     <div class="rt-survival-card rt-survival-card--mc-median">
                         <div class="rt-survival-title">Monte Carlo Median</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgSurvMCMedShort">— mo</div>
+
+                            <div class="rt-dual-meta" id="rtMgSurvMCMedYearsShort">—</div>
+
+                        </div>
+
                         <div class="rt-dual-row">
                             <div class="rt-dual-tag">Good (to 80)</div>
                             <div class="rt-dual-val" id="rtMgSurvMCMedGood">— mo</div>
@@ -115,6 +165,16 @@
                     </div>
                     <div class="rt-survival-card rt-survival-card--mc-worst">
                         <div class="rt-survival-title">Monte Carlo Worst-10%</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgSurvMCWorstShort">— mo</div>
+
+                            <div class="rt-dual-meta" id="rtMgSurvMCWorstYearsShort">—</div>
+
+                        </div>
+
                         <div class="rt-dual-row">
                             <div class="rt-dual-tag">Good (to 80)</div>
                             <div class="rt-dual-val" id="rtMgSurvMCWorstGood">— mo</div>

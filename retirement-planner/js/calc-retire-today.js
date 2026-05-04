@@ -31,29 +31,21 @@
   var MC_SIMS = 5000;
   var MC_WORST_PERCENTILE = 0.10;
 
-  // Pardha 2026-05-04: dual-horizon view. Every metric is computed twice
-  // and shown stacked: "Good (to 80)" + "Best (to 100)". Live horizons =
-  // targetAge - currentAge (so horizons shrink as user ages).
-  var TARGET_AGES = { good: 80, best: 100 };
+  // Pardha 2026-05-04: triple-horizon view. Every metric is computed
+  // three times and shown stacked: Short (to 60), Good (to 80), Best
+  // (to 100). Horizons are targetAge - currentAge (shrink as user ages).
+  var TARGET_AGES = { short: 60, good: 80, best: 100 };
+  var HORIZON_KEYS = ['short', 'good', 'best'];
 
   // ---- Variants (one per sub-tab) ----
   var VARIANTS = {
     live: {
+      idPrefix: 'rt',
       ids: {
         corpus: 'rtCorpusToday', monthlyExp: 'rtMonthlyExpense',
-        ret: 'rtAnnualReturn', infl: 'rtInflation',
-        // Dual-horizon: each metric has Good (to 80) + Best (to 100) ids.
-        stratMCGood: 'rtStratMCGood', stratMCBest: 'rtStratMCBest',
-        stratMCYearsGood: 'rtStratMCYearsGood', stratMCYearsBest: 'rtStratMCYearsBest',
-        strat4pctGood: 'rtStrat4pctGood', strat4pctBest: 'rtStrat4pctBest',
-        stratBlendedGood: 'rtStratBlendedGood', stratBlendedBest: 'rtStratBlendedBest',
-        stratBlendedYearsGood: 'rtStratBlendedYearsGood', stratBlendedYearsBest: 'rtStratBlendedYearsBest',
-        survDetGood: 'rtSurvDetGood', survDetBest: 'rtSurvDetBest',
-        survDetYearsGood: 'rtSurvDetYearsGood', survDetYearsBest: 'rtSurvDetYearsBest',
-        survMCMedGood: 'rtSurvMCMedGood', survMCMedBest: 'rtSurvMCMedBest',
-        survMCMedYearsGood: 'rtSurvMCMedYearsGood', survMCMedYearsBest: 'rtSurvMCMedYearsBest',
-        survMCWorstGood: 'rtSurvMCWorstGood', survMCWorstBest: 'rtSurvMCWorstBest',
-        survMCWorstYearsGood: 'rtSurvMCWorstYearsGood', survMCWorstYearsBest: 'rtSurvMCWorstYearsBest'
+        ret: 'rtAnnualReturn', infl: 'rtInflation'
+        // Per-horizon ids built dynamically: rt{Field}{Hkey} where
+        // Hkey is 'Short' / 'Good' / 'Best'. See buildHIds() below.
       },
       readSourceCorpus: function () {
         var csEl = document.getElementById('currentSavings');
@@ -62,20 +54,10 @@
       },
     },
     mg: {
+      idPrefix: 'rtMg',
       ids: {
         corpus: 'rtMgCorpusToday', monthlyExp: 'rtMgMonthlyExpense',
-        ret: 'rtMgAnnualReturn', infl: 'rtMgInflation',
-        stratMCGood: 'rtMgStratMCGood', stratMCBest: 'rtMgStratMCBest',
-        stratMCYearsGood: 'rtMgStratMCYearsGood', stratMCYearsBest: 'rtMgStratMCYearsBest',
-        strat4pctGood: 'rtMgStrat4pctGood', strat4pctBest: 'rtMgStrat4pctBest',
-        stratBlendedGood: 'rtMgStratBlendedGood', stratBlendedBest: 'rtMgStratBlendedBest',
-        stratBlendedYearsGood: 'rtMgStratBlendedYearsGood', stratBlendedYearsBest: 'rtMgStratBlendedYearsBest',
-        survDetGood: 'rtMgSurvDetGood', survDetBest: 'rtMgSurvDetBest',
-        survDetYearsGood: 'rtMgSurvDetYearsGood', survDetYearsBest: 'rtMgSurvDetYearsBest',
-        survMCMedGood: 'rtMgSurvMCMedGood', survMCMedBest: 'rtMgSurvMCMedBest',
-        survMCMedYearsGood: 'rtMgSurvMCMedYearsGood', survMCMedYearsBest: 'rtMgSurvMCMedYearsBest',
-        survMCWorstGood: 'rtMgSurvMCWorstGood', survMCWorstBest: 'rtMgSurvMCWorstBest',
-        survMCWorstYearsGood: 'rtMgSurvMCWorstYearsGood', survMCWorstYearsBest: 'rtMgSurvMCWorstYearsBest'
+        ret: 'rtMgAnnualReturn', infl: 'rtMgInflation'
       },
       // Pardha decision 2026-05-04: MG sub-tab answers "if I retired NOW
       // with today's REAL corpus split across my Multi-Goal phases, what's
@@ -204,8 +186,15 @@
     return out;
   }
 
+  /* Build a per-horizon DOM id: e.g. ('rt', 'StratMC', 'short') -> 'rtStratMCShort'. */
+  function hid(prefix, field, hkey) {
+    return prefix + field + hkey.charAt(0).toUpperCase() + hkey.slice(1);
+  }
+
   function compute(variant) {
-    var ids = VARIANTS[variant].ids;
+    var V = VARIANTS[variant];
+    var ids = V.ids;
+    var prefix = V.idPrefix;
     var d = readDefaults(variant);
     var corpus = parseFloat(document.getElementById(ids.corpus).value) || d.corpus;
     var monthlyExp = parseFloat(document.getElementById(ids.monthlyExp).value) || d.monthlyExp;
@@ -215,43 +204,40 @@
     var infl = (isFinite(inflInput) && inflInput >= 0) ? (inflInput / 100) : d.infl;
 
     function setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
-    function setBoth(idGood, idBest, valGood, valBest) { setText(idGood, valGood); setText(idBest, valBest); }
 
     if (!corpus || corpus <= 0) {
-      ['mc','4pct','blended'].forEach(function (k) {
-        setBoth(ids['strat' + k.charAt(0).toUpperCase() + k.slice(1) + 'Good'],
-                ids['strat' + k.charAt(0).toUpperCase() + k.slice(1) + 'Best'], '₹—', '₹—');
-      });
-      ['Det','MCMed','MCWorst'].forEach(function (k) {
-        setBoth(ids['surv' + k + 'Good'], ids['surv' + k + 'Best'], '— mo', '— mo');
+      HORIZON_KEYS.forEach(function (h) {
+        ['StratMC', 'Strat4pct', 'StratBlended'].forEach(function (f) {
+          setText(hid(prefix, f, h), '₹—');
+        });
+        ['SurvDet', 'SurvMCMed', 'SurvMCWorst'].forEach(function (f) {
+          setText(hid(prefix, f, h), '— mo');
+        });
       });
       return;
     }
 
-    // Compute horizons live from currentAge, so they shrink as user ages.
     var curAge = (typeof RP.val === 'function') ? (RP.val('currentAge') || 28) : 28;
-    var horizonGood = Math.max(1, TARGET_AGES.good - curAge);
-    var horizonBest = Math.max(1, TARGET_AGES.best - curAge);
+    var retPct = (ret * 100).toFixed(2) + '%';
 
-    var good = computeForHorizon(corpus, monthlyExp, ret, infl, horizonGood);
-    var best = computeForHorizon(corpus, monthlyExp, ret, infl, horizonBest);
+    HORIZON_KEYS.forEach(function (h) {
+      var horizon = Math.max(1, TARGET_AGES[h] - curAge);
+      var r = computeForHorizon(corpus, monthlyExp, ret, infl, horizon);
+      // Strategies
+      setText(hid(prefix, 'StratMC', h),         r.mc);
+      setText(hid(prefix, 'StratMCYears', h),    horizon + ' yr');
+      setText(hid(prefix, 'Strat4pct', h),       r.fourPct);
+      setText(hid(prefix, 'StratBlended', h),    r.annuity);
+      setText(hid(prefix, 'StratBlendedYears', h), horizon + ' yr @ ' + retPct);
+      // Survival
+      setText(hid(prefix, 'SurvDet', h),         r.detMo);
+      setText(hid(prefix, 'SurvDetYears', h),    r.detYr);
+      setText(hid(prefix, 'SurvMCMed', h),       r.medMo);
+      setText(hid(prefix, 'SurvMCMedYears', h),  r.medYr);
+      setText(hid(prefix, 'SurvMCWorst', h),     r.worstMo);
+      setText(hid(prefix, 'SurvMCWorstYears', h), r.worstYr);
+    });
 
-    // Strategies
-    setBoth(ids.stratMCGood, ids.stratMCBest, good.mc, best.mc);
-    setBoth(ids.stratMCYearsGood, ids.stratMCYearsBest, horizonGood + ' yr', horizonBest + ' yr');
-    setBoth(ids.strat4pctGood, ids.strat4pctBest, good.fourPct, best.fourPct);
-    setBoth(ids.stratBlendedGood, ids.stratBlendedBest, good.annuity, best.annuity);
-    setBoth(ids.stratBlendedYearsGood, ids.stratBlendedYearsBest, horizonGood + ' yr @ ' + (ret*100).toFixed(2)+'%', horizonBest + ' yr @ ' + (ret*100).toFixed(2)+'%');
-
-    // Survival
-    setBoth(ids.survDetGood, ids.survDetBest, good.detMo, best.detMo);
-    setBoth(ids.survDetYearsGood, ids.survDetYearsBest, good.detYr, best.detYr);
-    setBoth(ids.survMCMedGood, ids.survMCMedBest, good.medMo, best.medMo);
-    setBoth(ids.survMCMedYearsGood, ids.survMCMedYearsBest, good.medYr, best.medYr);
-    setBoth(ids.survMCWorstGood, ids.survMCWorstBest, good.worstMo, best.worstMo);
-    setBoth(ids.survMCWorstYearsGood, ids.survMCWorstYearsBest, good.worstYr, best.worstYr);
-
-    // Multi-Goal variant: also render per-phase coverage table.
     if (variant === 'mg') renderPhaseCoverage(corpus);
   }
 
