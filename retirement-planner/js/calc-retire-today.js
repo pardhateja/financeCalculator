@@ -127,10 +127,27 @@
 
   // ---- Defaults from elsewhere in the app ----
 
-  function readDefaults() {
-    var corpus = 0;
+  /* Read corpus value based on the source-toggle:
+   *   "live"      = currentSavings (today's running balance)
+   *   "multigoal" = projected corpus at retirement age, computed by
+   *                 the multi-goal allocation. Reflects the user's
+   *                 phase setup, not their live balance.
+   */
+  function readSourceCorpus() {
+    var src = (document.querySelector('input[name="rtSource"]:checked') || {}).value || 'live';
+    if (src === 'multigoal' && RP._multigoal && typeof RP._multigoal._readCorpusAtRetirement === 'function') {
+      try {
+        var mg = RP._multigoal._readCorpusAtRetirement();
+        if (Number.isFinite(mg) && mg > 0) return mg;
+      } catch (e) { /* fall through */ }
+    }
     var csEl = document.getElementById('currentSavings');
-    if (csEl && csEl.value) corpus = parseFloat(csEl.value) || 0;
+    if (csEl && csEl.value) return parseFloat(csEl.value) || 0;
+    return 0;
+  }
+
+  function readDefaults() {
+    var corpus = readSourceCorpus();
     var monthlyExp = (typeof RP.val === 'function') ? (RP.val('postRetireMonthly') || 0) : 0;
     var ret = (typeof RP._postReturn === 'number' && RP._postReturn > 0) ? RP._postReturn : 0.08;
     var infl = (typeof RP.val === 'function') ? ((RP.val('inflationRate') || 6) / 100) : 0.06;
@@ -263,6 +280,19 @@
         el.addEventListener('input', debouncedCompute);
         el._rtWired = true;
       });
+    // Source toggle: when user flips Live ↔ Multi-Goal, force a re-prefill
+    // of the corpus field (so they see the right number) then recompute.
+    document.querySelectorAll('input[name="rtSource"]').forEach(function (radio) {
+      if (radio._rtWired) return;
+      radio.addEventListener('change', function () {
+        var corpusEl = document.getElementById('rtCorpusToday');
+        if (corpusEl) {
+          corpusEl.value = readSourceCorpus();
+        }
+        debouncedCompute();
+      });
+      radio._rtWired = true;
+    });
   }
 
   // Boot: prefill + wire after DOM ready and after main calc has populated state.

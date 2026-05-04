@@ -16,6 +16,43 @@
     box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
 }
 
+/* --- Source corpus toggle --- */
+.rt-source-toggle {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: rgba(37, 99, 235, 0.06);
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+}
+.rt-source-label { font-weight: 600; color: var(--text-primary, #0f172a); }
+.rt-source-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--text-secondary, #64748b);
+    font-weight: 500;
+}
+.rt-source-opt input { cursor: pointer; }
+.rt-source-hint {
+    margin-left: auto;
+    cursor: help;
+    color: var(--text-secondary, #64748b);
+    font-weight: 700;
+    background: rgba(37, 99, 235, 0.12);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    font-size: 0.78rem;
+}
+
 /* --- Input row --- */
 .rt-inputs {
     display: grid;
