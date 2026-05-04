@@ -149,6 +149,51 @@
     font-size: 0.78rem;
     color: var(--text-secondary, #64748b);
     line-height: 1.4;
+    margin-top: 8px;
+}
+
+/* Dual-horizon rows inside a card: one row for "Good (to 80)" + one for
+ * "Best (to 100)". Pardha 2026-05-04. */
+.rt-dual-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    grid-template-rows: auto auto;
+    align-items: baseline;
+    gap: 0 10px;
+    padding: 6px 0;
+}
+.rt-dual-row + .rt-dual-row {
+    border-top: 1px dashed var(--border-color, #e2e8f0);
+}
+.rt-dual-tag {
+    grid-row: 1 / span 2;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    align-self: center;
+    background: rgba(100, 116, 139, 0.08);
+    padding: 4px 6px;
+    border-radius: 4px;
+    text-align: center;
+}
+.rt-dual-row--best .rt-dual-tag {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+}
+.rt-dual-val {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    grid-column: 2;
+    grid-row: 1;
+}
+.rt-dual-meta {
+    font-size: 0.78rem;
+    color: var(--text-secondary, #64748b);
+    grid-column: 2;
+    grid-row: 2;
 }
 
 /* --- Multi-Goal coverage section --- */

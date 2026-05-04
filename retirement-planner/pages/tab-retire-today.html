@@ -2,8 +2,12 @@
         <div class="tab-content" id="tab-retire-today">
             <div class="panel">
                 <h2>Retire Today</h2>
-                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:760px;">
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:780px;">
                     If you retired <b>right now</b>, how much can you safely withdraw each month, and how long would your money last? This tab uses your <b>current corpus</b> (live running balance from the Projection chain). For the alternate "what if I had my full Multi-Goal corpus at retirement age" view, use the <b>Multi-Goal corpus</b> sub-tab.
+                </p>
+
+                <p class="sub-text" style="margin-bottom:14px;font-size:0.82rem;background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.18);padding:8px 12px;border-radius:8px;">
+                    Each metric below shows two horizons: <b>Good case</b> (plan to age 80) and <b>Best case</b> (plan to age 100).
                 </p>
 
                 <!-- Editable inputs row -->
@@ -24,10 +28,6 @@
                         <label class="rt-input-label" for="rtInflation" title="Annual inflation applied to expenses each year of retirement. Defaults to your Inflation Rate from Basics.">Expense Inflation</label>
                         <div class="rt-input-row"><input type="number" id="rtInflation" step="0.1"><span class="rt-suffix">%</span></div>
                     </div>
-                    <div class="rt-input-card">
-                        <label class="rt-input-label" for="rtHorizon" title="How many years of retirement to plan for. Defaults to (life expectancy − current age).">Years to Plan For</label>
-                        <div class="rt-input-row"><input type="number" id="rtHorizon" step="1"><span class="rt-suffix">yrs</span></div>
-                    </div>
                 </div>
 
                 <!-- 3 withdrawal strategies -->
@@ -36,50 +36,98 @@
                 <div class="rt-strategy-grid">
                     <div class="rt-strategy-card rt-strategy-card--mc">
                         <div class="rt-strategy-title">Monte Carlo 85% Safe</div>
-                        <div class="rt-strategy-value" id="rtStratMC">&#8377;—</div>
-                        <div class="rt-strategy-meta">/ month for <span id="rtStratMCYears">—</span> yrs</div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtStratMCGood">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtStratMCYearsGood">—</span></div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtStratMCBest">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtStratMCYearsBest">—</span></div>
+                        </div>
                         <div class="rt-strategy-explain">Largest monthly withdrawal where 85% of randomized return scenarios still leave money at end of horizon. Most realistic.</div>
                     </div>
                     <div class="rt-strategy-card rt-strategy-card--rule">
                         <div class="rt-strategy-title">4% Rule (Bengen)</div>
-                        <div class="rt-strategy-value" id="rtStrat4pct">&#8377;—</div>
-                        <div class="rt-strategy-meta">/ month — 4% of corpus / 12</div>
-                        <div class="rt-strategy-explain">The classic textbook rule — historically safe across 30-year US retirements. Simple and conservative.</div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtStrat4pctGood">&#8377;—</div>
+                            <div class="rt-dual-meta">4% of corpus / 12</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtStrat4pctBest">&#8377;—</div>
+                            <div class="rt-dual-meta">4% of corpus / 12</div>
+                        </div>
+                        <div class="rt-strategy-explain">The classic textbook rule — historically safe across 30-year US retirements. Same number for both horizons (rule doesn't depend on horizon).</div>
                     </div>
                     <div class="rt-strategy-card rt-strategy-card--blended">
                         <div class="rt-strategy-title">Annuity-Style</div>
-                        <div class="rt-strategy-value" id="rtStratBlended">&#8377;—</div>
-                        <div class="rt-strategy-meta">/ month at <span id="rtStratBlendedRate">—</span> for <span id="rtStratBlendedYears">—</span> yrs</div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtStratBlendedGood">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtStratBlendedYearsGood">—</span></div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtStratBlendedBest">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtStratBlendedYearsBest">—</span></div>
+                        </div>
                         <div class="rt-strategy-explain">Maximum equal monthly withdrawal that fully drains corpus by end of horizon, given your post-retirement blended return.</div>
                     </div>
                 </div>
 
                 <!-- 3 months-survivable metrics -->
                 <h3 style="margin-top:28px;">How long will my money last?</h3>
-                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Three views of how many months your corpus survives at your CURRENT monthly expense (above).</p>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Three views of how many months your corpus survives at your CURRENT monthly expense (above). Capped at the horizon.</p>
                 <div class="rt-survival-grid">
                     <div class="rt-survival-card rt-survival-card--det">
                         <div class="rt-survival-title">Deterministic</div>
-                        <div class="rt-survival-value" id="rtSurvDet">— mo</div>
-                        <div class="rt-survival-meta" id="rtSurvDetYears">— years</div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtSurvDetGood">— mo</div>
+                            <div class="rt-dual-meta" id="rtSurvDetYearsGood">—</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtSurvDetBest">— mo</div>
+                            <div class="rt-dual-meta" id="rtSurvDetYearsBest">—</div>
+                        </div>
                         <div class="rt-survival-explain">Assumes the corpus earns your annual return every year, no variance. Best-guess "average" answer.</div>
                     </div>
                     <div class="rt-survival-card rt-survival-card--mc-median">
                         <div class="rt-survival-title">Monte Carlo Median</div>
-                        <div class="rt-survival-value" id="rtSurvMCMed">— mo</div>
-                        <div class="rt-survival-meta" id="rtSurvMCMedYears">— years</div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtSurvMCMedGood">— mo</div>
+                            <div class="rt-dual-meta" id="rtSurvMCMedYearsGood">—</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtSurvMCMedBest">— mo</div>
+                            <div class="rt-dual-meta" id="rtSurvMCMedYearsBest">—</div>
+                        </div>
                         <div class="rt-survival-explain">Middle outcome across thousands of randomized return paths. Half of futures last longer, half shorter.</div>
                     </div>
                     <div class="rt-survival-card rt-survival-card--mc-worst">
                         <div class="rt-survival-title">Monte Carlo Worst-10%</div>
-                        <div class="rt-survival-value" id="rtSurvMCWorst">— mo</div>
-                        <div class="rt-survival-meta" id="rtSurvMCWorstYears">— years</div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtSurvMCWorstGood">— mo</div>
+                            <div class="rt-dual-meta" id="rtSurvMCWorstYearsGood">—</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtSurvMCWorstBest">— mo</div>
+                            <div class="rt-dual-meta" id="rtSurvMCWorstYearsBest">—</div>
+                        </div>
                         <div class="rt-survival-explain">The 10th-percentile bad outcome. Plan for THIS number if you want to be cautious — only 1 in 10 futures is worse.</div>
                     </div>
                 </div>
 
                 <p class="sub-text" id="rtMcStatus" style="margin-top:14px;font-size:0.78rem;color:var(--text-secondary,#94a3b8);">
-                    Monte Carlo numbers above use 5,000 simulated retirement paths each time you change an input. May take a moment after a big change.
+                    Monte Carlo numbers above use 5,000 simulated retirement paths each time you change an input. Both horizons computed in parallel — may take a moment after a big change.
                 </p>
             </div>
         </div>
