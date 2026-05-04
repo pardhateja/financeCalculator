@@ -1,0 +1,124 @@
+/* ============================================================================
+   Retire Today tab (Phase 3). Minimal layout: 5 input cards in a flex row,
+   then 3 strategy cards, then 3 survival cards. No new design system —
+   reuses summary-card colors + spacing from cards.css where possible.
+   ============================================================================ */
+
+/* Top-level group button — slight accent so this important section is visible. */
+.nav-group--accent {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    color: #fff;
+    font-weight: 600;
+}
+.nav-group--accent:hover { filter: brightness(1.05); }
+.nav-group--accent.active {
+    background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
+}
+
+/* --- Input row --- */
+.rt-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.rt-input-card {
+    background: var(--bg-color, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+.rt-input-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 6px;
+    cursor: help;
+}
+.rt-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+.rt-input-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    font-weight: 600;
+    background: transparent;
+    color: var(--text-primary, #0f172a);
+    width: 100%;
+    min-width: 0;
+}
+.rt-prefix, .rt-suffix {
+    color: var(--text-secondary, #64748b);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* --- Strategy cards --- */
+.rt-strategy-grid, .rt-survival-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+.rt-strategy-card, .rt-survival-card {
+    background: #fff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    padding: 16px 18px;
+    border-top-width: 4px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.rt-strategy-card:hover, .rt-survival-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+.rt-strategy-card--mc      { border-top-color: #2563eb; }
+.rt-strategy-card--rule    { border-top-color: var(--secondary-color, #10b981); }
+.rt-strategy-card--blended { border-top-color: var(--warning-color, #f59e0b); }
+.rt-survival-card--det       { border-top-color: var(--secondary-color, #10b981); }
+.rt-survival-card--mc-median { border-top-color: #2563eb; }
+.rt-survival-card--mc-worst  { border-top-color: var(--danger-color, #ef4444); }
+
+.rt-strategy-title, .rt-survival-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+}
+.rt-strategy-value, .rt-survival-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    margin-bottom: 4px;
+}
+.rt-strategy-meta, .rt-survival-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.rt-strategy-explain, .rt-survival-explain {
+    font-size: 0.78rem;
+    color: var(--text-secondary, #64748b);
+    line-height: 1.4;
+}
+
+/* Dark mode */
+body.dark-mode .rt-input-card,
+body.dark-mode .rt-strategy-card,
+body.dark-mode .rt-survival-card {
+    background: var(--bg-card, #1e293b);
+    border-color: var(--border-color, #334155);
+}
+body.dark-mode .rt-input-row { background: rgba(15, 23, 42, 0.5); }

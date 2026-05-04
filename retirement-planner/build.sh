@@ -22,6 +22,7 @@ cat > "$OUT" << 'HEAD'
     <link rel="stylesheet" href="css/multigoal.css">
     <link rel="stylesheet" href="css/montecarlo.css">
     <link rel="stylesheet" href="css/persistence.css">
+    <link rel="stylesheet" href="css/retire-today.css">
     <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>
@@ -86,6 +87,7 @@ cat > "$OUT" << 'HEAD'
             <button class="nav-group" data-group="project">Project</button>
             <button class="nav-group" data-group="track">Track</button>
             <button class="nav-group" data-group="tools">Tools</button>
+            <button class="nav-group nav-group--accent" data-group="retire-today" title="If I retired today, how much can I withdraw and how long would my money last?">Retire Today</button>
             <button class="nav-group" data-group="profiles">Profiles</button>
         </div>
         <div class="nav-subtabs" id="navSubtabs" role="tablist" aria-label="Sub-sections"></div>
@@ -93,7 +95,7 @@ cat > "$OUT" << 'HEAD'
 HEAD
 
 # Append each tab page
-for tab in basics expenses investments financial-plan projections dashboard whatif goals multigoal emergency sip tracker milestones loan exptrack networth profiles; do
+for tab in basics expenses investments financial-plan projections dashboard whatif goals multigoal emergency sip tracker milestones loan exptrack networth retire-today profiles; do
     cat "$DIR/pages/tab-${tab}.html" >> "$OUT"
     echo "" >> "$OUT"
 done
@@ -149,6 +151,7 @@ cat >> "$OUT" << 'FOOT'
     <script src="js/calc-loan.js"></script>
     <script src="js/calc-exptrack.js"></script>
     <script src="js/calc-networth.js"></script>
+    <script src="js/calc-retire-today.js"></script>
     <script src="js/profiles.js"></script>
     <script src="js/sharelink.js"></script>
     <script src="js/darkmode.js"></script>
