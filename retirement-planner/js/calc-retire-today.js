@@ -31,6 +31,19 @@
   var MC_SIMS = 5000;
   var MC_WORST_PERCENTILE = 0.10;
 
+  // 3-Bucket strategy params (Pardha 2026-05-04). Standard Indian-equity-
+  // tilted bucket sizing:
+  //   B1 (cash) = 2 yrs of expenses, earns 5% (savings/FD/liquid).
+  //   B2 (income) = 5 yrs of expenses, earns 8% (debt funds, bonds).
+  //   B3 (growth) = whatever's left, earns the user's annual return
+  //                 (post-retirement blended — equity-tilted in their plan).
+  // Refill cycle: monthly draws from B1; once B1 empties, refill from B2;
+  // once B2 empties, refill from B3.
+  var BUCKET_B1_YEARS = 2;
+  var BUCKET_B2_YEARS = 5;
+  var BUCKET_B1_RETURN = 0.05;
+  var BUCKET_B2_RETURN = 0.08;
+
   // Pardha 2026-05-04: triple-horizon view. Every metric is computed
   // three times and shown stacked: Short (to 60), Good (to 80), Best
   // (to 100). Horizons are targetAge - currentAge (shrink as user ages).
@@ -116,6 +129,93 @@
     return corpus * r / (1 - Math.pow(1 + r, -n));
   }
 
+  /* Compute initial bucket sizes for a given monthly expense.
+   * B1 = 2yr × 12 × monthly. B2 = 5yr × 12 × monthly. B3 = remainder. */
+  function bucketSizes(corpus, monthly) {
+    var b1 = Math.min(corpus, monthly * 12 * BUCKET_B1_YEARS);
+    var remaining = corpus - b1;
+    var b2 = Math.min(Math.max(0, remaining), monthly * 12 * BUCKET_B2_YEARS);
+    var b3 = Math.max(0, corpus - b1 - b2);
+    return { b1: b1, b2: b2, b3: b3 };
+  }
+
+  /* Simulate ONE 3-bucket retirement path with a given STARTING monthly
+   * withdrawal that grows with inflation each year. Bucket dynamics:
+   *   - Each month: subtract monthly draw from B1.
+   *   - Once B1 hits 0, refill from B2 (transfer up to 1yr of expenses).
+   *   - Once B2 hits 0, refill from B1's exhausted slot from B3.
+   *   - B1 earns 5% annually, B2 earns 8%, B3 earns annualRet (with
+   *     volatility if sigma > 0 — the equity bucket bears all the risk).
+   * Returns { monthsLasted, drained }. */
+  function simulateBucketPath(corpus, monthly0, annualRet, sigma, infl, years) {
+    var sizes = bucketSizes(corpus, monthly0);
+    var b1 = sizes.b1, b2 = sizes.b2, b3 = sizes.b3;
+    var monthly = monthly0;
+    var monthsLasted = 0;
+    var rB1 = Math.pow(1 + BUCKET_B1_RETURN, 1/12) - 1;
+    var rB2 = Math.pow(1 + BUCKET_B2_RETURN, 1/12) - 1;
+    for (var y = 0; y < years; y++) {
+      // Sample annual return for B3 (random if sigma > 0).
+      var b3AnnualR = sigma > 0 ? annualRet + sigma * gaussRand() : annualRet;
+      var rB3 = Math.pow(1 + b3AnnualR, 1/12) - 1;
+      for (var m = 0; m < 12; m++) {
+        // Draw from B1 first.
+        var draw = monthly;
+        if (b1 >= draw) { b1 -= draw; }
+        else if (b2 >= draw) {
+          // Refill B1 from B2 by 1yr of expenses (or whatever B2 has),
+          // then draw.
+          var refill = Math.min(b2, monthly * 12);
+          b2 -= refill; b1 += refill;
+          if (b1 >= draw) { b1 -= draw; } else { return { monthsLasted: monthsLasted, drained: true }; }
+        }
+        else if (b3 >= draw) {
+          // B2 also empty: refill B2 from B3 (5yr worth), then refill B1 from B2.
+          var refill2 = Math.min(b3, monthly * 12 * BUCKET_B2_YEARS);
+          b3 -= refill2; b2 += refill2;
+          var refill1 = Math.min(b2, monthly * 12);
+          b2 -= refill1; b1 += refill1;
+          if (b1 >= draw) { b1 -= draw; } else { return { monthsLasted: monthsLasted, drained: true }; }
+        }
+        else {
+          return { monthsLasted: monthsLasted, drained: true };
+        }
+        // Compound each bucket monthly.
+        b1 *= (1 + rB1);
+        b2 *= (1 + rB2);
+        b3 *= (1 + rB3);
+        monthsLasted++;
+      }
+      monthly *= (1 + infl);
+    }
+    return { monthsLasted: monthsLasted, drained: false };
+  }
+
+  /* Bisection: find largest monthly withdrawal where ≥85% of MC bucket
+   * paths survive the full horizon. */
+  function findSafeBucketWithdrawal(corpus, ret, sigma, infl, years) {
+    var fourPct = corpus * 0.04 / 12;
+    var lo = 1000, hi = fourPct * 5;
+    var totalMonths = years * 12;
+    function frac(monthly) {
+      var ok = 0;
+      for (var i = 0; i < MC_SIMS; i++) {
+        var p = simulateBucketPath(corpus, monthly, ret, sigma, infl, years);
+        if (p.monthsLasted >= totalMonths) ok++;
+      }
+      return ok / MC_SIMS;
+    }
+    var bumps = 0;
+    while (frac(hi) >= 0.85 && bumps < 4) { hi *= 2; bumps++; }
+    if (frac(lo) < 0.85) return 0;
+    while (hi - lo > 100) {
+      var mid = (lo + hi) / 2;
+      if (frac(mid) >= 0.85) lo = mid;
+      else hi = mid;
+    }
+    return lo;
+  }
+
   function findSafeWithdrawal(corpus, ret, sigma, infl, years) {
     var fourPct = corpus * 0.04 / 12;
     var lo = 1000, hi = fourPct * 5;
@@ -170,6 +270,21 @@
     out.annuity = fmtINR(annuityWithdrawal(corpus, ret, horizon));
     var safeMC = findSafeWithdrawal(corpus, ret, SIGMA_ANNUAL, infl, horizon);
     out.mc = safeMC > 0 ? fmtINR(safeMC) : '₹—';
+    // 3-Bucket: safe withdrawal under bucket-refill dynamics.
+    if (monthlyExp > 0) {
+      var safeBucket = findSafeBucketWithdrawal(corpus, ret, SIGMA_ANNUAL, infl, horizon);
+      out.bucket = safeBucket > 0 ? fmtINR(safeBucket) : '₹—';
+      // Initial bucket sizes based on the user's own monthly expense.
+      var sizes = bucketSizes(corpus, monthlyExp);
+      out.bucketB1 = fmtINR(sizes.b1);
+      out.bucketB2 = fmtINR(sizes.b2);
+      out.bucketB3 = fmtINR(sizes.b3);
+    } else {
+      out.bucket = '₹—';
+      out.bucketB1 = '₹—';
+      out.bucketB2 = '₹—';
+      out.bucketB3 = '₹—';
+    }
     if (monthlyExp > 0) {
       var det = simulatePath(corpus, monthlyExp, ret, 0, infl, horizon);
       out.detMo = fmtMonths(det.monthsLasted);
@@ -207,7 +322,7 @@
 
     if (!corpus || corpus <= 0) {
       HORIZON_KEYS.forEach(function (h) {
-        ['StratMC', 'Strat4pct', 'StratBlended'].forEach(function (f) {
+        ['StratMC', 'Strat4pct', 'StratBlended', 'StratBucket', 'StratBucketB1', 'StratBucketB2', 'StratBucketB3'].forEach(function (f) {
           setText(hid(prefix, f, h), '₹—');
         });
         ['SurvDet', 'SurvMCMed', 'SurvMCWorst'].forEach(function (f) {
@@ -229,6 +344,13 @@
       setText(hid(prefix, 'Strat4pct', h),       r.fourPct);
       setText(hid(prefix, 'StratBlended', h),    r.annuity);
       setText(hid(prefix, 'StratBlendedYears', h), horizon + ' yr @ ' + retPct);
+      // 3-Bucket: safe withdrawal + initial bucket sizes (B1/B2/B3 don't
+      // depend on horizon since they're computed from monthly expense, but
+      // we render them in each horizon row anyway for consistency).
+      setText(hid(prefix, 'StratBucket', h),     r.bucket);
+      setText(hid(prefix, 'StratBucketB1', h),   r.bucketB1);
+      setText(hid(prefix, 'StratBucketB2', h),   r.bucketB2);
+      setText(hid(prefix, 'StratBucketB3', h),   r.bucketB3);
       // Survival
       setText(hid(prefix, 'SurvDet', h),         r.detMo);
       setText(hid(prefix, 'SurvDetYears', h),    r.detYr);

@@ -128,6 +128,7 @@
 .rt-strategy-card--mc      { border-top-color: #2563eb; }
 .rt-strategy-card--rule    { border-top-color: var(--secondary-color, #10b981); }
 .rt-strategy-card--blended { border-top-color: var(--warning-color, #f59e0b); }
+.rt-strategy-card--bucket  { border-top-color: #c026d3; }
 .rt-survival-card--det       { border-top-color: var(--secondary-color, #10b981); }
 .rt-survival-card--mc-median { border-top-color: #2563eb; }
 .rt-survival-card--mc-worst  { border-top-color: var(--danger-color, #ef4444); }

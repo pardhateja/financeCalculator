@@ -35,7 +35,7 @@
 
                 <!-- 3 withdrawal strategies -->
                 <h3 style="margin-top:28px;">How much can I withdraw?</h3>
-                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Three different ways to size a safe monthly withdrawal from the corpus.</p>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Four different ways to size a safe monthly withdrawal from the corpus.</p>
                 <div class="rt-strategy-grid">
                     <div class="rt-strategy-card rt-strategy-card--mc">
                         <div class="rt-strategy-title">Monte Carlo 85% Safe</div>
@@ -108,6 +108,43 @@
                             <div class="rt-dual-meta"><span id="rtMgStratBlendedYearsBest">—</span></div>
                         </div>
                         <div class="rt-strategy-explain">Maximum equal monthly withdrawal that fully drains corpus by end of horizon, given your post-retirement blended return.</div>
+                    </div>
+                    <div class="rt-strategy-card rt-strategy-card--bucket">
+                        <div class="rt-strategy-title">3-Bucket Strategy</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+                            <div class="rt-dual-tag">Short (to 60)</div>
+                            <div class="rt-dual-val" id="rtMgStratBucketShort">&#8377;—</div>
+                            <div class="rt-dual-meta">
+                                <span title="2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%">B1: <span id="rtMgStratBucketB1Short">&#8377;—</span></span>
+                                &middot;
+                                <span title="5 yrs of expenses, in debt funds/bonds @ ~8%">B2: <span id="rtMgStratBucketB2Short">&#8377;—</span></span>
+                                &middot;
+                                <span title="Whatever's left, in equity at your full annual return">B3: <span id="rtMgStratBucketB3Short">&#8377;—</span></span>
+                            </div>
+                        </div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgStratBucketGood">&#8377;—</div>
+                            <div class="rt-dual-meta">
+                                <span title="2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%">B1: <span id="rtMgStratBucketB1Good">&#8377;—</span></span>
+                                &middot;
+                                <span title="5 yrs of expenses, in debt funds/bonds @ ~8%">B2: <span id="rtMgStratBucketB2Good">&#8377;—</span></span>
+                                &middot;
+                                <span title="Whatever's left, in equity at your full annual return">B3: <span id="rtMgStratBucketB3Good">&#8377;—</span></span>
+                            </div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgStratBucketBest">&#8377;—</div>
+                            <div class="rt-dual-meta">
+                                <span title="2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%">B1: <span id="rtMgStratBucketB1Best">&#8377;—</span></span>
+                                &middot;
+                                <span title="5 yrs of expenses, in debt funds/bonds @ ~8%">B2: <span id="rtMgStratBucketB2Best">&#8377;—</span></span>
+                                &middot;
+                                <span title="Whatever's left, in equity at your full annual return">B3: <span id="rtMgStratBucketB3Best">&#8377;—</span></span>
+                            </div>
+                        </div>
+                        <div class="rt-strategy-explain">Bucket 1 (cash, 5%) holds 2 yrs of expenses. Bucket 2 (debt, 8%) holds 5 yrs. Bucket 3 (equity, ~your blended) holds the rest. Refill cycle protects against sequence-of-returns risk — survives a bad first decade.</div>
                     </div>
                 </div>
 
