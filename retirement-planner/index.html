@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Financial Planner</title>
-    <link rel="stylesheet" href="css/base.css?v=20260504222310">
-    <link rel="stylesheet" href="css/layout.css?v=20260504222310">
-    <link rel="stylesheet" href="css/forms.css?v=20260504222310">
-    <link rel="stylesheet" href="css/cards.css?v=20260504222310">
-    <link rel="stylesheet" href="css/tables.css?v=20260504222310">
-    <link rel="stylesheet" href="css/responsive.css?v=20260504222310">
-    <link rel="stylesheet" href="css/tracker.css?v=20260504222310">
-    <link rel="stylesheet" href="css/multigoal.css?v=20260504222310">
-    <link rel="stylesheet" href="css/montecarlo.css?v=20260504222310">
-    <link rel="stylesheet" href="css/persistence.css?v=20260504222310">
-    <link rel="stylesheet" href="css/retire-today.css?v=20260504222310">
-    <link rel="stylesheet" href="css/dark.css?v=20260504222310">
+    <link rel="stylesheet" href="css/base.css?v=20260504222732">
+    <link rel="stylesheet" href="css/layout.css?v=20260504222732">
+    <link rel="stylesheet" href="css/forms.css?v=20260504222732">
+    <link rel="stylesheet" href="css/cards.css?v=20260504222732">
+    <link rel="stylesheet" href="css/tables.css?v=20260504222732">
+    <link rel="stylesheet" href="css/responsive.css?v=20260504222732">
+    <link rel="stylesheet" href="css/tracker.css?v=20260504222732">
+    <link rel="stylesheet" href="css/multigoal.css?v=20260504222732">
+    <link rel="stylesheet" href="css/montecarlo.css?v=20260504222732">
+    <link rel="stylesheet" href="css/persistence.css?v=20260504222732">
+    <link rel="stylesheet" href="css/retire-today.css?v=20260504222732">
+    <link rel="stylesheet" href="css/dark.css?v=20260504222732">
 </head>
 <body>
     <div class="container">
@@ -1531,16 +1531,8 @@
             <div class="panel">
                 <h2>Retire Today</h2>
                 <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:760px;">
-                    If you retired <b>right now</b>, how much can you safely withdraw each month, and how long would your money last? This tab uses your <b>current corpus</b> (live from the Projection chain) and asks the inverse question to your main plan: not "when can I retire?" but "what if today?".
+                    If you retired <b>right now</b>, how much can you safely withdraw each month, and how long would your money last? This tab uses your <b>current corpus</b> (live running balance from the Projection chain). For the alternate "what if I had my full Multi-Goal corpus at retirement age" view, use the <b>Multi-Goal corpus</b> sub-tab.
                 </p>
-
-                <!-- Source corpus toggle -->
-                <div class="rt-source-toggle">
-                    <span class="rt-source-label">Source corpus:</span>
-                    <label class="rt-source-opt"><input type="radio" name="rtSource" id="rtSourceLive" value="live" checked> Live (today)</label>
-                    <label class="rt-source-opt"><input type="radio" name="rtSource" id="rtSourceMG" value="multigoal"> Multi-Goal corpus at retirement</label>
-                    <span class="rt-source-hint" id="rtSourceHint" title="Live = your running balance today. Multi-Goal = the projected corpus at your retirement age, computed from the active Multi-Goal phases.">?</span>
-                </div>
 
                 <!-- Editable inputs row -->
                 <div class="rt-inputs">
@@ -1620,6 +1612,92 @@
             </div>
         </div>
 
+        <!-- TAB: RETIRE TODAY (Multi-Goal corpus variant) -->
+        <div class="tab-content" id="tab-retire-today-mg">
+            <div class="panel">
+                <h2>Retire Today — Multi-Goal corpus</h2>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:760px;">
+                    Same question as the Live tab, but using your <b>projected Multi-Goal corpus at retirement age</b> instead of today's running balance. Useful when you want to know "if my Multi-Goal plan works exactly as designed and I arrive at retirement with the projected corpus, how much can I withdraw each month?"
+                </p>
+
+                <!-- Editable inputs row -->
+                <div class="rt-inputs">
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgCorpusToday" title="Your projected Multi-Goal corpus at retirement age. Editable here for what-if; changes don't propagate back.">Multi-Goal Corpus</label>
+                        <div class="rt-input-row"><span class="rt-prefix">&#8377;</span><input type="number" id="rtMgCorpusToday" step="10000"></div>
+                    </div>
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgMonthlyExpense" title="Your monthly retirement expense in TODAY's rupees (no inflation applied here — that's done internally by year).">Monthly Expense (today)</label>
+                        <div class="rt-input-row"><span class="rt-prefix">&#8377;</span><input type="number" id="rtMgMonthlyExpense" step="1000"></div>
+                    </div>
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgAnnualReturn" title="Annual return assumed for the corpus during retirement. Defaults to your Post-Retirement Blended return from Financial Plan.">Annual Return</label>
+                        <div class="rt-input-row"><input type="number" id="rtMgAnnualReturn" step="0.1"><span class="rt-suffix">%</span></div>
+                    </div>
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgInflation" title="Annual inflation applied to expenses each year of retirement. Defaults to your Inflation Rate from Basics.">Expense Inflation</label>
+                        <div class="rt-input-row"><input type="number" id="rtMgInflation" step="0.1"><span class="rt-suffix">%</span></div>
+                    </div>
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgHorizon" title="How many years of retirement to plan for. Defaults to (life expectancy − retirement age).">Years to Plan For</label>
+                        <div class="rt-input-row"><input type="number" id="rtMgHorizon" step="1"><span class="rt-suffix">yrs</span></div>
+                    </div>
+                </div>
+
+                <!-- 3 withdrawal strategies -->
+                <h3 style="margin-top:28px;">How much can I withdraw?</h3>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Three different ways to size a safe monthly withdrawal from the Multi-Goal corpus.</p>
+                <div class="rt-strategy-grid">
+                    <div class="rt-strategy-card rt-strategy-card--mc">
+                        <div class="rt-strategy-title">Monte Carlo 85% Safe</div>
+                        <div class="rt-strategy-value" id="rtMgStratMC">&#8377;—</div>
+                        <div class="rt-strategy-meta">/ month for <span id="rtMgStratMCYears">—</span> yrs</div>
+                        <div class="rt-strategy-explain">Largest monthly withdrawal where 85% of randomized return scenarios still leave money at end of horizon. Most realistic.</div>
+                    </div>
+                    <div class="rt-strategy-card rt-strategy-card--rule">
+                        <div class="rt-strategy-title">4% Rule (Bengen)</div>
+                        <div class="rt-strategy-value" id="rtMgStrat4pct">&#8377;—</div>
+                        <div class="rt-strategy-meta">/ month — 4% of corpus / 12</div>
+                        <div class="rt-strategy-explain">The classic textbook rule — historically safe across 30-year US retirements. Simple and conservative.</div>
+                    </div>
+                    <div class="rt-strategy-card rt-strategy-card--blended">
+                        <div class="rt-strategy-title">Annuity-Style</div>
+                        <div class="rt-strategy-value" id="rtMgStratBlended">&#8377;—</div>
+                        <div class="rt-strategy-meta">/ month at <span id="rtMgStratBlendedRate">—</span> for <span id="rtMgStratBlendedYears">—</span> yrs</div>
+                        <div class="rt-strategy-explain">Maximum equal monthly withdrawal that fully drains corpus by end of horizon, given your post-retirement blended return.</div>
+                    </div>
+                </div>
+
+                <!-- 3 months-survivable metrics -->
+                <h3 style="margin-top:28px;">How long will my money last?</h3>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Three views of how many months your Multi-Goal corpus survives at your CURRENT monthly expense (above).</p>
+                <div class="rt-survival-grid">
+                    <div class="rt-survival-card rt-survival-card--det">
+                        <div class="rt-survival-title">Deterministic</div>
+                        <div class="rt-survival-value" id="rtMgSurvDet">— mo</div>
+                        <div class="rt-survival-meta" id="rtMgSurvDetYears">— years</div>
+                        <div class="rt-survival-explain">Assumes the corpus earns your annual return every year, no variance. Best-guess "average" answer.</div>
+                    </div>
+                    <div class="rt-survival-card rt-survival-card--mc-median">
+                        <div class="rt-survival-title">Monte Carlo Median</div>
+                        <div class="rt-survival-value" id="rtMgSurvMCMed">— mo</div>
+                        <div class="rt-survival-meta" id="rtMgSurvMCMedYears">— years</div>
+                        <div class="rt-survival-explain">Middle outcome across thousands of randomized return paths. Half of futures last longer, half shorter.</div>
+                    </div>
+                    <div class="rt-survival-card rt-survival-card--mc-worst">
+                        <div class="rt-survival-title">Monte Carlo Worst-10%</div>
+                        <div class="rt-survival-value" id="rtMgSurvMCWorst">— mo</div>
+                        <div class="rt-survival-meta" id="rtMgSurvMCWorstYears">— years</div>
+                        <div class="rt-survival-explain">The 10th-percentile bad outcome. Plan for THIS number if you want to be cautious — only 1 in 10 futures is worse.</div>
+                    </div>
+                </div>
+
+                <p class="sub-text" id="rtMgMcStatus" style="margin-top:14px;font-size:0.78rem;color:var(--text-secondary,#94a3b8);">
+                    Monte Carlo numbers above use 5,000 simulated retirement paths each time you change an input. May take a moment after a big change.
+                </p>
+            </div>
+        </div>
+
         <!-- TAB: PROFILES -->
         <div class="tab-content" id="tab-profiles">
             <div class="panel">
@@ -1679,34 +1757,34 @@
         </button>
     </div>
 
-    <script src="js/utils.js?v=20260504222310"></script>
-    <script src="js/calc-income.js?v=20260504222310"></script>
-    <script src="js/calc-expenses.js?v=20260504222310"></script>
-    <script src="js/calc-investments.js?v=20260504222310"></script>
-    <script src="js/calc-financial-plan.js?v=20260504222310"></script>
-    <script src="js/calc-projections.js?v=20260504222310"></script>
-    <script src="js/chart.js?v=20260504222310"></script>
-    <script src="js/calc-dashboard.js?v=20260504222310"></script>
-    <script src="js/calc-whatif.js?v=20260504222310"></script>
-    <script src="js/calc-goals.js?v=20260504222310"></script>
-    <script src="js/calc-multigoal.js?v=20260504222310"></script>
-    <script src="js/calc-emergency.js?v=20260504222310"></script>
-    <script src="js/calc-sip.js?v=20260504222310"></script>
-    <script src="js/calc-tracker.js?v=20260504222310"></script>
-    <script src="js/historical-returns-data.js?v=20260504222310"></script>
-    <script src="js/chart-montecarlo.js?v=20260504222310"></script>
-    <script src="js/calc-montecarlo.js?v=20260504222310"></script>
-    <script src="js/calc-savings-rollup.js?v=20260504222310"></script>
-    <script src="js/calc-milestones.js?v=20260504222310"></script>
-    <script src="js/calc-loan.js?v=20260504222310"></script>
-    <script src="js/calc-exptrack.js?v=20260504222310"></script>
-    <script src="js/calc-networth.js?v=20260504222310"></script>
-    <script src="js/calc-retire-today.js?v=20260504222310"></script>
-    <script src="js/profiles.js?v=20260504222310"></script>
-    <script src="js/sharelink.js?v=20260504222310"></script>
-    <script src="js/darkmode.js?v=20260504222310"></script>
-    <script src="js/app.js?v=20260504222310"></script>
-    <script src="js/persistence.js?v=20260504222310"></script>
+    <script src="js/utils.js?v=20260504222732"></script>
+    <script src="js/calc-income.js?v=20260504222732"></script>
+    <script src="js/calc-expenses.js?v=20260504222732"></script>
+    <script src="js/calc-investments.js?v=20260504222732"></script>
+    <script src="js/calc-financial-plan.js?v=20260504222732"></script>
+    <script src="js/calc-projections.js?v=20260504222732"></script>
+    <script src="js/chart.js?v=20260504222732"></script>
+    <script src="js/calc-dashboard.js?v=20260504222732"></script>
+    <script src="js/calc-whatif.js?v=20260504222732"></script>
+    <script src="js/calc-goals.js?v=20260504222732"></script>
+    <script src="js/calc-multigoal.js?v=20260504222732"></script>
+    <script src="js/calc-emergency.js?v=20260504222732"></script>
+    <script src="js/calc-sip.js?v=20260504222732"></script>
+    <script src="js/calc-tracker.js?v=20260504222732"></script>
+    <script src="js/historical-returns-data.js?v=20260504222732"></script>
+    <script src="js/chart-montecarlo.js?v=20260504222732"></script>
+    <script src="js/calc-montecarlo.js?v=20260504222732"></script>
+    <script src="js/calc-savings-rollup.js?v=20260504222732"></script>
+    <script src="js/calc-milestones.js?v=20260504222732"></script>
+    <script src="js/calc-loan.js?v=20260504222732"></script>
+    <script src="js/calc-exptrack.js?v=20260504222732"></script>
+    <script src="js/calc-networth.js?v=20260504222732"></script>
+    <script src="js/calc-retire-today.js?v=20260504222732"></script>
+    <script src="js/profiles.js?v=20260504222732"></script>
+    <script src="js/sharelink.js?v=20260504222732"></script>
+    <script src="js/darkmode.js?v=20260504222732"></script>
+    <script src="js/app.js?v=20260504222732"></script>
+    <script src="js/persistence.js?v=20260504222732"></script>
 
     <!-- Phase 2: Monte Carlo Worker source inlined as a string. The Web Worker
          is loaded via Blob URL (works from file:// AND http://). This script

@@ -12,7 +12,7 @@ RP._tabGroups = {
     project:  { label: 'Project',  tabs: ['projections', 'whatif', 'milestones', 'goals'] },
     track:    { label: 'Track',    tabs: ['dashboard', 'tracker', 'networth', 'exptrack'] },
     tools:    { label: 'Tools',    tabs: ['sip', 'loan'] },
-    'retire-today': { label: 'Retire Today', tabs: ['retire-today'] },
+    'retire-today': { label: 'Retire Today', tabs: ['retire-today', 'retire-today-mg'] },
     profiles: { label: 'Profiles', tabs: ['profiles'] }
 };
 /* tab → group key, built once at script load. */
@@ -40,7 +40,8 @@ RP._tabLabels = {
     'exptrack': 'Expense Log',
     'sip': 'SIP Calculator',
     'loan': 'Loan/EMI',
-    'retire-today': 'Retire Today',
+    'retire-today': 'Today (live corpus)',
+    'retire-today-mg': 'Multi-Goal corpus',
     'profiles': 'Profiles'
 };
 
