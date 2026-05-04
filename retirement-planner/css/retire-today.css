@@ -4,15 +4,22 @@
    reuses summary-card colors + spacing from cards.css where possible.
    ============================================================================ */
 
-/* Top-level group button — slight accent so this important section is visible. */
-.nav-group--accent {
-    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
-    color: #fff;
-    font-weight: 600;
+/* Top-level group button — accent so this important section is visible.
+ * !important on color: nav-group base styles flip text color when active
+ * to the brand blue, which becomes invisible against THIS button's blue
+ * gradient. Force white in all states (idle, hover, active). */
+.nav-group--accent,
+.nav-group--accent.active,
+.nav-group--accent:hover,
+.nav-group--accent:focus {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+    color: #fff !important;
+    font-weight: 700;
+    border-color: transparent !important;
 }
-.nav-group--accent:hover { filter: brightness(1.05); }
+.nav-group--accent:hover { filter: brightness(1.08); }
 .nav-group--accent.active {
-    background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%) !important;
     box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
 }
 
