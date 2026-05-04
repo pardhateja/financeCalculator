@@ -142,9 +142,10 @@ RP._compoundYear = function (seedStart, sips, monthlyRate, expensesMonthly) {
 /* ---------- Main projection ---------- */
 
 /* Pure projection: returns rows + summary numbers for the given rate pair.
- * Used twice — once at gross blended (main table) and once at after-tax
- * (overlay subtitles on summary cards). Pure-ish: reads localStorage +
- * inputs, but doesn't write to DOM. */
+ * Pre-tax always — Pardha decided to keep tax modeling out of the chain
+ * for simplicity (₹1.25L LTCG exemption covers most of equity drag in
+ * realistic retirements; tax laws change; user can stress-test by
+ * bumping expense input). */
 RP._runProjection = function (preReturn, postReturn) {
   const seed = RP.val('currentSavingsSeed');
   const monthlyInvest = RP.val('monthlyInvestAmt');
@@ -365,18 +366,16 @@ RP.generateProjections = function () {
   RP.setText('runsOutAge', result.runsOutAge ? 'Age ' + result.runsOutAge : 'Never');
   RP.setText('legacyCorpus', RP.formatCurrencyShort(result.legacyCorpus));
 
-  // After-tax overlay: re-run the projection at the after-tax rates and
-  // show the resulting Corpus + Legacy as small subtitles beneath the
-  // headline numbers. Same engine, different rates → consistent math.
-  if (typeof RP._preReturnAfterTax === 'number' && RP._preReturnAfterTax > 0) {
-    const afterTax = RP._runProjection(RP._preReturnAfterTax, RP._postReturnAfterTax || RP._postReturn);
-    const corpusSubEl = document.getElementById('corpusAtRetirementAfterTax');
-    const legacySubEl = document.getElementById('legacyCorpusAfterTax');
-    const runsOutSubEl = document.getElementById('runsOutAgeAfterTax');
-    if (corpusSubEl) corpusSubEl.textContent = 'After-tax: ' + RP.formatCurrencyShort(afterTax.corpusAtRetirement);
-    if (legacySubEl) legacySubEl.textContent = 'After-tax: ' + RP.formatCurrencyShort(afterTax.legacyCorpus);
-    if (runsOutSubEl) runsOutSubEl.textContent = 'After-tax: ' + (afterTax.runsOutAge ? 'Age ' + afterTax.runsOutAge : 'Never');
-  }
+  // After-tax overlay removed — Pardha-decision 2026-05-04: tax law
+  // changes + ₹1.25L LTCG exemption covers most equity drag in realistic
+  // retirements. Per-asset tax inputs kept on Financial Plan tab in case
+  // we add tax-aware modeling later, but no overlay shown.
+  const corpusSubEl = document.getElementById('corpusAtRetirementAfterTax');
+  const legacySubEl = document.getElementById('legacyCorpusAfterTax');
+  const runsOutSubEl = document.getElementById('runsOutAgeAfterTax');
+  if (corpusSubEl) corpusSubEl.textContent = '';
+  if (legacySubEl) legacySubEl.textContent = '';
+  if (runsOutSubEl) runsOutSubEl.textContent = '';
 
   // Render table
   const tbody = document.getElementById('projectionTableBody');
