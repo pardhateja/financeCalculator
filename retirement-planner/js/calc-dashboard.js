@@ -18,11 +18,20 @@ RP.calculateDashboard = function () {
     const monthlyInvest = RP.val('monthlyInvestAmt');
 
     // --- FI SCORE (0-100) using PROJECTED corpus ---
-    // Get projected corpus from projections (already calculated)
+    // Read directly from RP._projectionRows (numeric, race-free). Falls
+    // back to DOM text only if projections haven't run yet at first paint.
+    // Pardha audit fix #4: previously parsed the formatted "₹4.77 Cr" text
+    // which was stale or "₹0" before projection finished, scoring 0/100.
     const corpusText = document.getElementById('corpusAtRetirement') ? document.getElementById('corpusAtRetirement').textContent : '';
     let projectedCorpus = 0;
-    if (corpusText.includes('Cr')) projectedCorpus = parseFloat(corpusText.replace(/[^0-9.]/g, '')) * 10000000;
-    else if (corpusText.includes('L')) projectedCorpus = parseFloat(corpusText.replace(/[^0-9.]/g, '')) * 100000;
+    if (Array.isArray(RP._projectionRows) && RP._projectionRows.length) {
+        const row = RP._projectionRows.find(r => r.age === retAge - 1);
+        if (row && Number.isFinite(row.ending)) projectedCorpus = row.ending;
+    }
+    if (!projectedCorpus) {
+        if (corpusText.includes('Cr')) projectedCorpus = parseFloat(corpusText.replace(/[^0-9.]/g, '')) * 10000000;
+        else if (corpusText.includes('L')) projectedCorpus = parseFloat(corpusText.replace(/[^0-9.]/g, '')) * 100000;
+    }
 
     // Target corpus: inflation-adjusted annual expense at retirement * 25 (4% rule)
     const retYears = retAge - curAge;

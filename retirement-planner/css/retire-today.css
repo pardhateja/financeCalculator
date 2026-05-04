@@ -1,0 +1,289 @@
+/* ============================================================================
+   Retire Today tab (Phase 3). Minimal layout: 5 input cards in a flex row,
+   then 3 strategy cards, then 3 survival cards. No new design system —
+   reuses summary-card colors + spacing from cards.css where possible.
+   ============================================================================ */
+
+/* Top-level group button — accent so this important section is visible.
+ * !important on color: nav-group base styles flip text color when active
+ * to the brand blue, which becomes invisible against THIS button's blue
+ * gradient. Force white in all states (idle, hover, active). */
+.nav-group--accent,
+.nav-group--accent.active,
+.nav-group--accent:hover,
+.nav-group--accent:focus {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+    color: #fff !important;
+    font-weight: 700;
+    border-color: transparent !important;
+}
+.nav-group--accent:hover { filter: brightness(1.08); }
+.nav-group--accent.active {
+    background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%) !important;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
+}
+
+/* --- Source corpus toggle --- */
+.rt-source-toggle {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: rgba(37, 99, 235, 0.06);
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+}
+.rt-source-label { font-weight: 600; color: var(--text-primary, #0f172a); }
+.rt-source-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--text-secondary, #64748b);
+    font-weight: 500;
+}
+.rt-source-opt input { cursor: pointer; }
+.rt-source-hint {
+    margin-left: auto;
+    cursor: help;
+    color: var(--text-secondary, #64748b);
+    font-weight: 700;
+    background: rgba(37, 99, 235, 0.12);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    font-size: 0.78rem;
+}
+
+/* --- Input row --- */
+.rt-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.rt-input-card {
+    background: var(--bg-color, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    padding: 10px 14px;
+}
+.rt-input-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 6px;
+    cursor: help;
+}
+.rt-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+.rt-input-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    font-weight: 600;
+    background: transparent;
+    color: var(--text-primary, #0f172a);
+    width: 100%;
+    min-width: 0;
+}
+.rt-prefix, .rt-suffix {
+    color: var(--text-secondary, #64748b);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* --- Strategy cards --- */
+.rt-strategy-grid, .rt-survival-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+}
+.rt-strategy-card, .rt-survival-card {
+    background: #fff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 12px;
+    padding: 16px 18px;
+    border-top-width: 4px;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.rt-strategy-card:hover, .rt-survival-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+.rt-strategy-card--mc      { border-top-color: #2563eb; }
+.rt-strategy-card--rule    { border-top-color: var(--secondary-color, #10b981); }
+.rt-strategy-card--blended { border-top-color: var(--warning-color, #f59e0b); }
+.rt-strategy-card--bucket  { border-top-color: #c026d3; }
+.rt-survival-card--det       { border-top-color: var(--secondary-color, #10b981); }
+.rt-survival-card--mc-median { border-top-color: #2563eb; }
+.rt-survival-card--mc-worst  { border-top-color: var(--danger-color, #ef4444); }
+
+.rt-strategy-title, .rt-survival-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 6px;
+}
+.rt-strategy-value, .rt-survival-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    margin-bottom: 4px;
+}
+.rt-strategy-meta, .rt-survival-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+.rt-strategy-explain, .rt-survival-explain {
+    font-size: 0.78rem;
+    color: var(--text-secondary, #64748b);
+    line-height: 1.4;
+    margin-top: 8px;
+}
+
+/* Dual-horizon rows inside a card: one row for "Good (to 80)" + one for
+ * "Best (to 100)". Pardha 2026-05-04. */
+.rt-dual-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    grid-template-rows: auto auto;
+    align-items: baseline;
+    gap: 0 10px;
+    padding: 6px 0;
+}
+.rt-dual-row + .rt-dual-row {
+    border-top: 1px dashed var(--border-color, #e2e8f0);
+}
+.rt-dual-tag {
+    grid-row: 1 / span 2;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    align-self: center;
+    background: rgba(100, 116, 139, 0.08);
+    padding: 4px 6px;
+    border-radius: 4px;
+    text-align: center;
+}
+.rt-dual-row--best .rt-dual-tag {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+}
+.rt-dual-row--short .rt-dual-tag {
+    background: rgba(245, 158, 11, 0.14);
+    color: #b45309;
+}
+.rt-dual-val {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+    grid-column: 2;
+    grid-row: 1;
+}
+.rt-dual-meta {
+    font-size: 0.78rem;
+    color: var(--text-secondary, #64748b);
+    grid-column: 2;
+    grid-row: 2;
+}
+
+/* --- Multi-Goal coverage section --- */
+.mg-cov-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.mg-cov-summary-card {
+    background: var(--bg-color, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+}
+.mg-cov-card-deficit { background: #fef2f2; border-color: #fecaca; }
+.mg-cov-card-surplus { background: #f0fdf4; border-color: #bbf7d0; }
+.mg-cov-label { font-size: 0.72rem; color: var(--text-secondary,#64748b); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+.mg-cov-value { font-size: 1.2rem; font-weight: 700; margin-top: 4px; color: var(--text-primary,#0f172a); }
+
+.mg-cov-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.mg-cov-table th {
+    background: #f8fafc;
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--border-color,#e2e8f0);
+}
+.mg-cov-table td {
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+.mg-cov-table tbody tr:last-child td { border-bottom: none; }
+.mg-phase-dot {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 50%; margin-right: 8px; vertical-align: middle;
+}
+.mg-cov-bar {
+    width: 100px;
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+.mg-cov-fill { height: 100%; transition: width 0.3s; }
+.mg-cov-full    { background: var(--secondary-color, #10b981); }
+.mg-cov-partial { background: var(--warning-color,   #f59e0b); }
+.mg-cov-low     { background: var(--danger-color,    #ef4444); }
+.mg-cov-pct {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary,#64748b);
+    min-width: 36px;
+    vertical-align: middle;
+}
+
+/* Dark mode */
+body.dark-mode .rt-input-card,
+body.dark-mode .rt-strategy-card,
+body.dark-mode .rt-survival-card {
+    background: var(--bg-card, #1e293b);
+    border-color: var(--border-color, #334155);
+}
+body.dark-mode .rt-input-row { background: rgba(15, 23, 42, 0.5); }

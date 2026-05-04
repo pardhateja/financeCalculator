@@ -1,0 +1,432 @@
+/* ============================================================================
+   Monte Carlo (Phase 2) styles
+   ----------------------------------------------------------------------------
+   Reuses Phase 1 design tokens (CSS vars from base.css). No new colors.
+   ============================================================================ */
+
+/* ---------- Toggle (segmented control) ---------- */
+.mc-toggle {
+  display: inline-flex;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 0 16px 0;
+  background: var(--bg-soft, #f8fafc);
+}
+.mc-toggle__btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-secondary, #64748b);
+  transition: background 150ms ease, color 150ms ease;
+}
+.mc-toggle__btn:hover { color: var(--text, #1e293b); }
+.mc-toggle__btn--active {
+  background: var(--accent, #2563eb);
+  color: #fff;
+}
+.mc-toggle__btn:focus-visible {
+  outline: 2px solid var(--accent, #2563eb);
+  outline-offset: 2px;
+}
+
+/* ---------- Intro paragraph ---------- */
+.mc-intro {
+  background: rgba(37, 99, 235, 0.06);
+  border-left: 3px solid var(--accent, #2563eb);
+  padding: 12px 16px;
+  margin: 0 0 16px;
+  color: var(--text, #1e293b);
+  border-radius: 0 6px 6px 0;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.mc-intro strong { color: var(--text, #1e293b); }
+body.dark-mode .mc-intro { background: rgba(59, 130, 246, 0.10); color: #cbd5e1; }
+body.dark-mode .mc-intro strong { color: #f1f5f9; }
+
+/* ---------- Inputs-being-simulated card ---------- */
+.mc-inputs-card { padding: 16px 20px; margin: 0 0 16px; }
+.mc-inputs-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mc-inputs-card__header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.mc-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 8px 24px;
+}
+.mc-inputs-grid--editable { gap: 12px 20px; }
+
+/* Editable input row */
+.mc-input-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mc-input-edit__label {
+  color: var(--text-secondary, #64748b);
+  font-size: 12px;
+  font-weight: 500;
+}
+.mc-input-edit__field {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  background: var(--bg-soft, #f8fafc);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  padding: 0 8px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.mc-input-edit__field:focus-within {
+  border-color: var(--accent, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+.mc-input-edit__field input[type="number"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 6px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  min-width: 60px;
+  -moz-appearance: textfield;
+}
+.mc-input-edit__field input[type="number"]::-webkit-inner-spin-button,
+.mc-input-edit__field input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.mc-input-edit__prefix,
+.mc-input-edit__suffix {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.mc-input-edit--checkbox {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  grid-column: 1 / -1;
+  cursor: pointer;
+}
+.mc-input-edit--checkbox input[type="checkbox"] {
+  margin-top: 2px;
+  cursor: pointer;
+}
+.mc-input-edit--checkbox .mc-input-edit__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text, #1e293b);
+}
+body.dark-mode .mc-input-edit__field {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+body.dark-mode .mc-input-edit__field input[type="number"] { color: #f1f5f9; }
+body.dark-mode .mc-input-edit--checkbox .mc-input-edit__label { color: #e2e8f0; }
+
+/* Realism panel */
+.mc-realism {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border, #e2e8f0);
+}
+.mc-realism summary {
+  cursor: pointer;
+  color: var(--accent, #2563eb);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 0;
+}
+.mc-realism summary:hover { text-decoration: underline; }
+.mc-realism[open] summary { margin-bottom: 12px; }
+.mc-realism__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px 20px;
+}
+body.dark-mode .mc-realism { border-top-color: rgba(148, 163, 184, 0.18); }
+.mc-input-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border, #e2e8f0);
+}
+.mc-input-row:last-child { border-bottom: none; }
+.mc-input-row__label {
+  color: var(--text-secondary, #64748b);
+  font-size: 13px;
+}
+.mc-input-row__value {
+  color: var(--text, #1e293b);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: 14px;
+}
+body.dark-mode .mc-input-row__value { color: #f1f5f9; }
+body.dark-mode .mc-input-row { border-bottom-color: rgba(148, 163, 184, 0.18); }
+
+/* ---------- Idle state ---------- */
+.mc-idle { padding: 24px 16px; text-align: center; }
+.mc-run-btn-big {
+  font-size: 16px;
+  padding: 12px 32px;
+  min-width: 200px;
+}
+.mc-advanced { margin-top: 16px; text-align: left; max-width: 480px; margin-left: auto; margin-right: auto; }
+.mc-advanced summary { cursor: pointer; color: var(--text-secondary, #64748b); font-size: 13px; padding: 8px 0; }
+.mc-advanced[open] summary { margin-bottom: 8px; }
+.mc-help { color: var(--text-secondary, #94a3b8); font-size: 12px; margin: 6px 0 0; line-height: 1.4; }
+.mc-sim-count { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; }
+.mc-sim-count label { color: var(--text-secondary, #64748b); font-size: 13px; font-weight: 500; }
+.mc-sim-count select {
+  padding: 6px 8px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-soft, #f8fafc);
+  color: var(--text, #1e293b);
+  font-size: 13px;
+  min-width: 220px;
+}
+.mc-sim-count select:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; }
+body.dark-mode .mc-sim-count select { background: rgba(30, 41, 59, 0.6); color: #e2e8f0; border-color: #475569; }
+
+/* ---------- Empty state ---------- */
+.mc-empty-state { padding: 48px 16px; text-align: center; color: var(--text-secondary, #64748b); }
+.mc-empty-state p { margin: 0 0 16px; }
+
+/* ---------- Progress bar ---------- */
+.mc-progress { padding: 24px; text-align: center; }
+.mc-progress__label { color: var(--text, #1e293b); font-weight: 500; margin-bottom: 12px; }
+.mc-progress__bar {
+  width: 100%;
+  max-width: 480px;
+  height: 12px;
+  background: var(--bg-soft, #f1f5f9);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0 auto 12px;
+}
+.mc-progress__fill {
+  height: 100%;
+  background: var(--accent, #2563eb);
+  transition: width 200ms ease;
+}
+.mc-progress__count { color: var(--text-secondary, #64748b); margin-bottom: 16px; font-variant-numeric: tabular-nums; }
+
+/* ---------- Results: callout reuses .alert pattern from base.css ---------- */
+#mc-results .alert { margin-bottom: 16px; display: flex; align-items: flex-start; gap: 12px; padding: 16px; border-radius: 8px; }
+#mc-results .alert__icon { font-size: 20px; line-height: 1; }
+#mc-results .alert__text { flex: 1; margin: 0; line-height: 1.5; }
+#mc-results .alert__cta { white-space: nowrap; }
+.alert--success { background: #ecfdf5; border-left: 4px solid #10b981; color: #065f46; }
+.alert--info    { background: #eff6ff; border-left: 4px solid #2563eb; color: #1e40af; }
+.alert--warning { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
+.alert--danger  { background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; }
+
+/* ---------- Section titles + helps ---------- */
+.mc-chart-title { margin: 24px 0 4px; font-size: 16px; color: var(--text, #1e293b); font-weight: 600; }
+body.dark-mode .mc-chart-title { color: #f1f5f9; }
+.mc-chart-help { margin: 0 0 8px; color: var(--text-secondary, #64748b); font-size: 13px; line-height: 1.4; }
+
+/* ---------- Focus-landing pulse (highlights monthlyInvestAmt after CTA jump) ---------- */
+.mc-input-pulse {
+  outline: 3px solid var(--accent, #2563eb) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18) !important;
+  transition: outline 200ms ease, box-shadow 200ms ease;
+  animation: mcPulse 0.6s ease-out 0s 2;
+}
+@keyframes mcPulse {
+  0%   { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.35); }
+  100% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+}
+
+/* ---------- Sample 5 random futures ---------- */
+.mc-samples {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(100, 116, 139, 0.06);
+  border-left: 3px solid var(--text-secondary, #94a3b8);
+  border-radius: 0 6px 6px 0;
+}
+.mc-samples__title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.mc-samples__hint {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.4;
+}
+.mc-samples__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 6px 16px;
+}
+.mc-samples__list li {
+  font-size: 13px;
+  color: var(--text, #1e293b);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.mc-samples__list li::before {
+  content: '•';
+  color: var(--text-secondary, #94a3b8);
+}
+.mc-samples__list .mc-sample-fail { color: #dc2626; }
+.mc-samples__list .mc-sample-pass { color: #059669; }
+body.dark-mode .mc-samples { background: rgba(148, 163, 184, 0.06); }
+body.dark-mode .mc-samples__list li { color: #cbd5e1; }
+body.dark-mode .mc-samples__list .mc-sample-fail { color: #fca5a5; }
+body.dark-mode .mc-samples__list .mc-sample-pass { color: #6ee7b7; }
+
+/* ---------- Run history ticker ---------- */
+.mc-history {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: rgba(37, 99, 235, 0.06);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.5;
+}
+.mc-history__label { font-weight: 600; color: var(--text, #1e293b); margin-right: 8px; }
+.mc-history__items { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent, #2563eb); margin-right: 8px; }
+.mc-history__hint { color: var(--text-secondary, #94a3b8); }
+body.dark-mode .mc-history { background: rgba(59, 130, 246, 0.10); color: #cbd5e1; }
+body.dark-mode .mc-history__label { color: #f1f5f9; }
+
+/* ---------- "Why is it always ~48%?" FAQ explainer ---------- */
+.mc-faq {
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: rgba(100, 116, 139, 0.06);
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mc-faq summary {
+  cursor: pointer;
+  color: var(--accent, #2563eb);
+  font-weight: 600;
+  padding: 4px 0;
+}
+.mc-faq summary:hover { text-decoration: underline; }
+.mc-faq[open] summary { margin-bottom: 8px; }
+.mc-faq p {
+  margin: 8px 0;
+  color: var(--text, #1e293b);
+}
+.mc-faq strong { color: var(--text, #1e293b); }
+body.dark-mode .mc-faq { background: rgba(148, 163, 184, 0.06); }
+body.dark-mode .mc-faq p, body.dark-mode .mc-faq strong { color: #cbd5e1; }
+
+/* ---------- Re-run + debug expander ---------- */
+.mc-results-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-bottom: 100px; /* breathing room above the Phase 1 sticky summary bar */
+}
+
+/* The whole MC panel needs bottom padding so the sticky-summary strip
+   (Phase 1, position:fixed at bottom of viewport, ~70px tall) doesn't
+   overlay chart content. */
+#mc-panel-mc { padding-bottom: 90px; }
+.mc-debug summary { cursor: pointer; color: var(--text-secondary, #94a3b8); font-size: 12px; }
+.mc-debug .mc-footer { margin-top: 4px; }
+
+/* ---------- Data table fallback ---------- */
+.mc-data-table {
+  width: 100%;
+  margin: 8px 0 16px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.mc-data-table caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text, #1e293b);
+}
+.mc-data-table th,
+.mc-data-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  text-align: left;
+}
+.mc-data-table th { font-weight: 600; color: var(--text-secondary, #64748b); }
+
+/* ---------- Footer (perf info) ---------- */
+.mc-footer {
+  margin-top: 16px;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Buttons that don't already exist in base.css ---------- */
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--accent, #2563eb);
+  cursor: pointer;
+  padding: 4px 0;
+  font-size: 13px;
+  text-decoration: underline;
+}
+.btn-link:focus-visible { outline: 2px solid var(--accent, #2563eb); outline-offset: 2px; }
+
+/* ---------- Mobile (<600px) ---------- */
+@media (max-width: 600px) {
+  .mc-toggle { display: flex; flex-direction: column; width: 100%; }
+  .mc-toggle__btn { width: 100%; text-align: center; padding: 10px 16px; }
+  #mc-results .alert { flex-direction: column; }
+  .mc-data-table { font-size: 12px; }
+  .mc-data-table th, .mc-data-table td { padding: 4px 8px; }
+}
+
+/* ---------- Dark mode ---------- */
+body.dark-mode .alert--success { background: rgba(16, 185, 129, 0.12); color: #6ee7b7; }
+body.dark-mode .alert--info    { background: rgba(37, 99, 235, 0.12);  color: #93c5fd; }
+body.dark-mode .alert--warning { background: rgba(245, 158, 11, 0.12); color: #fcd34d; }
+body.dark-mode .alert--danger  { background: rgba(239, 68, 68, 0.12);  color: #fca5a5; }

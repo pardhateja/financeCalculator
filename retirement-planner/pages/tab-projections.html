@@ -2,18 +2,187 @@
         <div class="tab-content" id="tab-projections">
             <div class="panel" style="border-radius:0 16px 16px 16px;max-width:100%;">
                 <h2>Year-by-Year Projections</h2>
-                <div class="projection-summary" id="projectionSummary">
-                    <div class="summary-card success"><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div></div>
-                    <div class="summary-card"><div class="label">Years of Earning</div><div class="value" id="yearsEarning">0</div></div>
-                    <div class="summary-card warning"><div class="label">Years in Retirement</div><div class="value" id="yearsRetired">0</div></div>
-                    <div class="summary-card danger"><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div></div>
+
+                <!-- Phase 2: View toggle (Ideal Scenario vs Stress Test) -->
+                <div class="mc-toggle" role="tablist" aria-label="Projection view">
+                    <button id="mc-toggle-ideal" role="tab" class="mc-toggle__btn mc-toggle__btn--active"
+                            aria-selected="true" aria-controls="mc-panel-ideal" title="What you'll have if every year goes exactly as planned (one fixed return rate).">Ideal Scenario</button>
+                    <button id="mc-toggle-mc" role="tab" class="mc-toggle__btn"
+                            aria-selected="false" aria-controls="mc-panel-mc" title="Re-runs your plan against 35 years of real market history. Shows the chance your plan survives if the next 50 years look like the past.">Stress Test</button>
                 </div>
-                <div class="chart-container"><canvas id="projectionChart"></canvas></div>
-                <div class="projection-table-wrapper">
-                    <table class="projection-table">
-                        <thead><tr><th>Age</th><th>Starting</th><th>Annual Savings</th><th>Growth</th><th>Ending</th><th>Status</th><th>Expenses</th></tr></thead>
-                        <tbody id="projectionTableBody"></tbody>
-                    </table>
+
+                <!-- Existing Ideal Scenario panel — content unchanged from Phase 1 -->
+                <div role="tabpanel" id="mc-panel-ideal" aria-labelledby="mc-toggle-ideal">
+                    <div class="projection-summary" id="projectionSummary">
+                        <div class="summary-card success" title="Main number = pre-tax (matches the YouTuber-standard formula). After-tax = same math with each asset's gain reduced by its tax rate (LTCG / FD slab) before blending."><div class="label">Corpus at Retirement</div><div class="value" id="corpusAtRetirement">&#8377;0</div><div class="value-sub" id="corpusAtRetirementAfterTax"></div></div>
+                        <div class="summary-card"><div class="label">Years of Earning</div><div class="value" id="yearsEarning">0</div></div>
+                        <div class="summary-card warning"><div class="label">Years in Retirement</div><div class="value" id="yearsRetired">0</div></div>
+                        <div class="summary-card danger" title="Main number = pre-tax. After-tax shows when money runs out if every gain is taxed at your input tax rates."><div class="label">Money Runs Out At</div><div class="value" id="runsOutAge">-</div><div class="value-sub" id="runsOutAgeAfterTax"></div></div>
+                        <div class="summary-card legacy" title="Whatever your corpus has at the end of your life-expectancy gets passed to the next generation. After-tax shows what's left after paying tax along the way."><div class="label">🎁 Legacy / Inheritance</div><div class="value" id="legacyCorpus">&#8377;0</div><div class="value-sub" id="legacyCorpusAfterTax"></div></div>
+                    </div>
+                    <div class="chart-container"><canvas id="projectionChart"></canvas></div>
+                    <div class="projection-table-wrapper">
+                        <table class="projection-table">
+                            <thead><tr><th>Age</th><th>Starting</th><th>Annual Savings</th><th>Growth</th><th>Ending</th><th>Status</th><th>Expenses</th></tr></thead>
+                            <tbody id="projectionTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Phase 2: Monte Carlo Stress Test panel -->
+                <div role="tabpanel" id="mc-panel-mc" aria-labelledby="mc-toggle-mc" hidden>
+
+                    <!-- One-line intro: what is this view? -->
+                    <p class="mc-intro">
+                        <strong>What is this?</strong> The Ideal Scenario assumes your investments earn the same return every year. In reality, markets swing — some years are 2008, some are 2017. The Stress Test re-runs your plan thousands of times against <strong>35 years of real Indian market history (NIFTY, debt, CPI 1991-2025)</strong>, picking a different sequence of years each time. The chart shows what fraction of those simulated lives still had money at each age.
+                    </p>
+
+                    <!-- EDITABLE INPUTS — change values inline + re-run without leaving this view.
+                         Values default from your Setup tab fields; edit here to explore "what if".
+                         Click "Reset to Setup values" to undo any local overrides. -->
+                    <div class="mc-inputs-card panel" id="mc-inputs-card">
+                        <div class="mc-inputs-card__header">
+                            <h3>Inputs being simulated &mdash; click any value to change</h3>
+                            <button type="button" class="btn-link" id="mc-inputs-reset-btn" title="Discard your local overrides and re-read values from the Setup tab.">Reset to Setup values</button>
+                        </div>
+                        <div class="mc-inputs-grid mc-inputs-grid--editable">
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Current age</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-currentAge" min="0" max="120" step="1"><span class="mc-input-edit__suffix">yrs</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Retirement age</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-retirementAge" min="0" max="120" step="1"><span class="mc-input-edit__suffix">yrs</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Life expectancy</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-lifeExpectancy" min="0" max="120" step="1"><span class="mc-input-edit__suffix">yrs</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Current corpus</span>
+                                <span class="mc-input-edit__field"><span class="mc-input-edit__prefix">&#8377;</span><input type="number" id="mc-edit-currentSavings" min="0" step="10000"></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Monthly investment</span>
+                                <span class="mc-input-edit__field"><span class="mc-input-edit__prefix">&#8377;</span><input type="number" id="mc-edit-monthlyInvestAmt" min="0" step="1000"><span class="mc-input-edit__suffix">/ month</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Stock allocation</span>
+                                <span class="mc-input-edit__field"><input type="number" id="mc-edit-stockPercent" min="0" max="100" step="1"><span class="mc-input-edit__suffix">% (Safe = 100 &minus; Stock)</span></span></label>
+                            <label class="mc-input-edit"><span class="mc-input-edit__label">Post-retirement monthly expense (today's value)</span>
+                                <span class="mc-input-edit__field"><span class="mc-input-edit__prefix">&#8377;</span><input type="number" id="mc-edit-postRetireMonthly" min="0" step="1000"><span class="mc-input-edit__suffix">/ month</span></span></label>
+                        </div>
+
+                        <!-- Realism knobs — taxes, fees, glide-down. Defaults are India-typical. -->
+                        <details class="mc-realism">
+                            <summary>Realism &mdash; taxes, fees, glide-down (defaults are typical India values)</summary>
+                            <div class="mc-realism__grid">
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="Long-Term Capital Gains tax applied to equity withdrawals in retirement. Indian LTCG on equity above &#8377;1.25L/yr is 12.5%.">Equity LTCG tax</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-equityTax" min="0" max="50" step="0.5" value="12.5"><span class="mc-input-edit__suffix">% on withdrawals</span></span></label>
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="Tax on debt fund gains held >3 years. Effectively your slab rate; 20% with indexation pre-2023, slab post-2023.">Debt withdrawal tax</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-debtTax" min="0" max="50" step="0.5" value="30"><span class="mc-input-edit__suffix">% on withdrawals</span></span></label>
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="Total Expense Ratio of your equity mutual funds. Direct funds: ~0.5-1%. Regular: ~1.5-2.5%.">Equity TER (annual fees)</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-equityTer" min="0" max="5" step="0.1" value="1.0"><span class="mc-input-edit__suffix">% per year</span></span></label>
+                                <label class="mc-input-edit"><span class="mc-input-edit__label" title="TER for debt funds. Direct: ~0.3%. Regular: ~0.8%.">Debt TER</span>
+                                    <span class="mc-input-edit__field"><input type="number" id="mc-edit-debtTer" min="0" max="5" step="0.1" value="0.5"><span class="mc-input-edit__suffix">% per year</span></span></label>
+                                <label class="mc-input-edit mc-input-edit--checkbox" title="As you age, automatically shift Stock &rarr; Safe to reduce sequence-of-returns risk near retirement. Common rule: Stock% = 110 &minus; age.">
+                                    <input type="checkbox" id="mc-edit-glideDown">
+                                    <span class="mc-input-edit__label">Auto-glide allocation toward Safe as you age (Stock% = 110 &minus; age)</span>
+                                </label>
+                                <label class="mc-input-edit mc-input-edit--checkbox" title="Models a one-time medical/family emergency (&#8377;5L in today's money, inflated) once per decade after age 60. Set to off if you carry health insurance covering this.">
+                                    <input type="checkbox" id="mc-edit-shocks">
+                                    <span class="mc-input-edit__label">Include occasional spending shocks (one &#8377;5L event per decade after 60)</span>
+                                </label>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Empty state: missing required inputs -->
+                    <div id="mc-empty-state" class="mc-empty-state" hidden>
+                        <p>One or more required inputs are missing. Fill in your age, retirement age, life expectancy, monthly investment and post-retirement expense in the Setup tab to run a Stress Test.</p>
+                        <button class="btn-primary" id="mc-empty-cta" type="button">Go to Setup &rarr; Financial Plan</button>
+                    </div>
+
+                    <!-- Idle state: ready to run -->
+                    <div id="mc-idle" class="mc-idle">
+                        <button class="btn-primary mc-run-btn-big" id="mc-run-btn" type="button">Run Stress Test</button>
+                        <details class="mc-advanced">
+                            <summary>Advanced options</summary>
+                            <div class="mc-sim-count">
+                                <label for="mc-sim-count-select">Simulations per run</label>
+                                <select id="mc-sim-count-select">
+                                    <option value="1000">1,000 (instant)</option>
+                                    <option value="10000" selected>10,000 (fast — recommended)</option>
+                                    <option value="50000">50,000 (steady)</option>
+                                    <option value="100000">100,000 (precise)</option>
+                                    <option value="1000000">1,000,000 (research-grade, ~4s)</option>
+                                </select>
+                                <p class="mc-help">More simulations = steadier numbers across re-runs. 10,000 is plenty for most plans.</p>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Running state: progress + cancel -->
+                    <div id="mc-progress" class="mc-progress" hidden>
+                        <div class="mc-progress__label">Simulating your plan against 35 years of market history…</div>
+                        <div class="mc-progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Simulating your plan">
+                            <div class="mc-progress__fill" id="mc-progress-fill" style="width:0%"></div>
+                        </div>
+                        <div class="mc-progress__count" id="mc-progress-count">0 / 10,000 simulated lives</div>
+                        <button class="btn-secondary" id="mc-cancel-btn" type="button">Cancel</button>
+                    </div>
+
+                    <!-- Results state: callout + charts + tables -->
+                    <div id="mc-results" hidden>
+                        <div class="alert" id="mc-callout" role="status">
+                            <span class="alert__icon" id="mc-callout-icon" aria-hidden="true"></span>
+                            <p class="alert__text" id="mc-callout-text"></p>
+                            <button class="alert__cta btn-primary" id="mc-callout-cta" type="button" hidden>Increase Monthly Investment &rarr;</button>
+                        </div>
+
+                        <h3 class="mc-chart-title">Chance your plan still has money at each age</h3>
+                        <p class="mc-chart-help">Each bar is a probability. A 65% bar at age 80 means: <em>if you replayed your retirement 100 times with different market luck each time, you'd still have money at age 80 in roughly 65 of those 100 replays.</em></p>
+                        <div class="chart-container"><canvas id="mc-bar-chart" tabindex="0" aria-label="Chance of having money at each age" aria-describedby="mc-bar-table"></canvas></div>
+                        <button class="btn-link" id="mc-bar-table-toggle" type="button" aria-expanded="false" aria-controls="mc-bar-table">Show as data table</button>
+                        <table id="mc-bar-table" class="mc-data-table" hidden>
+                            <caption>Chance of having money at each age</caption>
+                            <thead><tr><th scope="col">Age</th><th scope="col">% of futures with money left</th><th scope="col">Risk level</th></tr></thead>
+                            <tbody id="mc-bar-table-body"></tbody>
+                        </table>
+
+                        <!-- Sample 5 random futures so the user SEES the randomness -->
+                        <div class="mc-samples" id="mc-samples">
+                            <h4 class="mc-samples__title">5 random futures from this run</h4>
+                            <p class="mc-samples__hint">The %s above are the average across 10,000 of these. Each individual future is random — bad luck early in retirement matters more than late luck.</p>
+                            <ul class="mc-samples__list" id="mc-samples-list"></ul>
+                        </div>
+
+                        <!-- Run history ticker — proves the aggregate is stable across re-runs -->
+                        <div class="mc-history" id="mc-history" hidden>
+                            <span class="mc-history__label">This run vs previous re-runs:</span>
+                            <span class="mc-history__items" id="mc-history-items"></span>
+                            <span class="mc-history__hint">→ small variation between runs is the honest randomness; the answer stays close to the true probability.</span>
+                        </div>
+
+                        <!-- "Why is it always ~48%?" explainer (the question every first-time user asks) -->
+                        <details class="mc-faq">
+                            <summary>Why does the % barely change when I re-run?</summary>
+                            <p>Because that's your plan's <strong>true success rate</strong>, computed honestly. Each individual simulated future is random — the 5 samples above re-shuffle on every run, you can verify by clicking <em>Re-run with different luck</em>. But their average, across 10,000 futures, <strong>converges</strong>. With only 100 sims the number would jump from 40% to 60% between runs; with 10,000 it settles within ±1% of the truth. That stability isn't proof it's fake — it's proof it's working.</p>
+                            <p>Think of it like flipping a fair coin 10,000 times: you'll always get close to 50% heads, never exactly. We're flipping 10,000 "market futures" against your plan; the % you see is your plan's honest survival rate.</p>
+                        </details>
+
+                        <h3 class="mc-chart-title">How much money you'll likely have, by age</h3>
+                        <p class="mc-chart-help">The blue line is the <em>middle</em> outcome — half of replays end up with more than this, half with less. The shaded band shows the range between an unlucky run (worst 10%) and a lucky run (best 10%) — most futures fall inside this band.</p>
+                        <div class="chart-container"><canvas id="mc-line-chart" tabindex="0" aria-label="Corpus trajectory range over time" aria-describedby="mc-line-table"></canvas></div>
+                        <button class="btn-link" id="mc-line-table-toggle" type="button" aria-expanded="false" aria-controls="mc-line-table">Show as data table</button>
+                        <table id="mc-line-table" class="mc-data-table" hidden>
+                            <caption>Corpus range by age (worst 10th, median, best 10th)</caption>
+                            <thead><tr><th scope="col">Age</th><th scope="col">Worst 10%</th><th scope="col">Median (most likely)</th><th scope="col">Best 10%</th></tr></thead>
+                            <tbody id="mc-line-table-body"></tbody>
+                        </table>
+
+                        <div class="mc-results-actions">
+                            <button class="btn-secondary" id="mc-rerun-btn" type="button">Re-run with different luck</button>
+                            <details class="mc-debug">
+                                <summary>Run details</summary>
+                                <p class="mc-footer" id="mc-perf-footer"></p>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- Error state -->
+                    <div id="mc-error" class="alert alert--danger" role="alert" hidden>
+                        <p class="alert__text" id="mc-error-text">Simulation failed. Please refresh and try again.</p>
+                    </div>
                 </div>
             </div>
         </div>

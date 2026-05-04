@@ -1,0 +1,233 @@
+        <!-- TAB: RETIRE TODAY (Multi-Goal corpus variant) -->
+        <div class="tab-content" id="tab-retire-today-mg">
+            <div class="panel">
+                <h2>Retire Today — Multi-Goal allocation</h2>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:780px;">
+                    If you stopped working <b>right now</b> with <b>today's actual corpus</b>, allocated across your Multi-Goal phases — what's covered, what's short? This tab uses today's running balance (not the projected future corpus) and splits it across your active phases per the same allocation logic as the Multi-Goal tab.
+                </p>
+
+                <p class="sub-text" style="margin-bottom:14px;font-size:0.82rem;background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.18);padding:8px 12px;border-radius:8px;">
+                    Each metric below shows three horizons: <b>Short</b> (plan to age 60), <b>Good</b> (plan to age 80), <b>Best</b> (plan to age 100).
+                </p>
+
+                <!-- Per-phase coverage table — renders after compute -->
+                <div id="rtMgPhaseCoverage" style="margin-bottom:18px;"></div>
+
+                <!-- Editable inputs row -->
+                <div class="rt-inputs">
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgCorpusToday" title="Today's running balance from the Projection chain. Editable here for what-if; changes don't propagate back.">Today's Corpus</label>
+                        <div class="rt-input-row"><span class="rt-prefix">&#8377;</span><input type="number" id="rtMgCorpusToday" step="10000"></div>
+                    </div>
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgMonthlyExpense" title="Your monthly retirement expense in TODAY's rupees (no inflation applied here — that's done internally by year).">Monthly Expense (today)</label>
+                        <div class="rt-input-row"><span class="rt-prefix">&#8377;</span><input type="number" id="rtMgMonthlyExpense" step="1000"></div>
+                    </div>
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgAnnualReturn" title="Annual return assumed for the corpus during retirement. Defaults to your Post-Retirement Blended return from Financial Plan.">Annual Return</label>
+                        <div class="rt-input-row"><input type="number" id="rtMgAnnualReturn" step="0.1"><span class="rt-suffix">%</span></div>
+                    </div>
+                    <div class="rt-input-card">
+                        <label class="rt-input-label" for="rtMgInflation" title="Annual inflation applied to expenses each year of retirement. Defaults to your Inflation Rate from Basics.">Expense Inflation</label>
+                        <div class="rt-input-row"><input type="number" id="rtMgInflation" step="0.1"><span class="rt-suffix">%</span></div>
+                    </div>
+                </div>
+
+                <!-- 3 withdrawal strategies -->
+                <h3 style="margin-top:28px;">How much can I withdraw?</h3>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Four different ways to size a safe monthly withdrawal from the corpus.</p>
+                <div class="rt-strategy-grid">
+                    <div class="rt-strategy-card rt-strategy-card--mc">
+                        <div class="rt-strategy-title">Monte Carlo 85% Safe</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgStratMCShort">&#8377;—</div>
+
+                            <div class="rt-dual-meta"><span id="rtMgStratMCYearsShort">—</span></div>
+
+                        </div>
+
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgStratMCGood">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtMgStratMCYearsGood">—</span></div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgStratMCBest">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtMgStratMCYearsBest">—</span></div>
+                        </div>
+                        <div class="rt-strategy-explain">Largest monthly withdrawal where 85% of randomized return scenarios still leave money at end of horizon. Most realistic.</div>
+                    </div>
+                    <div class="rt-strategy-card rt-strategy-card--rule">
+                        <div class="rt-strategy-title">4% Rule (Bengen)</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgStrat4pctShort">&#8377;—</div>
+
+                            <div class="rt-dual-meta">4% of corpus / 12</div>
+
+                        </div>
+
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgStrat4pctGood">&#8377;—</div>
+                            <div class="rt-dual-meta">4% of corpus / 12</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgStrat4pctBest">&#8377;—</div>
+                            <div class="rt-dual-meta">4% of corpus / 12</div>
+                        </div>
+                        <div class="rt-strategy-explain">The classic textbook rule — same number for both horizons (rule doesn't depend on horizon).</div>
+                    </div>
+                    <div class="rt-strategy-card rt-strategy-card--blended">
+                        <div class="rt-strategy-title">Annuity-Style</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgStratBlendedShort">&#8377;—</div>
+
+                            <div class="rt-dual-meta"><span id="rtMgStratBlendedYearsShort">—</span></div>
+
+                        </div>
+
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgStratBlendedGood">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtMgStratBlendedYearsGood">—</span></div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgStratBlendedBest">&#8377;—</div>
+                            <div class="rt-dual-meta"><span id="rtMgStratBlendedYearsBest">—</span></div>
+                        </div>
+                        <div class="rt-strategy-explain">Maximum equal monthly withdrawal that fully drains corpus by end of horizon, given your post-retirement blended return.</div>
+                    </div>
+                    <div class="rt-strategy-card rt-strategy-card--bucket">
+                        <div class="rt-strategy-title">3-Bucket Strategy</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+                            <div class="rt-dual-tag">Short (to 60)</div>
+                            <div class="rt-dual-val" id="rtMgStratBucketShort">&#8377;—</div>
+                            <div class="rt-dual-meta">
+                                <span title="2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%">B1: <span id="rtMgStratBucketB1Short">&#8377;—</span></span>
+                                &middot;
+                                <span title="5 yrs of expenses, in debt funds/bonds @ ~8%">B2: <span id="rtMgStratBucketB2Short">&#8377;—</span></span>
+                                &middot;
+                                <span title="Whatever's left, in equity at your full annual return">B3: <span id="rtMgStratBucketB3Short">&#8377;—</span></span>
+                            </div>
+                        </div>
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgStratBucketGood">&#8377;—</div>
+                            <div class="rt-dual-meta">
+                                <span title="2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%">B1: <span id="rtMgStratBucketB1Good">&#8377;—</span></span>
+                                &middot;
+                                <span title="5 yrs of expenses, in debt funds/bonds @ ~8%">B2: <span id="rtMgStratBucketB2Good">&#8377;—</span></span>
+                                &middot;
+                                <span title="Whatever's left, in equity at your full annual return">B3: <span id="rtMgStratBucketB3Good">&#8377;—</span></span>
+                            </div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgStratBucketBest">&#8377;—</div>
+                            <div class="rt-dual-meta">
+                                <span title="2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%">B1: <span id="rtMgStratBucketB1Best">&#8377;—</span></span>
+                                &middot;
+                                <span title="5 yrs of expenses, in debt funds/bonds @ ~8%">B2: <span id="rtMgStratBucketB2Best">&#8377;—</span></span>
+                                &middot;
+                                <span title="Whatever's left, in equity at your full annual return">B3: <span id="rtMgStratBucketB3Best">&#8377;—</span></span>
+                            </div>
+                        </div>
+                        <div class="rt-strategy-explain">Bucket 1 (cash, 5%) holds 2 yrs of expenses. Bucket 2 (debt, 8%) holds 5 yrs. Bucket 3 (equity, ~your blended) holds the rest. Refill cycle protects against sequence-of-returns risk — survives a bad first decade.</div>
+                    </div>
+                </div>
+
+                <!-- 3 months-survivable metrics -->
+                <h3 style="margin-top:28px;">How long will my money last?</h3>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:12px;">Three views of how many months your corpus survives at your CURRENT monthly expense (above). Capped at the horizon.</p>
+                <div class="rt-survival-grid">
+                    <div class="rt-survival-card rt-survival-card--det">
+                        <div class="rt-survival-title">Deterministic</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgSurvDetShort">— mo</div>
+
+                            <div class="rt-dual-meta" id="rtMgSurvDetYearsShort">—</div>
+
+                        </div>
+
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgSurvDetGood">— mo</div>
+                            <div class="rt-dual-meta" id="rtMgSurvDetYearsGood">—</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgSurvDetBest">— mo</div>
+                            <div class="rt-dual-meta" id="rtMgSurvDetYearsBest">—</div>
+                        </div>
+                        <div class="rt-survival-explain">Assumes the corpus earns your annual return every year, no variance. Best-guess "average" answer.</div>
+                    </div>
+                    <div class="rt-survival-card rt-survival-card--mc-median">
+                        <div class="rt-survival-title">Monte Carlo Median</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgSurvMCMedShort">— mo</div>
+
+                            <div class="rt-dual-meta" id="rtMgSurvMCMedYearsShort">—</div>
+
+                        </div>
+
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgSurvMCMedGood">— mo</div>
+                            <div class="rt-dual-meta" id="rtMgSurvMCMedYearsGood">—</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgSurvMCMedBest">— mo</div>
+                            <div class="rt-dual-meta" id="rtMgSurvMCMedYearsBest">—</div>
+                        </div>
+                        <div class="rt-survival-explain">Middle outcome across thousands of randomized return paths. Half of futures last longer, half shorter.</div>
+                    </div>
+                    <div class="rt-survival-card rt-survival-card--mc-worst">
+                        <div class="rt-survival-title">Monte Carlo Worst-10%</div>
+                        <div class="rt-dual-row rt-dual-row--short">
+
+                            <div class="rt-dual-tag">Short (to 60)</div>
+
+                            <div class="rt-dual-val" id="rtMgSurvMCWorstShort">— mo</div>
+
+                            <div class="rt-dual-meta" id="rtMgSurvMCWorstYearsShort">—</div>
+
+                        </div>
+
+                        <div class="rt-dual-row">
+                            <div class="rt-dual-tag">Good (to 80)</div>
+                            <div class="rt-dual-val" id="rtMgSurvMCWorstGood">— mo</div>
+                            <div class="rt-dual-meta" id="rtMgSurvMCWorstYearsGood">—</div>
+                        </div>
+                        <div class="rt-dual-row rt-dual-row--best">
+                            <div class="rt-dual-tag">Best (to 100)</div>
+                            <div class="rt-dual-val" id="rtMgSurvMCWorstBest">— mo</div>
+                            <div class="rt-dual-meta" id="rtMgSurvMCWorstYearsBest">—</div>
+                        </div>
+                        <div class="rt-survival-explain">The 10th-percentile bad outcome. Plan for THIS number if you want to be cautious — only 1 in 10 futures is worse.</div>
+                    </div>
+                </div>
+
+                <p class="sub-text" id="rtMgMcStatus" style="margin-top:14px;font-size:0.78rem;color:var(--text-secondary,#94a3b8);">
+                    Monte Carlo numbers above use 5,000 simulated retirement paths each time you change an input. Both horizons computed in parallel — may take a moment after a big change.
+                </p>
+            </div>
+        </div>

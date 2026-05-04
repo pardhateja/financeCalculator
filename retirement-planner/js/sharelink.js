@@ -42,6 +42,17 @@ RP.generateShareLink = function () {
         }
     }
 
+    // Phase 2: encode current MC view + last seed if user is on the Stress Test
+    // tab (so the recipient sees the same chart, not a fresh re-roll).
+    try {
+        const view = (typeof RP.getProjectionView === 'function') ? RP.getProjectionView() : 'ideal';
+        const lastSeed = (typeof RP.getLastSeed === 'function') ? RP.getLastSeed() : null;
+        if (view === 'montecarlo') {
+            url += '&view=montecarlo';
+            if (lastSeed) url += '&mcseed=' + lastSeed;
+        }
+    } catch (e) { /* non-fatal */ }
+
     // Copy to clipboard
     navigator.clipboard.writeText(url).then(() => {
         const btn = document.getElementById('shareLinkBtn');

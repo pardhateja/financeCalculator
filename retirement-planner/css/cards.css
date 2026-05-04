@@ -18,6 +18,17 @@
 .summary-card.success { border-top-color: var(--secondary-color); }
 .summary-card.warning { border-top-color: var(--warning-color); }
 .summary-card.danger { border-top-color: var(--danger-color); }
+.summary-card.legacy { border-top-color: #c026d3; }
+/* After-tax subtitle on summary cards (Pardha A10 2026-05-04). Only shown
+ * when the after-tax overlay text is populated; empty otherwise. */
+.summary-card .value-sub {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    opacity: 0.85;
+}
+.summary-card .value-sub:empty { display: none; }
 
 .summary-card .label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; }
 .summary-card .value { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }

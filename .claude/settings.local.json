@@ -1,6 +1,8 @@
 {
   "permissions": {
     "allow": [
+      "WebSearch",
+      "WebFetch",
       "Bash(node:*)",
       "Bash(sed -i '' 's|href=\"styles.css\"|href=\"retirement-planner-styles.css\"|' /Users/mpardhateja/PycharmProjects/financeCalculator/retirement-planner.html)",
       "Bash(sed -i '' 's|src=\"script.js\"|src=\"retirement-planner-script.js\"|' /Users/mpardhateja/PycharmProjects/financeCalculator/retirement-planner.html)",
@@ -239,7 +241,8 @@
       "Bash(kill 59737)",
       "Bash(kill 59760)",
       "Bash(kill 59785)",
-      "Bash(bash retirement-planner/build.sh)"
+      "Bash(bash retirement-planner/build.sh)",
+      "Bash(xargs -r kill -9)"
     ],
     "deny": []
   }

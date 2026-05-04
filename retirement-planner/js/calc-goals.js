@@ -43,9 +43,14 @@ RP.renderGoals = function () {
 
     container.innerHTML = RP._goals.map((g, i) => {
         const yearsLeft = Math.max(1, g.year - currentYear);
-        const monthlyRate = preReturn / 12;
+        // Use TRUE monthly rate from annual: (1+r)^(1/12) - 1 (consistent with
+        // calc-projections + calc-savings-rollup). Apply annuity-due
+        // adjustment (multiply by 1+r) since SIPs invest at start-of-month,
+        // not end-of-month. Pardha audit fix #8.
+        const monthlyRate = Math.pow(1 + preReturn, 1/12) - 1;
         const months = yearsLeft * 12;
-        const monthlyNeeded = g.amount / (((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate));
+        const annuityDueFactor = ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+        const monthlyNeeded = g.amount / annuityDueFactor;
         totalAmount += g.amount;
         totalMonthlyNeeded += monthlyNeeded;
 

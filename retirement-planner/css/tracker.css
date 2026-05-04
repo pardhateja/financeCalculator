@@ -193,3 +193,44 @@
     .month-card { padding: 8px; }
     .month-card .month-target { font-size: 0.85rem; }
 }
+
+/* ============================================================================
+   Phase 3-A: visual distinction for past / current / future tracker months.
+   - Past months (still editable; you can backfill data you forgot to enter)
+   - Current month (the "right now" cell — the one you'll usually be filling)
+   - Future months (projected, no styling change — default look)
+   ============================================================================ */
+.month-card.is-current-month {
+    outline: 2px solid var(--accent, #2563eb);
+    outline-offset: -2px;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    position: relative;
+}
+.month-card.is-current-month::after {
+    content: 'Now';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--accent, #2563eb);
+    background: rgba(37, 99, 235, 0.12);
+    padding: 1px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.month-card.is-past-month {
+    background: rgba(100, 116, 139, 0.04);
+    border-style: dashed;
+}
+.month-card.is-past-month .month-label {
+    color: var(--text-secondary, #64748b);
+}
+body.dark-mode .month-card.is-past-month {
+    background: rgba(148, 163, 184, 0.04);
+}
+body.dark-mode .month-card.is-current-month::after {
+    background: rgba(59, 130, 246, 0.18);
+    color: #93c5fd;
+}

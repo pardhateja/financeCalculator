@@ -20,6 +20,9 @@ cat > "$OUT" << 'HEAD'
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/tracker.css">
     <link rel="stylesheet" href="css/multigoal.css">
+    <link rel="stylesheet" href="css/montecarlo.css">
+    <link rel="stylesheet" href="css/persistence.css">
+    <link rel="stylesheet" href="css/retire-today.css">
     <link rel="stylesheet" href="css/dark.css">
 </head>
 <body>
@@ -55,6 +58,21 @@ cat > "$OUT" << 'HEAD'
                             <span class="settings-item-icon">⚠️</span>
                             <span class="settings-item-label">Reset to defaults</span>
                         </button>
+                        <!-- Phase 3-A: Tracker history start (so you can backdate the
+                             grid to whatever month you actually started using the app) -->
+                        <div class="persistence-drawer">
+                            <h4 class="persistence-drawer__title">Tracker history</h4>
+                            <div class="persistence-row">
+                                <label for="trackerStartSelect" class="persistence-row__label">Started using app from</label>
+                                <select id="trackerStartSelect" class="persistence-email-input" style="flex:1;min-width:140px"></select>
+                            </div>
+                            <p class="persistence-row__hint" style="margin-top:6px">Pick the earliest month you want to see in Tracker. Past months will be visible &amp; editable so you can backfill data.</p>
+                        </div>
+                        <!-- Phase 3-A: Cloud sync drawer (sign-in + status + manual backup) -->
+                        <div class="persistence-drawer">
+                            <h4 class="persistence-drawer__title">Cloud sync</h4>
+                            <div id="persistence-box"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,6 +87,7 @@ cat > "$OUT" << 'HEAD'
             <button class="nav-group" data-group="project">Project</button>
             <button class="nav-group" data-group="track">Track</button>
             <button class="nav-group" data-group="tools">Tools</button>
+            <button class="nav-group nav-group--accent" data-group="retire-today" title="If I retired today, how much can I withdraw and how long would my money last?">Retire Today</button>
             <button class="nav-group" data-group="profiles">Profiles</button>
         </div>
         <div class="nav-subtabs" id="navSubtabs" role="tablist" aria-label="Sub-sections"></div>
@@ -76,7 +95,7 @@ cat > "$OUT" << 'HEAD'
 HEAD
 
 # Append each tab page
-for tab in basics expenses investments financial-plan projections dashboard whatif goals multigoal emergency sip tracker milestones loan exptrack networth profiles; do
+for tab in basics expenses investments financial-plan projections dashboard whatif goals multigoal emergency sip tracker milestones loan exptrack networth retire-today retire-today-mg profiles; do
     cat "$DIR/pages/tab-${tab}.html" >> "$OUT"
     echo "" >> "$OUT"
 done
@@ -124,18 +143,45 @@ cat >> "$OUT" << 'FOOT'
     <script src="js/calc-emergency.js"></script>
     <script src="js/calc-sip.js"></script>
     <script src="js/calc-tracker.js"></script>
+    <script src="js/historical-returns-data.js"></script>
+    <script src="js/chart-montecarlo.js"></script>
+    <script src="js/calc-montecarlo.js"></script>
     <script src="js/calc-savings-rollup.js"></script>
     <script src="js/calc-milestones.js"></script>
     <script src="js/calc-loan.js"></script>
     <script src="js/calc-exptrack.js"></script>
     <script src="js/calc-networth.js"></script>
+    <script src="js/calc-retire-today.js"></script>
     <script src="js/profiles.js"></script>
     <script src="js/sharelink.js"></script>
     <script src="js/darkmode.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/persistence.js"></script>
+
+    <!-- Phase 2: Monte Carlo Worker source inlined as a string. The Web Worker
+         is loaded via Blob URL (works from file:// AND http://). This script
+         block runs after calc-montecarlo.js so window.RP is defined. -->
+    <script>
+    window.RP = window.RP || {};
+    window.RP._workerSource = __WORKER_SOURCE_PLACEHOLDER__;
+    </script>
 </body>
 </html>
 FOOT
+
+# Phase 2: inline the Monte Carlo worker source as a JS string literal so the
+# main thread can wrap it in a Blob URL. Worker scripts cannot importScripts()
+# from file:// origins, so inlining is required. Use python3 for both the
+# JSON encoding AND the substitution so newlines stay escaped (\n, not raw).
+python3 - "$OUT" "$DIR/js/calc-montecarlo-worker.js" <<'PY'
+import json, sys, pathlib
+out_path = sys.argv[1]
+worker_path = sys.argv[2]
+worker_json = json.dumps(pathlib.Path(worker_path).read_text())
+html = pathlib.Path(out_path).read_text()
+html = html.replace('__WORKER_SOURCE_PLACEHOLDER__', worker_json)
+pathlib.Path(out_path).write_text(html)
+PY
 
 # v1.1 audit: cache-busting. Append a unique build version to every CSS/JS
 # asset URL so the browser MUST refetch each rebuild. Without this, Chrome

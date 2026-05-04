@@ -1,0 +1,92 @@
+/* ============================================================================
+   Phase 3-A: Persistence UI styles (cloud sync drawer in Settings popover)
+   ============================================================================ */
+
+/* The drawer mounts inside the Settings popover, below existing items */
+.persistence-drawer {
+  border-top: 1px solid var(--border, #e2e8f0);
+  margin-top: 8px;
+  padding-top: 12px;
+}
+.persistence-drawer__title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-secondary, #64748b);
+  padding: 0 12px 8px;
+  margin: 0;
+}
+#persistence-box {
+  padding: 0 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+.persistence-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.persistence-row__label {
+  color: var(--text-secondary, #64748b);
+  font-size: 12px;
+}
+.persistence-row__value {
+  color: var(--text, #1e293b);
+  font-weight: 600;
+  font-size: 13px;
+  word-break: break-all;
+}
+.persistence-row__hint {
+  margin: 0 0 4px;
+  color: var(--text-secondary, #64748b);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.persistence-row--actions {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.persistence-row--actions .btn-link,
+.persistence-row--actions .btn-secondary {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+.persistence-email-input {
+  flex: 1 1 auto;
+  min-width: 160px;
+  padding: 6px 10px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-soft, #f8fafc);
+  color: var(--text, #1e293b);
+  font-size: 13px;
+}
+.persistence-email-input:focus-visible {
+  outline: 2px solid var(--accent, #2563eb);
+  outline-offset: 2px;
+}
+
+.persistence-status {
+  font-size: 11px;
+  color: var(--text-secondary, #94a3b8);
+  font-style: italic;
+  min-height: 14px;
+}
+.persistence-status--ok    { color: #059669; font-style: normal; }
+.persistence-status--error { color: #dc2626; font-style: normal; }
+
+/* Dark mode */
+body.dark-mode .persistence-drawer { border-top-color: rgba(148, 163, 184, 0.18); }
+body.dark-mode .persistence-row__value { color: #f1f5f9; }
+body.dark-mode .persistence-email-input {
+  background: rgba(30, 41, 59, 0.6);
+  color: #f1f5f9;
+  border-color: rgba(148, 163, 184, 0.25);
+}
+body.dark-mode .persistence-status--ok    { color: #6ee7b7; }
+body.dark-mode .persistence-status--error { color: #fca5a5; }

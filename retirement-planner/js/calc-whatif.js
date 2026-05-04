@@ -10,24 +10,46 @@ RP.calculateWhatIf = function () {
     const postRetireMonthly = RP.val('postRetireMonthly');
     const postReturn = RP._postReturn || 0.05;
 
+    // Pardha audit fix #6: switch to monthly-compound loop matching the
+    // anchored projection engine (calc-projections + calc-sip). Also apply
+    // year-1 partial fraction so the first year doesn't double-count the
+    // months already past in the user's birthday-year.
+    const monthsRemFirstYear = (typeof RP._monthsRemainingThisBirthdayYear === 'function')
+        ? RP._monthsRemainingThisBirthdayYear() : 12;
+
     function runScenario(retAge, monthlyInvest, preReturnPct) {
         const preReturn = preReturnPct / 100;
+        const monthlyPre  = Math.pow(1 + preReturn,  1/12) - 1;
+        const monthlyPost = Math.pow(1 + postReturn, 1/12) - 1;
         let starting = savings;
-        let annualInvest = monthlyInvest * 12;
         let corpus = 0;
         let runsOut = null;
         const data = [];
 
         for (let age = curAge; age <= lifeExp; age++) {
+            const isFirstYear = (age === curAge);
+            const monthsThisYear = isFirstYear ? monthsRemFirstYear : 12;
+
             if (age < retAge) {
-                const growth = starting * preReturn;
-                starting = starting + growth + annualInvest;
-                annualInvest *= (1 + stepUp);
+                // Step-up: years from now (age - curAge) compounds the planned SIP.
+                const yearsFromCurrent = age - curAge;
+                const planned = monthlyInvest * Math.pow(1 + stepUp, yearsFromCurrent);
+                let bal = starting;
+                for (let m = 0; m < monthsThisYear; m++) {
+                    bal += planned;
+                    bal *= (1 + monthlyPre);
+                }
+                starting = bal;
                 if (age === retAge - 1) corpus = starting;
             } else if (age < lifeExp) {
                 const yearsFromNow = age - curAge;
-                const expense = postRetireMonthly * Math.pow(1 + inflation, yearsFromNow) * 12;
-                starting = starting + starting * postReturn - expense;
+                const monthlyExp = postRetireMonthly * Math.pow(1 + inflation, yearsFromNow);
+                let bal = starting;
+                for (let m = 0; m < monthsThisYear; m++) {
+                    bal -= monthlyExp;
+                    bal *= (1 + monthlyPost);
+                }
+                starting = bal;
                 if (starting < 0 && runsOut === null) runsOut = age;
             }
             data.push({ age, ending: age < lifeExp ? starting : 0 });

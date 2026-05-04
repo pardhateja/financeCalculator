@@ -46,9 +46,11 @@
                                     <span class="unit">%</span>
                                 </div>
                                 <div class="input-group">
-                                    <label for="taxRate">Tax Rate <span class="field-help" title="Your effective tax rate (after deductions, not the highest slab). Most salaried Indians: 20–30%. The app uses this to compute post-tax investment returns.">?</span></label>
-                                    <input type="number" id="taxRate" value="30" step="0.1">
+                                    <label for="taxRate">Tax Rate <span class="field-help" title="Quick shortcut: type a value and click 'Apply' to set ALL 8 per-asset tax fields on the Financial Plan tab to this number. Use it for a quick what-if (e.g. 0% to see pre-tax projection). For accurate per-asset tax (LTCG vs FD slab), edit each asset directly on Financial Plan.">?</span></label>
+                                    <input type="number" id="taxRate" value="0" step="0.1">
                                     <span class="unit">%</span>
+                                    <button type="button" id="taxRateApplyBtn" class="btn-secondary" style="margin-top:6px;font-size:0.78rem;padding:4px 10px;">Apply to all assets</button>
+                                    <p class="sub-text" style="margin-top:4px;font-size:0.72rem;">Sets all 8 per-asset tax fields on Financial Plan tab. After-tax projection updates immediately.</p>
                                 </div>
                             </div>
                         </div>
