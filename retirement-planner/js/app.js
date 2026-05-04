@@ -519,4 +519,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // v1.1 audit: restore last active tab AFTER calculateAll so any tab-switch
     // side effects (renderChart, renderTracker, etc.) have data to work with.
     if (RP._restoreActiveTab) RP._restoreActiveTab();
+
+    // Pardha 2026-05-04: Basics→"Tax Rate" used to be orphaned (the only
+    // consumer was the old tracker rollup, removed in b6fcd1f). Now it's
+    // a one-click "set all 8 per-asset tax fields" shortcut.
+    const taxApplyBtn = document.getElementById('taxRateApplyBtn');
+    if (taxApplyBtn && !taxApplyBtn._wired) {
+        taxApplyBtn.addEventListener('click', () => {
+            const v = RP.val('taxRate');
+            ['preFixedTax','preLargeTax','preMidTax','preSmallTax',
+             'postFixedTax','postLargeTax','postMidTax','postSmallTax']
+                .forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = v;
+                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+            RP.calculateAll();
+        });
+        taxApplyBtn._wired = true;
+    }
 });

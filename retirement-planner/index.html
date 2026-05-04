@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Financial Planner</title>
-    <link rel="stylesheet" href="css/base.css?v=20260504214317">
-    <link rel="stylesheet" href="css/layout.css?v=20260504214317">
-    <link rel="stylesheet" href="css/forms.css?v=20260504214317">
-    <link rel="stylesheet" href="css/cards.css?v=20260504214317">
-    <link rel="stylesheet" href="css/tables.css?v=20260504214317">
-    <link rel="stylesheet" href="css/responsive.css?v=20260504214317">
-    <link rel="stylesheet" href="css/tracker.css?v=20260504214317">
-    <link rel="stylesheet" href="css/multigoal.css?v=20260504214317">
-    <link rel="stylesheet" href="css/montecarlo.css?v=20260504214317">
-    <link rel="stylesheet" href="css/persistence.css?v=20260504214317">
-    <link rel="stylesheet" href="css/dark.css?v=20260504214317">
+    <link rel="stylesheet" href="css/base.css?v=20260504215617">
+    <link rel="stylesheet" href="css/layout.css?v=20260504215617">
+    <link rel="stylesheet" href="css/forms.css?v=20260504215617">
+    <link rel="stylesheet" href="css/cards.css?v=20260504215617">
+    <link rel="stylesheet" href="css/tables.css?v=20260504215617">
+    <link rel="stylesheet" href="css/responsive.css?v=20260504215617">
+    <link rel="stylesheet" href="css/tracker.css?v=20260504215617">
+    <link rel="stylesheet" href="css/multigoal.css?v=20260504215617">
+    <link rel="stylesheet" href="css/montecarlo.css?v=20260504215617">
+    <link rel="stylesheet" href="css/persistence.css?v=20260504215617">
+    <link rel="stylesheet" href="css/dark.css?v=20260504215617">
 </head>
 <body>
     <div class="container">
@@ -130,9 +130,11 @@
                                     <span class="unit">%</span>
                                 </div>
                                 <div class="input-group">
-                                    <label for="taxRate">Tax Rate <span class="field-help" title="Your effective tax rate (after deductions, not the highest slab). Most salaried Indians: 20–30%. The app uses this to compute post-tax investment returns.">?</span></label>
-                                    <input type="number" id="taxRate" value="30" step="0.1">
+                                    <label for="taxRate">Tax Rate <span class="field-help" title="Quick shortcut: type a value and click 'Apply' to set ALL 8 per-asset tax fields on the Financial Plan tab to this number. Use it for a quick what-if (e.g. 0% to see pre-tax projection). For accurate per-asset tax (LTCG vs FD slab), edit each asset directly on Financial Plan.">?</span></label>
+                                    <input type="number" id="taxRate" value="0" step="0.1">
                                     <span class="unit">%</span>
+                                    <button type="button" id="taxRateApplyBtn" class="btn-secondary" style="margin-top:6px;font-size:0.78rem;padding:4px 10px;">Apply to all assets</button>
+                                    <p class="sub-text" style="margin-top:4px;font-size:0.72rem;">Sets all 8 per-asset tax fields on Financial Plan tab. After-tax projection updates immediately.</p>
                                 </div>
                             </div>
                         </div>
@@ -477,10 +479,10 @@
                             <table class="inv-table">
                                 <thead><tr><th>Type</th><th>Return %</th><th>Tax %</th><th>Share %</th></tr></thead>
                                 <tbody>
-                                    <tr><td>Fixed Returns</td><td><input type="number" id="preFixedReturn" value="7" step="0.1"></td><td><input type="number" id="preFixedTax" value="30" step="0.1"></td><td><input type="number" id="preFixedShare" value="27" step="0.5"></td></tr>
-                                    <tr><td>Large Cap MF</td><td><input type="number" id="preLargeReturn" value="12" step="0.1"></td><td><input type="number" id="preLargeTax" value="20" step="0.1"></td><td><input type="number" id="preLargeShare" value="29" step="0.5"></td></tr>
-                                    <tr><td>Mid Cap MF</td><td><input type="number" id="preMidReturn" value="15" step="0.1"></td><td><input type="number" id="preMidTax" value="20" step="0.1"></td><td><input type="number" id="preMidShare" value="22" step="0.5"></td></tr>
-                                    <tr><td>Small Cap MF</td><td><input type="number" id="preSmallReturn" value="18" step="0.1"></td><td><input type="number" id="preSmallTax" value="20" step="0.1"></td><td><input type="number" id="preSmallShare" value="22" step="0.5"></td></tr>
+                                    <tr><td>Fixed Returns</td><td><input type="number" id="preFixedReturn" value="7" step="0.1"></td><td><input type="number" id="preFixedTax" value="0" step="0.1"></td><td><input type="number" id="preFixedShare" value="27" step="0.5"></td></tr>
+                                    <tr><td>Large Cap MF</td><td><input type="number" id="preLargeReturn" value="12" step="0.1"></td><td><input type="number" id="preLargeTax" value="0" step="0.1"></td><td><input type="number" id="preLargeShare" value="29" step="0.5"></td></tr>
+                                    <tr><td>Mid Cap MF</td><td><input type="number" id="preMidReturn" value="15" step="0.1"></td><td><input type="number" id="preMidTax" value="0" step="0.1"></td><td><input type="number" id="preMidShare" value="22" step="0.5"></td></tr>
+                                    <tr><td>Small Cap MF</td><td><input type="number" id="preSmallReturn" value="18" step="0.1"></td><td><input type="number" id="preSmallTax" value="0" step="0.1"></td><td><input type="number" id="preSmallShare" value="22" step="0.5"></td></tr>
                                     <tr class="total-row"><td>Blended</td><td id="preBlendedReturn">-</td><td id="preBlendedTax">-</td><td id="preShareTotal">100</td></tr>
                                 </tbody>
                             </table>
@@ -493,10 +495,10 @@
                             <table class="inv-table">
                                 <thead><tr><th>Type</th><th>Return %</th><th>Tax %</th><th>Share %</th></tr></thead>
                                 <tbody>
-                                    <tr><td>Fixed Returns</td><td><input type="number" id="postFixedReturn" value="7" step="0.1"></td><td><input type="number" id="postFixedTax" value="30" step="0.1"></td><td><input type="number" id="postFixedShare" value="50" step="0.5"></td></tr>
-                                    <tr><td>Large Cap MF</td><td><input type="number" id="postLargeReturn" value="12" step="0.1"></td><td><input type="number" id="postLargeTax" value="20" step="0.1"></td><td><input type="number" id="postLargeShare" value="50" step="0.5"></td></tr>
-                                    <tr><td>Mid Cap MF</td><td><input type="number" id="postMidReturn" value="15" step="0.1"></td><td><input type="number" id="postMidTax" value="20" step="0.1"></td><td><input type="number" id="postMidShare" value="0" step="0.5"></td></tr>
-                                    <tr><td>Small Cap MF</td><td><input type="number" id="postSmallReturn" value="18" step="0.1"></td><td><input type="number" id="postSmallTax" value="20" step="0.1"></td><td><input type="number" id="postSmallShare" value="0" step="0.5"></td></tr>
+                                    <tr><td>Fixed Returns</td><td><input type="number" id="postFixedReturn" value="7" step="0.1"></td><td><input type="number" id="postFixedTax" value="0" step="0.1"></td><td><input type="number" id="postFixedShare" value="50" step="0.5"></td></tr>
+                                    <tr><td>Large Cap MF</td><td><input type="number" id="postLargeReturn" value="12" step="0.1"></td><td><input type="number" id="postLargeTax" value="0" step="0.1"></td><td><input type="number" id="postLargeShare" value="50" step="0.5"></td></tr>
+                                    <tr><td>Mid Cap MF</td><td><input type="number" id="postMidReturn" value="15" step="0.1"></td><td><input type="number" id="postMidTax" value="0" step="0.1"></td><td><input type="number" id="postMidShare" value="0" step="0.5"></td></tr>
+                                    <tr><td>Small Cap MF</td><td><input type="number" id="postSmallReturn" value="18" step="0.1"></td><td><input type="number" id="postSmallTax" value="0" step="0.1"></td><td><input type="number" id="postSmallShare" value="0" step="0.5"></td></tr>
                                     <tr class="total-row"><td>Blended</td><td id="postBlendedReturn">-</td><td id="postBlendedTax">-</td><td id="postShareTotal">100</td></tr>
                                 </tbody>
                             </table>
@@ -1581,33 +1583,33 @@
         </button>
     </div>
 
-    <script src="js/utils.js?v=20260504214317"></script>
-    <script src="js/calc-income.js?v=20260504214317"></script>
-    <script src="js/calc-expenses.js?v=20260504214317"></script>
-    <script src="js/calc-investments.js?v=20260504214317"></script>
-    <script src="js/calc-financial-plan.js?v=20260504214317"></script>
-    <script src="js/calc-projections.js?v=20260504214317"></script>
-    <script src="js/chart.js?v=20260504214317"></script>
-    <script src="js/calc-dashboard.js?v=20260504214317"></script>
-    <script src="js/calc-whatif.js?v=20260504214317"></script>
-    <script src="js/calc-goals.js?v=20260504214317"></script>
-    <script src="js/calc-multigoal.js?v=20260504214317"></script>
-    <script src="js/calc-emergency.js?v=20260504214317"></script>
-    <script src="js/calc-sip.js?v=20260504214317"></script>
-    <script src="js/calc-tracker.js?v=20260504214317"></script>
-    <script src="js/historical-returns-data.js?v=20260504214317"></script>
-    <script src="js/chart-montecarlo.js?v=20260504214317"></script>
-    <script src="js/calc-montecarlo.js?v=20260504214317"></script>
-    <script src="js/calc-savings-rollup.js?v=20260504214317"></script>
-    <script src="js/calc-milestones.js?v=20260504214317"></script>
-    <script src="js/calc-loan.js?v=20260504214317"></script>
-    <script src="js/calc-exptrack.js?v=20260504214317"></script>
-    <script src="js/calc-networth.js?v=20260504214317"></script>
-    <script src="js/profiles.js?v=20260504214317"></script>
-    <script src="js/sharelink.js?v=20260504214317"></script>
-    <script src="js/darkmode.js?v=20260504214317"></script>
-    <script src="js/app.js?v=20260504214317"></script>
-    <script src="js/persistence.js?v=20260504214317"></script>
+    <script src="js/utils.js?v=20260504215617"></script>
+    <script src="js/calc-income.js?v=20260504215617"></script>
+    <script src="js/calc-expenses.js?v=20260504215617"></script>
+    <script src="js/calc-investments.js?v=20260504215617"></script>
+    <script src="js/calc-financial-plan.js?v=20260504215617"></script>
+    <script src="js/calc-projections.js?v=20260504215617"></script>
+    <script src="js/chart.js?v=20260504215617"></script>
+    <script src="js/calc-dashboard.js?v=20260504215617"></script>
+    <script src="js/calc-whatif.js?v=20260504215617"></script>
+    <script src="js/calc-goals.js?v=20260504215617"></script>
+    <script src="js/calc-multigoal.js?v=20260504215617"></script>
+    <script src="js/calc-emergency.js?v=20260504215617"></script>
+    <script src="js/calc-sip.js?v=20260504215617"></script>
+    <script src="js/calc-tracker.js?v=20260504215617"></script>
+    <script src="js/historical-returns-data.js?v=20260504215617"></script>
+    <script src="js/chart-montecarlo.js?v=20260504215617"></script>
+    <script src="js/calc-montecarlo.js?v=20260504215617"></script>
+    <script src="js/calc-savings-rollup.js?v=20260504215617"></script>
+    <script src="js/calc-milestones.js?v=20260504215617"></script>
+    <script src="js/calc-loan.js?v=20260504215617"></script>
+    <script src="js/calc-exptrack.js?v=20260504215617"></script>
+    <script src="js/calc-networth.js?v=20260504215617"></script>
+    <script src="js/profiles.js?v=20260504215617"></script>
+    <script src="js/sharelink.js?v=20260504215617"></script>
+    <script src="js/darkmode.js?v=20260504215617"></script>
+    <script src="js/app.js?v=20260504215617"></script>
+    <script src="js/persistence.js?v=20260504215617"></script>
 
     <!-- Phase 2: Monte Carlo Worker source inlined as a string. The Web Worker
          is loaded via Blob URL (works from file:// AND http://). This script
