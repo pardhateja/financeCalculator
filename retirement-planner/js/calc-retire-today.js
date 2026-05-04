@@ -240,19 +240,28 @@
     }
     try {
       var phases = RP._multigoal.phases;
-      var retAge = RP.val('retirementAge');
       var curAge = RP.val('currentAge');
       var postReturn = RP._postReturn || 0.08;
-      var corpusPhases = RP._multigoal._phasesForCorpus(phases, retAge);
-      var alloc = RP._multigoal.calculateAllocation(corpusPhases, corpus, retAge, curAge, postReturn);
+
+      // Pardha 2026-05-04: "Retire Today" means user stops working NOW.
+      // So pass curAge as the effective retirement age — phases are
+      // evaluated from age curAge onward, including those whose startAge
+      // is BEFORE the originally-planned retirement age (e.g. Pardha's
+      // "Base" starts at 27, "Kid 1 at home" at 28, both BEFORE retAge=35).
+      // Previously this used retAge which clipped phases to 35+, hiding
+      // the gap-years coverage that already exists in the plan.
+      var phasesForToday = phases.slice();
+      var corpusPhases = RP._multigoal._phasesForCorpus(phasesForToday, curAge);
+      var alloc = RP._multigoal.calculateAllocation(corpusPhases, corpus, curAge, curAge, postReturn);
       var totalPV = alloc.totalPV || 0;
       var deficit = Math.max(0, totalPV - corpus);
       var coveragePct = totalPV > 0 ? Math.min(100, (corpus / totalPV) * 100) : 100;
 
       // Build name + color lookup from the source phases array (allocation
       // result only has phaseId, not color or original phase fields).
+      // Use phasesForToday so the synthetic Bridge phase is included.
       var phaseLookup = {};
-      phases.forEach(function (ph) { phaseLookup[ph.id] = ph; });
+      phasesForToday.forEach(function (ph) { phaseLookup[ph.id] = ph; });
 
       var rows = (alloc.phases || []).map(function (p) {
         var pv = p.pvRequired || 0;
