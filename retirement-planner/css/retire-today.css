@@ -151,6 +151,77 @@
     line-height: 1.4;
 }
 
+/* --- Multi-Goal coverage section --- */
+.mg-cov-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.mg-cov-summary-card {
+    background: var(--bg-color, #f8fafc);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-align: center;
+}
+.mg-cov-card-deficit { background: #fef2f2; border-color: #fecaca; }
+.mg-cov-card-surplus { background: #f0fdf4; border-color: #bbf7d0; }
+.mg-cov-label { font-size: 0.72rem; color: var(--text-secondary,#64748b); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+.mg-cov-value { font-size: 1.2rem; font-weight: 700; margin-top: 4px; color: var(--text-primary,#0f172a); }
+
+.mg-cov-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.mg-cov-table th {
+    background: #f8fafc;
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid var(--border-color,#e2e8f0);
+}
+.mg-cov-table td {
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+.mg-cov-table tbody tr:last-child td { border-bottom: none; }
+.mg-phase-dot {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 50%; margin-right: 8px; vertical-align: middle;
+}
+.mg-cov-bar {
+    width: 100px;
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+.mg-cov-fill { height: 100%; transition: width 0.3s; }
+.mg-cov-full    { background: var(--secondary-color, #10b981); }
+.mg-cov-partial { background: var(--warning-color,   #f59e0b); }
+.mg-cov-low     { background: var(--danger-color,    #ef4444); }
+.mg-cov-pct {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary,#64748b);
+    min-width: 36px;
+    vertical-align: middle;
+}
+
 /* Dark mode */
 body.dark-mode .rt-input-card,
 body.dark-mode .rt-strategy-card,

@@ -1,10 +1,13 @@
         <!-- TAB: RETIRE TODAY (Multi-Goal corpus variant) -->
         <div class="tab-content" id="tab-retire-today-mg">
             <div class="panel">
-                <h2>Retire Today — Multi-Goal corpus</h2>
-                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:760px;">
-                    Same question as the Live tab, but using your <b>projected Multi-Goal corpus at retirement age</b> instead of today's running balance. Useful when you want to know "if my Multi-Goal plan works exactly as designed and I arrive at retirement with the projected corpus, how much can I withdraw each month?"
+                <h2>Retire Today — Multi-Goal allocation</h2>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:780px;">
+                    If you stopped working <b>right now</b> with <b>today's actual corpus</b>, allocated across your Multi-Goal phases — what's covered, what's short? This tab uses today's running balance (not the projected future corpus) and splits it across your active phases per the same allocation logic as the Multi-Goal tab.
                 </p>
+
+                <!-- Per-phase coverage table — renders after compute -->
+                <div id="rtMgPhaseCoverage" style="margin-bottom:18px;"></div>
 
                 <!-- Editable inputs row -->
                 <div class="rt-inputs">

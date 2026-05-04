@@ -68,20 +68,16 @@
         survMCMed: 'rtMgSurvMCMed', survMCMedYears: 'rtMgSurvMCMedYears',
         survMCWorst: 'rtMgSurvMCWorst', survMCWorstYears: 'rtMgSurvMCWorstYears'
       },
+      // Pardha decision 2026-05-04: MG sub-tab answers "if I retired NOW
+      // with today's REAL corpus split across my Multi-Goal phases, what's
+      // covered?" So source = currentSavings (today), NOT projected corpus.
       readSourceCorpus: function () {
-        if (RP._multigoal && typeof RP._multigoal._readCorpusAtRetirement === 'function') {
-          try {
-            var mg = RP._multigoal._readCorpusAtRetirement();
-            if (Number.isFinite(mg) && mg > 0) return mg;
-          } catch (_) {}
-        }
+        var csEl = document.getElementById('currentSavings');
+        if (csEl && csEl.value) return parseFloat(csEl.value) || 0;
         return 0;
       },
-      // Horizon = lifeExp - retirementAge (Multi-Goal corpus is at the
-      // retirement age, so retirement window = lifeExp - retAge).
       defaultHorizon: function (curAge, lifeExp) {
-        var retAge = (typeof RP.val === 'function') ? (RP.val('retirementAge') || curAge) : curAge;
-        return Math.max(1, lifeExp - retAge);
+        return Math.max(1, lifeExp - curAge);
       }
     }
   };
@@ -225,6 +221,71 @@
       setText(ids.survMCWorstYears, fmtYears(worst));
     } else {
       setText(ids.survDet, '— mo'); setText(ids.survMCMed, '— mo'); setText(ids.survMCWorst, '— mo');
+    }
+
+    // Multi-Goal variant: also render per-phase coverage table.
+    if (variant === 'mg') renderPhaseCoverage(corpus);
+  }
+
+  /* Render the per-phase coverage table for the Multi-Goal sub-tab.
+   * Shows: each phase's name, how much of today's corpus is allocated
+   * to it, the present-value (PV) of what it actually needs, and the
+   * coverage % (allocated / PV). */
+  function renderPhaseCoverage(corpus) {
+    var container = document.getElementById('rtMgPhaseCoverage');
+    if (!container) return;
+    if (!RP._multigoal || !Array.isArray(RP._multigoal.phases) || RP._multigoal.phases.length === 0) {
+      container.innerHTML = '<p class="sub-text" style="text-align:center;padding:16px;">No Multi-Goal phases defined. Add some on the Multi-Goal tab.</p>';
+      return;
+    }
+    try {
+      var phases = RP._multigoal.phases;
+      var retAge = RP.val('retirementAge');
+      var curAge = RP.val('currentAge');
+      var postReturn = RP._postReturn || 0.08;
+      var corpusPhases = RP._multigoal._phasesForCorpus(phases, retAge);
+      var alloc = RP._multigoal.calculateAllocation(corpusPhases, corpus, retAge, curAge, postReturn);
+      var totalPV = alloc.totalPV || 0;
+      var deficit = Math.max(0, totalPV - corpus);
+      var coveragePct = totalPV > 0 ? Math.min(100, (corpus / totalPV) * 100) : 100;
+
+      // Build name + color lookup from the source phases array (allocation
+      // result only has phaseId, not color or original phase fields).
+      var phaseLookup = {};
+      phases.forEach(function (ph) { phaseLookup[ph.id] = ph; });
+
+      var rows = (alloc.phases || []).map(function (p) {
+        var pv = p.pvRequired || 0;
+        var allocated = p.allocated || 0;
+        var pct = pv > 0 ? Math.min(100, (allocated / pv) * 100) : 100;
+        var pctClass = pct >= 100 ? 'mg-cov-full' : (pct >= 50 ? 'mg-cov-partial' : 'mg-cov-low');
+        var src = phaseLookup[p.phaseId] || {};
+        return '<tr>' +
+          '<td><span class="mg-phase-dot" style="background:' + (src.color || '#888') + '"></span>' + (p.phaseName || '—') + '</td>' +
+          '<td>' + (p.ageRange || '—') + '</td>' +
+          '<td>' + fmtINR(pv) + '</td>' +
+          '<td>' + fmtINR(allocated) + '</td>' +
+          '<td><div class="mg-cov-bar"><div class="mg-cov-fill ' + pctClass + '" style="width:' + pct.toFixed(1) + '%"></div></div><div class="mg-cov-pct">' + pct.toFixed(0) + '%</div></td>' +
+          '</tr>';
+      }).join('');
+
+      container.innerHTML =
+        '<div class="mg-cov-summary">' +
+          '<div class="mg-cov-summary-card"><div class="mg-cov-label">Today\'s corpus</div><div class="mg-cov-value">' + fmtINR(corpus) + '</div></div>' +
+          '<div class="mg-cov-summary-card"><div class="mg-cov-label">Total needed (PV)</div><div class="mg-cov-value">' + fmtINR(totalPV) + '</div></div>' +
+          '<div class="mg-cov-summary-card ' + (deficit > 0 ? 'mg-cov-card-deficit' : 'mg-cov-card-surplus') + '">' +
+            '<div class="mg-cov-label">' + (deficit > 0 ? 'Deficit' : 'Surplus') + '</div>' +
+            '<div class="mg-cov-value">' + fmtINR(Math.abs(deficit > 0 ? deficit : (corpus - totalPV))) + '</div>' +
+          '</div>' +
+          '<div class="mg-cov-summary-card"><div class="mg-cov-label">Coverage</div><div class="mg-cov-value">' + coveragePct.toFixed(0) + '%</div></div>' +
+        '</div>' +
+        '<table class="mg-cov-table">' +
+          '<thead><tr><th>Phase</th><th>Ages</th><th>Needed (PV)</th><th>Allocated</th><th>Coverage</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>';
+    } catch (e) {
+      console.warn('renderPhaseCoverage failed:', e);
+      container.innerHTML = '<p class="sub-text" style="color:var(--danger-color);padding:16px;">Could not compute phase coverage. Error in console.</p>';
     }
   }
 
