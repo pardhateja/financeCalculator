@@ -1,0 +1,35 @@
+        <!-- TAB: RETIRE TODAY → DELAY (live corpus variant) -->
+        <div class="tab-content" id="tab-retire-today-delay">
+            <div class="panel">
+                <h2>Delay Retirement — Live corpus projection</h2>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:780px;">
+                    What if you delayed retirement by 1, 2, ... 10 years? Each row uses your <b>projected corpus at that future age</b> (from the main Projection chain — your seed plus all SIPs through then). The 4 strategies recompute against each year's growing corpus across all 3 horizons.
+                </p>
+                <p class="sub-text" style="margin-bottom:14px;font-size:0.82rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.20);padding:8px 12px;border-radius:8px;">
+                    Computing 4 strategies × 3 horizons × 10 delay years can take a few seconds the first time. Please wait for the table to populate.
+                </p>
+                <div id="rtDelayStatus" class="sub-text" style="font-style:italic;margin-bottom:8px;">Computing...</div>
+                <div class="rt-delay-table-wrapper">
+                    <table class="rt-delay-table" id="rtDelayTable">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">Delay</th>
+                                <th rowspan="2">Age</th>
+                                <th rowspan="2">Corpus</th>
+                                <th colspan="3">MC 85% Safe</th>
+                                <th colspan="3">4% Rule</th>
+                                <th colspan="3">Annuity</th>
+                                <th colspan="3">3-Bucket</th>
+                            </tr>
+                            <tr>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rtDelayTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>

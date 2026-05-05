@@ -279,6 +279,56 @@
     vertical-align: middle;
 }
 
+/* --- Delay Retirement table --- */
+.rt-delay-table-wrapper { overflow-x: auto; margin-top: 8px; }
+.rt-delay-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 0.82rem;
+}
+.rt-delay-table th {
+    background: #f8fafc;
+    text-align: center;
+    padding: 8px 6px;
+    font-weight: 600;
+    color: var(--text-secondary, #64748b);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--border-color,#e2e8f0);
+    border-right: 1px solid var(--border-color,#f1f5f9);
+}
+.rt-delay-table th:last-child { border-right: none; }
+.rt-delay-table td {
+    padding: 8px 6px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+    border-right: 1px solid var(--border-color, #f1f5f9);
+    white-space: nowrap;
+}
+.rt-delay-table td:last-child { border-right: none; }
+.rt-delay-table td:first-child,
+.rt-delay-table td:nth-child(2) {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-primary,#0f172a);
+}
+.rt-delay-table td:nth-child(3) {
+    font-weight: 600;
+    color: var(--text-primary,#0f172a);
+    background: #f8fafc;
+}
+.rt-delay-table tbody tr:hover { background: rgba(37,99,235,0.04); }
+.rt-delay-table tbody tr:last-child td { border-bottom: none; }
+/* Group dividers between strategy column-groups */
+.rt-delay-table td:nth-child(6),
+.rt-delay-table td:nth-child(9),
+.rt-delay-table td:nth-child(12) { border-right: 2px solid var(--border-color, #e2e8f0); }
+
 /* Dark mode */
 body.dark-mode .rt-input-card,
 body.dark-mode .rt-strategy-card,

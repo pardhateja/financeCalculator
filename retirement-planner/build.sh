@@ -95,7 +95,7 @@ cat > "$OUT" << 'HEAD'
 HEAD
 
 # Append each tab page
-for tab in basics expenses investments financial-plan projections dashboard whatif goals multigoal emergency sip tracker milestones loan exptrack networth retire-today retire-today-mg profiles; do
+for tab in basics expenses investments financial-plan projections dashboard whatif goals multigoal emergency sip tracker milestones loan exptrack networth retire-today retire-today-mg retire-today-delay retire-today-delay-mg profiles; do
     cat "$DIR/pages/tab-${tab}.html" >> "$OUT"
     echo "" >> "$OUT"
 done

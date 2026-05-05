@@ -1,0 +1,35 @@
+        <!-- TAB: RETIRE TODAY → DELAY (Multi-Goal corpus variant) -->
+        <div class="tab-content" id="tab-retire-today-delay-mg">
+            <div class="panel">
+                <h2>Delay Retirement — Multi-Goal corpus projection</h2>
+                <p class="sub-text" style="margin-top:-4px;margin-bottom:16px;max-width:780px;">
+                    What if you delayed retirement by 1, 2, ... 10 years <b>and</b> kept the Multi-Goal allocation? Each row uses your projected corpus at that future age (same as the Live tab) but the strategies are computed against the corpus that the Multi-Goal allocation would be sized for. Useful when you want both the time-shift view AND the phase-bucket view.
+                </p>
+                <p class="sub-text" style="margin-bottom:14px;font-size:0.82rem;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.20);padding:8px 12px;border-radius:8px;">
+                    Computing 4 strategies × 3 horizons × 10 delay years can take a few seconds the first time. Please wait for the table to populate.
+                </p>
+                <div id="rtDelayMgStatus" class="sub-text" style="font-style:italic;margin-bottom:8px;">Computing...</div>
+                <div class="rt-delay-table-wrapper">
+                    <table class="rt-delay-table" id="rtDelayMgTable">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">Delay</th>
+                                <th rowspan="2">Age</th>
+                                <th rowspan="2">Corpus</th>
+                                <th colspan="3">MC 85% Safe</th>
+                                <th colspan="3">4% Rule</th>
+                                <th colspan="3">Annuity</th>
+                                <th colspan="3">3-Bucket</th>
+                            </tr>
+                            <tr>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                                <th>to 60</th><th>to 80</th><th>to 100</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rtDelayMgTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>

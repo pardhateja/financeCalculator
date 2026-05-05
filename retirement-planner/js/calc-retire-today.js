@@ -475,6 +475,83 @@
     });
   }
 
+  // ---- Delay Retirement matrix (4 strategies × 3 horizons × 10 delay yrs) ----
+
+  /* Get the projected corpus at a future age. Reads from RP._projectionRows
+   * which is the anchored projection chain (already includes seed + SIPs). */
+  function projectedCorpusAtAge(targetAge) {
+    if (!Array.isArray(RP._projectionRows)) return 0;
+    var row = RP._projectionRows.find(function (r) { return r.age === targetAge - 1; });
+    if (row && Number.isFinite(row.ending)) return Math.max(0, row.ending);
+    var sameAge = RP._projectionRows.find(function (r) { return r.age === targetAge; });
+    if (sameAge && Number.isFinite(sameAge.starting)) return Math.max(0, sameAge.starting);
+    return 0;
+  }
+
+  /* Render one delay-row: 4 strategies × 3 horizons (12 cells + 3 prefix). */
+  function renderDelayRow(tbodyId, delayYears) {
+    var tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    var curAge = (typeof RP.val === 'function') ? (RP.val('currentAge') || 28) : 28;
+    var futureAge = curAge + delayYears;
+    var corpus = projectedCorpusAtAge(futureAge);
+    var monthlyExp = (typeof RP.val === 'function') ? (RP.val('postRetireMonthly') || 0) : 0;
+    var ret = (typeof RP._postReturn === 'number' && RP._postReturn > 0) ? RP._postReturn : 0.08;
+    var infl = (typeof RP.val === 'function') ? ((RP.val('inflationRate') || 6) / 100) : 0.06;
+    var horizons = HORIZON_KEYS.map(function (h) { return Math.max(1, TARGET_AGES[h] - futureAge); });
+
+    var cells = [];
+    cells.push('<td>+' + delayYears + ' yr</td>');
+    cells.push('<td>' + futureAge + '</td>');
+    cells.push('<td>' + (corpus > 0 ? fmtINR(corpus) : '—') + '</td>');
+
+    if (corpus <= 0) {
+      for (var k = 0; k < 12; k++) cells.push('<td>—</td>');
+    } else {
+      var results = { mc: [], fourPct: [], annuity: [], bucket: [] };
+      horizons.forEach(function (h) {
+        var r = computeForHorizon(corpus, monthlyExp, ret, infl, h);
+        results.mc.push(r.mc);
+        results.fourPct.push(r.fourPct);
+        results.annuity.push(r.annuity);
+        results.bucket.push(r.bucket);
+      });
+      ['mc', 'fourPct', 'annuity', 'bucket'].forEach(function (key) {
+        results[key].forEach(function (val) { cells.push('<td>' + val + '</td>'); });
+      });
+    }
+
+    var tr = document.createElement('tr');
+    tr.innerHTML = cells.join('');
+    tbody.appendChild(tr);
+  }
+
+  function renderDelayMatrix(variant) {
+    var tableBodyId = (variant === 'mg') ? 'rtDelayMgTableBody' : 'rtDelayTableBody';
+    var statusId    = (variant === 'mg') ? 'rtDelayMgStatus'    : 'rtDelayStatus';
+    var tbody = document.getElementById(tableBodyId);
+    var status = document.getElementById(statusId);
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (status) status.textContent = 'Computing...';
+    var i = 1;
+    function next() {
+      if (i > 10) {
+        if (status) status.textContent = 'Done. Each row uses projected corpus at that future age, all 4 strategies × 3 horizons.';
+        return;
+      }
+      try { renderDelayRow(tableBodyId, i); }
+      catch (e) { console.warn('Delay row ' + i + ' failed:', e); }
+      if (status) status.textContent = 'Computing... (' + i + ' / 10 rows done)';
+      i++;
+      setTimeout(next, 0);
+    }
+    setTimeout(next, 0);
+  }
+
+  RP.renderRetireTodayDelay   = function () { renderDelayMatrix('live'); };
+  RP.renderRetireTodayDelayMg = function () { renderDelayMatrix('mg'); };
+
   function bootRetireToday() {
     setTimeout(function () {
       ['live', 'mg'].forEach(function (variant) {
@@ -529,5 +606,7 @@
     var t = btn.dataset && btn.dataset.tab;
     if (t === 'retire-today') setTimeout(function () { prefill('live'); compute('live'); }, 50);
     else if (t === 'retire-today-mg') setTimeout(function () { prefill('mg'); compute('mg'); }, 50);
+    else if (t === 'retire-today-delay') setTimeout(function () { renderDelayMatrix('live'); }, 50);
+    else if (t === 'retire-today-delay-mg') setTimeout(function () { renderDelayMatrix('mg'); }, 50);
   });
 })();
