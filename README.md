@@ -26,6 +26,42 @@ If you don't have `make`: `cd retirement-planner && bash build.sh && python3 -m 
 
 ---
 
+## Screenshots
+
+A quick tour of what you get after `make dev`. All shots at 1440×900.
+
+### 1. Basics — set your inputs once, everything else flows from here
+![Basics tab](docs/screenshots/01-basics.png)
+
+Age, income, expenses, return assumptions, rates. The sticky summary bar at the bottom updates live as you type — every other tab pulls from these numbers.
+
+### 2. Dashboard — the FI scorecard
+![Dashboard tab](docs/screenshots/02-dashboard.png)
+
+FI Score (0–100) with breakdown across Savings Rate, Corpus Adequacy, Longevity Coverage, and Emergency Fund. Headline cards on top, risk alerts on the right, key ratios below.
+
+### 3. Projections — year-by-year, age 27 to 100
+![Projections tab](docs/screenshots/03-projections.png)
+
+Anchored projection engine: each future row computes forward from today, so step-up SIPs apply at the right year. Headline cards (Corpus at Retirement, Years Earning, Years in Retirement, Money Runs Out At, Legacy) summarise the full table.
+
+### 4. Multi-Goal Planner — model life phases with overlap detection
+![Multi-Goal tab](docs/screenshots/04-multigoal.png)
+
+Add named life phases (Base, Kid 1 college, Medical add-on, etc.) with their own age range, monthly cost, and inflation. The planner detects overlapping phases and sums them so you don't undercount peak years.
+
+### 5. Retire Today — what happens if I quit now?
+![Retire Today tab](docs/screenshots/05-retire-today.png)
+
+Four withdrawal strategies (Monte Carlo Safe, 4% Rule, Annuity-Style, 3-Bucket) × three horizons (Short to 60 / Good to 80 / Best to 100) × two corpus sources (Live or Multi-Goal). Plus the survival "how long does my money last" cards. The Delay sub-tab projects the same matrix for retiring +1 to +10 years from now.
+
+### 6. Monte Carlo — stress-test against 35 years of real market history
+![Monte Carlo simulation](docs/screenshots/06-monte-carlo.png)
+
+Probability of your plan still having money at each age, color-graded green→red. The "5 random futures from this run" panel shows individual sample paths (lasted to end / ran out at 51 / ran out at 81 / etc.) so you can see *why* the percentile dropped — early-retirement bad-luck years matter more than late-retirement ones. Runs in a Web Worker so the UI stays responsive.
+
+---
+
 ## Retirement Planner
 
 The flagship app. Data flows live across all tabs — edit your salary in **Basics** and the projections, dashboard, sticky summary bar, and Retire Today numbers all update in real time.
