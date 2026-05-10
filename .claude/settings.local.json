@@ -242,7 +242,11 @@
       "Bash(kill 59760)",
       "Bash(kill 59785)",
       "Bash(bash retirement-planner/build.sh)",
-      "Bash(xargs -r kill -9)"
+      "Bash(xargs -r kill -9)",
+      "Bash(git config *)",
+      "Bash(gh auth *)",
+      "Bash(kill 90284)",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; grep -i \"push\\\\|PGRST\\\\|column\\\\|persist\" {} | tail -20')"
     ],
     "deny": []
   }

@@ -1,0 +1,4 @@
+[     112ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503230007:653
+[     162ms] [INFO] [persistence] getSession result: SIGNED IN @ http://localhost:8765/js/persistence.js?v=20260503230007:657
+[     235ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ http://localhost:8765/js/chart.js?v=20260503230007:459
+[     449ms] [INFO] [persist] PULL got cloud snapshot with phases: [Base (no kids), Kid 1 at home, Kid 2 at home, Kid 1 college fees, Kid 1 hostel, Kid 1 pocket money, Kid 2 college fees, Kid 2 hostel, Kid 2 pocket money, Medical add-on] @ http://localhost:8765/js/persistence.js?v=20260503230007:311

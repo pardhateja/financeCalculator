@@ -1,0 +1,116 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Retire Today" [ref=e16] [cursor=pointer]
+      - button "Profiles" [ref=e17] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e18]:
+      - button "Today (live corpus)" [ref=e185] [cursor=pointer]
+      - button "Multi-Goal corpus" [ref=e186] [cursor=pointer]
+      - button "Delay (live corpus)" [ref=e187] [cursor=pointer]
+      - button "Delay (Multi-Goal)" [ref=e188] [cursor=pointer]
+    - text: Now
+    - generic [ref=e190]:
+      - heading "Delay Retirement — Live corpus projection" [level=2] [ref=e191]
+      - paragraph [ref=e192]: What if you delayed retirement by 1, 2, ... 10 years? Each row uses your projected corpus at that future age (from the main Projection chain — your seed plus all SIPs through then). The 4 strategies recompute against each year's growing corpus across all 3 horizons.
+      - paragraph [ref=e193]: Computing 4 strategies × 3 horizons × 10 delay years can take a few seconds the first time. Please wait for the table to populate.
+      - generic [ref=e194]: Computing... (3 / 10 rows done)
+      - table [ref=e196]:
+        - rowgroup [ref=e197]:
+          - row "Delay Age Corpus MC 85% Safe 4% Rule Annuity 3-Bucket" [ref=e198]:
+            - columnheader "Delay" [ref=e199]
+            - columnheader "Age" [ref=e200]
+            - columnheader "Corpus" [ref=e201]
+            - columnheader "MC 85% Safe" [ref=e202]
+            - columnheader "4% Rule" [ref=e203]
+            - columnheader "Annuity" [ref=e204]
+            - columnheader "3-Bucket" [ref=e205]
+          - row "to 60 to 80 to 100 to 60 to 80 to 100 to 60 to 80 to 100 to 60 to 80 to 100" [ref=e206]:
+            - columnheader "to 60" [ref=e207]
+            - columnheader "to 80" [ref=e208]
+            - columnheader "to 100" [ref=e209]
+            - columnheader "to 60" [ref=e210]
+            - columnheader "to 80" [ref=e211]
+            - columnheader "to 100" [ref=e212]
+            - columnheader "to 60" [ref=e213]
+            - columnheader "to 80" [ref=e214]
+            - columnheader "to 100" [ref=e215]
+            - columnheader "to 60" [ref=e216]
+            - columnheader "to 80" [ref=e217]
+            - columnheader "to 100" [ref=e218]
+        - rowgroup [ref=e219]:
+          - row "+1 yr 29 ₹1.06 Cr ₹23.6 K ₹15.1 K ₹11.5 K ₹35.5 K ₹35.5 K ₹35.5 K ₹85.9 K ₹81.6 K ₹80.9 K ₹25.3 K ₹16.1 K ₹12.2 K" [ref=e220]:
+            - cell "+1 yr" [ref=e221]
+            - cell "29" [ref=e222]
+            - cell "₹1.06 Cr" [ref=e223]
+            - cell "₹23.6 K" [ref=e224]
+            - cell "₹15.1 K" [ref=e225]
+            - cell "₹11.5 K" [ref=e226]
+            - cell "₹35.5 K" [ref=e227]
+            - cell "₹35.5 K" [ref=e228]
+            - cell "₹35.5 K" [ref=e229]
+            - cell "₹85.9 K" [ref=e230]
+            - cell "₹81.6 K" [ref=e231]
+            - cell "₹80.9 K" [ref=e232]
+            - cell "₹25.3 K" [ref=e233]
+            - cell "₹16.1 K" [ref=e234]
+            - cell "₹12.2 K" [ref=e235]
+          - row "+2 yr 30 ₹1.48 Cr ₹34.4 K ₹21.8 K ₹16.7 K ₹49.4 K ₹49.4 K ₹49.4 K ₹1.20 L ₹1.14 L ₹1.13 L ₹36.6 K ₹22.6 K ₹16.8 K" [ref=e236]:
+            - cell "+2 yr" [ref=e237]
+            - cell "30" [ref=e238]
+            - cell "₹1.48 Cr" [ref=e239]
+            - cell "₹34.4 K" [ref=e240]
+            - cell "₹21.8 K" [ref=e241]
+            - cell "₹16.7 K" [ref=e242]
+            - cell "₹49.4 K" [ref=e243]
+            - cell "₹49.4 K" [ref=e244]
+            - cell "₹49.4 K" [ref=e245]
+            - cell "₹1.20 L" [ref=e246]
+            - cell "₹1.14 L" [ref=e247]
+            - cell "₹1.13 L" [ref=e248]
+            - cell "₹36.6 K" [ref=e249]
+            - cell "₹22.6 K" [ref=e250]
+            - cell "₹16.8 K" [ref=e251]
+          - row "+3 yr 31 ₹1.96 Cr ₹47.5 K ₹29.0 K ₹21.8 K ₹65.5 K ₹65.5 K ₹65.5 K ₹1.61 L ₹1.51 L ₹1.49 L ₹49.8 K ₹30.2 K ₹23.0 K" [ref=e252]:
+            - cell "+3 yr" [ref=e253]
+            - cell "31" [ref=e254]
+            - cell "₹1.96 Cr" [ref=e255]
+            - cell "₹47.5 K" [ref=e256]
+            - cell "₹29.0 K" [ref=e257]
+            - cell "₹21.8 K" [ref=e258]
+            - cell "₹65.5 K" [ref=e259]
+            - cell "₹65.5 K" [ref=e260]
+            - cell "₹65.5 K" [ref=e261]
+            - cell "₹1.61 L" [ref=e262]
+            - cell "₹1.51 L" [ref=e263]
+            - cell "₹1.49 L" [ref=e264]
+            - cell "₹49.8 K" [ref=e265]
+            - cell "₹30.2 K" [ref=e266]
+            - cell "₹23.0 K" [ref=e267]
+    - contentinfo [ref=e170]:
+      - paragraph [ref=e171]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e172]:
+        - link "Home" [ref=e173] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e174] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e175]:
+    - button "Corpus @ Retirement ₹4.77 Cr" [ref=e176] [cursor=pointer]:
+      - generic [ref=e177]: Corpus @ Retirement
+      - generic [ref=e178]: ₹4.77 Cr
+    - button "Money lasts until Lifetime" [ref=e179] [cursor=pointer]:
+      - generic [ref=e180]: Money lasts until
+      - generic [ref=e181]: Lifetime
+    - button "Savings Rate 60.0%" [ref=e182] [cursor=pointer]:
+      - generic [ref=e183]: Savings Rate
+      - generic [ref=e184]: 60.0%

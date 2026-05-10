@@ -1,0 +1,5 @@
+[     112ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503213732:406
+[     167ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503213732:410
+[     344ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ http://localhost:8765/js/chart.js?v=20260503213732:459
+[   10654ms] [WARNING] Invalid phase data, skipping: {startAge: 35, endAge: 45, monthlyExpense: 100000, label: Early Retirement} @ http://localhost:8765/js/calc-multigoal.js?v=20260503213732:160
+[   10654ms] [WARNING] Invalid phase data, skipping: {startAge: 46, endAge: 65, monthlyExpense: 80000, label: Mid Retirement} @ http://localhost:8765/js/calc-multigoal.js?v=20260503213732:160

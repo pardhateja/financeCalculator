@@ -1,0 +1,118 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Profiles" [ref=e16] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e17]:
+      - button "Basics & Income" [ref=e18] [cursor=pointer]
+      - button "Expenses" [ref=e19] [cursor=pointer]
+      - button "Investments" [ref=e20] [cursor=pointer]
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - heading "Asset Allocation" [level=2] [ref=e25]
+        - generic [ref=e26]:
+          - heading "Age-Based Split" [level=3] [ref=e27]
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - generic [ref=e30]: Safe Investments %
+              - spinbutton [ref=e31]: "28"
+              - generic [ref=e32]: "%"
+            - generic [ref=e33]:
+              - generic [ref=e34]: Stock / Equity %
+              - spinbutton [ref=e35]: "72"
+              - generic [ref=e36]: "%"
+          - generic [ref=e37]: "Rule: Safe% = Your Age, Stock% = 100 - Age"
+        - generic [ref=e38]:
+          - heading "Expected Returns (IRR)" [level=3] [ref=e39]
+          - generic [ref=e40]:
+            - generic [ref=e41]: Safe / Fixed Return
+            - spinbutton "Safe / Fixed Return" [ref=e42]: "7"
+            - generic [ref=e43]: "%"
+          - generic [ref=e44]:
+            - generic [ref=e45]: Large Cap MF Return
+            - spinbutton "Large Cap MF Return" [ref=e46]: "12"
+            - generic [ref=e47]: "%"
+          - generic [ref=e48]:
+            - generic [ref=e49]: Mid Cap MF Return
+            - spinbutton "Mid Cap MF Return" [ref=e50]: "15"
+            - generic [ref=e51]: "%"
+          - generic [ref=e52]:
+            - generic [ref=e53]: Small Cap MF Return
+            - spinbutton "Small Cap MF Return" [ref=e54]: "18"
+            - generic [ref=e55]: "%"
+          - generic [ref=e56]:
+            - generic [ref=e57]: "Stock Blended Return:"
+            - generic [ref=e58]: 14.7%
+          - generic [ref=e59]:
+            - generic [ref=e60]: "Overall Blended Return:"
+            - generic [ref=e61]: 12.54%
+      - generic [ref=e62]:
+        - heading "Investment Matrix" [level=2] [ref=e63]
+        - generic [ref=e64]:
+          - heading "Mutual Fund Allocation by Age Bracket" [level=3] [ref=e65]
+          - table [ref=e67]:
+            - rowgroup [ref=e68]:
+              - row "Age Bracket Large Cap % Mid Cap % Small Cap %" [ref=e69]:
+                - columnheader "Age Bracket" [ref=e70]
+                - columnheader "Large Cap %" [ref=e71]
+                - columnheader "Mid Cap %" [ref=e72]
+                - columnheader "Small Cap %" [ref=e73]
+            - rowgroup [ref=e74]:
+              - row "20-30 40 30 30" [ref=e75]:
+                - cell "20-30" [ref=e76]
+                - cell "40" [ref=e77]
+                - cell "30" [ref=e78]
+                - cell "30" [ref=e79]
+              - row "30-40 50 30 20" [ref=e80]:
+                - cell "30-40" [ref=e81]
+                - cell "50" [ref=e82]
+                - cell "30" [ref=e83]
+                - cell "20" [ref=e84]
+              - row "40+ 60 30 10" [ref=e85]:
+                - cell "40+" [ref=e86]
+                - cell "60" [ref=e87]
+                - cell "30" [ref=e88]
+                - cell "10" [ref=e89]
+          - generic [ref=e90]: Your active bracket is highlighted in green based on your current age.
+        - generic [ref=e91]:
+          - heading "Monthly SIP Breakdown" [level=3] [ref=e92]
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - generic [ref=e95]: Safe / Fixed
+              - generic [ref=e96]: ₹58,800
+            - generic [ref=e97]:
+              - generic [ref=e98]: Large Cap MF
+              - generic [ref=e99]: ₹60,480
+            - generic [ref=e100]:
+              - generic [ref=e101]: Mid Cap MF
+              - generic [ref=e102]: ₹45,360
+            - generic [ref=e103]:
+              - generic [ref=e104]: Small Cap MF
+              - generic [ref=e105]: ₹45,360
+    - contentinfo [ref=e106]:
+      - paragraph [ref=e107]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e108]:
+        - link "Home" [ref=e109] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e110] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e111]:
+    - button "Corpus @ Retirement ₹4.56 Cr" [ref=e112] [cursor=pointer]:
+      - generic [ref=e113]: Corpus @ Retirement
+      - generic [ref=e114]: ₹4.56 Cr
+    - button "Money lasts until Lifetime" [ref=e115] [cursor=pointer]:
+      - generic [ref=e116]: Money lasts until
+      - generic [ref=e117]: Lifetime
+    - button "Savings Rate 60.0%" [ref=e118] [cursor=pointer]:
+      - generic [ref=e119]: Savings Rate
+      - generic [ref=e120]: 60.0%

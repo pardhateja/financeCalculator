@@ -1,0 +1,185 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Profiles" [ref=e16] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e17]:
+      - button "Financial Plan" [ref=e18] [cursor=pointer]
+      - button "Multi-Goal" [ref=e19] [cursor=pointer]
+      - button "Emergency Fund" [ref=e20] [cursor=pointer]
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - heading "Pre-Retirement Plan" [level=2] [ref=e25]
+        - generic [ref=e26]:
+          - heading "Current Savings" [level=3] [ref=e27]
+          - paragraph [ref=e28]: Total = Seed (what you had before tracking) + Tracker contributions (what you've logged in the Tracker tab) + Interest earned on those contributions at your post-tax blended return.
+          - generic [ref=e29]:
+            - generic [ref=e30]: Seed (had before tracking)
+            - spinbutton "Seed (had before tracking)" [ref=e31]: "7000000"
+            - generic [ref=e32]: ₹
+          - generic [ref=e33]:
+            - generic [ref=e34]: Tracker contributions
+            - spinbutton "Tracker contributions" [ref=e35]: "0"
+            - generic [ref=e36]: ₹
+          - generic [ref=e37]:
+            - generic [ref=e38]: Interest earned
+            - spinbutton "Interest earned" [ref=e39]: "0"
+            - generic [ref=e40]: ₹
+          - generic [ref=e41]:
+            - generic [ref=e42]: Current Total Savings (auto)
+            - spinbutton "Current Total Savings (auto)" [ref=e43]: "7000000"
+            - generic [ref=e44]: ₹
+          - generic [ref=e45]:
+            - generic [ref=e46]: Monthly Investment Amount
+            - spinbutton "Monthly Investment Amount" [ref=e47]: "210000"
+            - generic [ref=e48]: ₹/mo
+          - generic [ref=e49]:
+            - generic [ref=e50]: Annual Step-Up Rate
+            - spinbutton "Annual Step-Up Rate" [ref=e51]: "5"
+            - generic [ref=e52]: "%"
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Current Savings
+            - generic [ref=e56]: ₹70,00,000
+          - generic [ref=e57]:
+            - generic [ref=e58]: Monthly Investment
+            - generic [ref=e59]: ₹2,10,000
+          - generic [ref=e60]:
+            - generic [ref=e61]: Annual Investment
+            - generic [ref=e62]: ₹25,20,000
+          - generic [ref=e63]:
+            - generic [ref=e64]: Years to Retire
+            - generic [ref=e65]: "7"
+        - generic [ref=e66]:
+          - heading "Pre-Retirement Investment Mix" [level=3] [ref=e67]
+          - table [ref=e68]:
+            - rowgroup [ref=e69]:
+              - row "Type Return % Tax % Share %" [ref=e70]:
+                - columnheader "Type" [ref=e71]
+                - columnheader "Return %" [ref=e72]
+                - columnheader "Tax %" [ref=e73]
+                - columnheader "Share %" [ref=e74]
+            - rowgroup [ref=e75]:
+              - row "Fixed Returns 7 30 27" [ref=e76]:
+                - cell "Fixed Returns" [ref=e77]
+                - cell "7" [ref=e78]:
+                  - spinbutton [ref=e79]: "7"
+                - cell "30" [ref=e80]:
+                  - spinbutton [ref=e81]: "30"
+                - cell "27" [ref=e82]:
+                  - spinbutton [ref=e83]: "27"
+              - row "Large Cap MF 12 20 29" [ref=e84]:
+                - cell "Large Cap MF" [ref=e85]
+                - cell "12" [ref=e86]:
+                  - spinbutton [ref=e87]: "12"
+                - cell "20" [ref=e88]:
+                  - spinbutton [ref=e89]: "20"
+                - cell "29" [ref=e90]:
+                  - spinbutton [ref=e91]: "29"
+              - row "Mid Cap MF 15 20 22" [ref=e92]:
+                - cell "Mid Cap MF" [ref=e93]
+                - cell "15" [ref=e94]:
+                  - spinbutton [ref=e95]: "15"
+                - cell "20" [ref=e96]:
+                  - spinbutton [ref=e97]: "20"
+                - cell "22" [ref=e98]:
+                  - spinbutton [ref=e99]: "22"
+              - row "Small Cap MF 18 20 22" [ref=e100]:
+                - cell "Small Cap MF" [ref=e101]
+                - cell "18" [ref=e102]:
+                  - spinbutton [ref=e103]: "18"
+                - cell "20" [ref=e104]:
+                  - spinbutton [ref=e105]: "20"
+                - cell "22" [ref=e106]:
+                  - spinbutton [ref=e107]: "22"
+              - row "Blended 12.63% 22.70% 100" [ref=e108]:
+                - cell "Blended" [ref=e109]
+                - cell "12.63%" [ref=e110]
+                - cell "22.70%" [ref=e111]
+                - cell "100" [ref=e112]
+      - generic [ref=e113]:
+        - heading "Post-Retirement Plan" [level=2] [ref=e114]
+        - generic [ref=e115]:
+          - heading "Post-Retirement Investment Mix" [level=3] [ref=e116]
+          - table [ref=e117]:
+            - rowgroup [ref=e118]:
+              - row "Type Return % Tax % Share %" [ref=e119]:
+                - columnheader "Type" [ref=e120]
+                - columnheader "Return %" [ref=e121]
+                - columnheader "Tax %" [ref=e122]
+                - columnheader "Share %" [ref=e123]
+            - rowgroup [ref=e124]:
+              - row "Fixed Returns 7 30 50" [ref=e125]:
+                - cell "Fixed Returns" [ref=e126]
+                - cell "7" [ref=e127]:
+                  - spinbutton [ref=e128]: "7"
+                - cell "30" [ref=e129]:
+                  - spinbutton [ref=e130]: "30"
+                - cell "50" [ref=e131]:
+                  - spinbutton [ref=e132]: "50"
+              - row "Large Cap MF 12 20 50" [ref=e133]:
+                - cell "Large Cap MF" [ref=e134]
+                - cell "12" [ref=e135]:
+                  - spinbutton [ref=e136]: "12"
+                - cell "20" [ref=e137]:
+                  - spinbutton [ref=e138]: "20"
+                - cell "50" [ref=e139]:
+                  - spinbutton [ref=e140]: "50"
+              - row "Mid Cap MF 15 20 0" [ref=e141]:
+                - cell "Mid Cap MF" [ref=e142]
+                - cell "15" [ref=e143]:
+                  - spinbutton [ref=e144]: "15"
+                - cell "20" [ref=e145]:
+                  - spinbutton [ref=e146]: "20"
+                - cell "0" [ref=e147]:
+                  - spinbutton [ref=e148]: "0"
+              - row "Small Cap MF 18 20 0" [ref=e149]:
+                - cell "Small Cap MF" [ref=e150]
+                - cell "18" [ref=e151]:
+                  - spinbutton [ref=e152]: "18"
+                - cell "20" [ref=e153]:
+                  - spinbutton [ref=e154]: "20"
+                - cell "0" [ref=e155]:
+                  - spinbutton [ref=e156]: "0"
+              - row "Blended 9.50% 25.00% 100" [ref=e157]:
+                - cell "Blended" [ref=e158]
+                - cell "9.50%" [ref=e159]
+                - cell "25.00%" [ref=e160]
+                - cell "100" [ref=e161]
+        - generic [ref=e162]:
+          - heading "Post-Retirement Monthly Need" [level=3] [ref=e163]
+          - generic [ref=e164]:
+            - generic [ref=e165]: Monthly Expense (today's value)
+            - spinbutton "Monthly Expense (today's value)" [ref=e166]: "100000"
+            - generic [ref=e167]: ₹/mo
+          - generic [ref=e169]:
+            - generic [ref=e170]: Inflation-Adjusted (at retirement)
+            - generic [ref=e171]: ₹1,50,363/mo
+    - text: Now
+    - contentinfo [ref=e172]:
+      - paragraph [ref=e173]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e174]:
+        - link "Home" [ref=e175] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e176] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e177]:
+    - button "Corpus @ Retirement ₹4.50 Cr" [ref=e178] [cursor=pointer]:
+      - generic [ref=e179]: Corpus @ Retirement
+      - generic [ref=e180]: ₹4.50 Cr
+    - button "Money lasts until Age 98" [ref=e181] [cursor=pointer]:
+      - generic [ref=e182]: Money lasts until
+      - generic [ref=e183]: Age 98
+    - button "Savings Rate 60.0%" [ref=e184] [cursor=pointer]:
+      - generic [ref=e185]: Savings Rate
+      - generic [ref=e186]: 60.0%

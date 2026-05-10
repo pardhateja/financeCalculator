@@ -1,0 +1,68 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Profiles" [ref=e16] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e17]:
+      - button "Profiles" [ref=e18] [cursor=pointer]
+    - generic [ref=e20]:
+      - heading "Save / Load Profiles" [level=2] [ref=e21]
+      - generic [ref=e22]:
+        - strong [ref=e23]: No profile loaded
+        - text: — you're editing the default plan. Use
+        - strong [ref=e24]: Save as new profile
+        - text: to capture it.
+      - paragraph [ref=e25]:
+        - text: Save the current plan (every input + tracker entries + phases) under a name so you can experiment with alternatives and switch back.
+        - strong [ref=e26]: Save as new
+        - text: creates a fresh profile ·
+        - strong [ref=e27]: Load
+        - text: restores all inputs from a saved one ·
+        - strong [ref=e28]: Update
+        - text: overwrites the active profile with current inputs ·
+        - strong [ref=e29]: Del
+        - text: removes a saved profile.
+      - generic [ref=e30]:
+        - generic [ref=e32]:
+          - heading "Save Current Plan" [level=3] [ref=e33]
+          - generic [ref=e34]:
+            - generic [ref=e35]: Profile Name
+            - textbox "Profile Name" [ref=e36]:
+              - /placeholder: e.g. Aggressive, Conservative, With House
+          - button "Save as new profile" [ref=e37] [cursor=pointer]
+        - generic [ref=e39]:
+          - heading "Saved Profiles" [level=3] [ref=e40]
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - strong [ref=e44]: my profile
+              - text: Saved 28/4/2026
+            - generic [ref=e45]:
+              - button "Load" [ref=e46] [cursor=pointer]
+              - button "Del" [ref=e47] [cursor=pointer]
+    - contentinfo [ref=e48]:
+      - paragraph [ref=e49]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e50]:
+        - link "Home" [ref=e51] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e52] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e53]:
+    - button "Corpus @ Retirement ₹4.56 Cr" [ref=e54] [cursor=pointer]:
+      - generic [ref=e55]: Corpus @ Retirement
+      - generic [ref=e56]: ₹4.56 Cr
+    - button "Money lasts until Lifetime" [ref=e57] [cursor=pointer]:
+      - generic [ref=e58]: Money lasts until
+      - generic [ref=e59]: Lifetime
+    - button "Savings Rate 60.0%" [ref=e60] [cursor=pointer]:
+      - generic [ref=e61]: Savings Rate
+      - generic [ref=e62]: 60.0%

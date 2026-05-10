@@ -1,0 +1,5 @@
+[     114ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503220522:651
+[     151ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503220522:655
+[     226ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ http://localhost:8765/js/chart.js?v=20260503220522:459
+[  356841ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://xjyebiztvfxgkounymfh.supabase.co/rest/v1/app_data?select=inputs%2Cphases%2Ctracker%2Cnetworth%2Cexpenses%2Cprofiles%2Cmc_settings%2Cmeta%2Cpayload%2Cupdated_at&user_id=eq.7257d8a9-2cb6-4da8-896f-47283877ce0b:0
+[  356843ms] [ERROR] [persistence] pull error: {code: PGRST301, details: null, hint: null, message: Expected 3 parts in JWT; got 1} @ http://localhost:8765/js/persistence.js?v=20260503220522:280

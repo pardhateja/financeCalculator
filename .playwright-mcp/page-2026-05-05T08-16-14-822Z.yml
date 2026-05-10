@@ -1,0 +1,191 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Retire Today" [ref=e16] [cursor=pointer]
+      - button "Profiles" [ref=e17] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e18]:
+      - button "Today (live corpus)" [ref=e19] [cursor=pointer]
+      - button "Multi-Goal corpus" [ref=e20] [cursor=pointer]
+      - button "Delay (live corpus)" [ref=e21] [cursor=pointer]
+      - button "Delay (Multi-Goal)" [ref=e22] [cursor=pointer]
+    - text: Now
+    - generic [ref=e24]:
+      - heading "Retire Today" [level=2] [ref=e25]
+      - paragraph [ref=e26]: If you retired right now, how much can you safely withdraw each month, and how long would your money last? This tab uses your current corpus (live running balance from the Projection chain). For the alternate "what if I had my full Multi-Goal corpus at retirement age" view, use the Multi-Goal corpus sub-tab.
+      - paragraph [ref=e27]: "Each metric below shows three horizons: Short (plan to age 60), Good (plan to age 80), Best (plan to age 100)."
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic "Your live running balance from the Projection chain. Editable here for what-if; changes don't propagate back." [ref=e30]: Current Corpus (today)
+          - generic [ref=e31]:
+            - generic [ref=e32]: ₹
+            - spinbutton "Current Corpus (today)" [ref=e33]: "7347270"
+        - generic [ref=e34]:
+          - generic "Your monthly retirement expense in TODAY's rupees (no inflation applied here — that's done internally by year)." [ref=e35]: Monthly Expense (today)
+          - generic [ref=e36]:
+            - generic [ref=e37]: ₹
+            - spinbutton "Monthly Expense (today)" [ref=e38]: "100000"
+        - generic [ref=e39]:
+          - generic "Annual return assumed for the corpus during retirement. Defaults to your Post-Retirement Blended return from Financial Plan." [ref=e40]: Annual Return
+          - generic [ref=e41]:
+            - spinbutton "Annual Return" [ref=e42]: "9.5"
+            - generic [ref=e43]: "%"
+        - generic [ref=e44]:
+          - generic "Annual inflation applied to expenses each year of retirement. Defaults to your Inflation Rate from Basics." [ref=e45]: Expense Inflation
+          - generic [ref=e46]:
+            - spinbutton "Expense Inflation" [ref=e47]: "6"
+            - generic [ref=e48]: "%"
+      - heading "How much can I withdraw?" [level=3] [ref=e49]
+      - paragraph [ref=e50]: Four different ways to size a safe monthly withdrawal from today's corpus.
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]: Monte Carlo 85% Safe
+          - generic [ref=e54]:
+            - generic [ref=e55]: Short (to 60)
+            - generic [ref=e56]: ₹16.0 K
+            - generic [ref=e57]: 32 yr
+          - generic [ref=e58]:
+            - generic [ref=e59]: Good (to 80)
+            - generic [ref=e60]: ₹10.3 K
+            - generic [ref=e61]: 52 yr
+          - generic [ref=e62]:
+            - generic [ref=e63]: Best (to 100)
+            - generic [ref=e64]: ₹8.1 K
+            - generic [ref=e65]: 72 yr
+          - generic [ref=e66]: Largest monthly withdrawal where 85% of randomized return scenarios still leave money at end of horizon. Most realistic.
+        - generic [ref=e67]:
+          - generic [ref=e68]: 4% Rule (Bengen)
+          - generic [ref=e69]:
+            - generic [ref=e70]: Short (to 60)
+            - generic [ref=e71]: ₹24.5 K
+            - generic [ref=e72]: 4% of corpus / 12
+          - generic [ref=e73]:
+            - generic [ref=e74]: Good (to 80)
+            - generic [ref=e75]: ₹24.5 K
+            - generic [ref=e76]: 4% of corpus / 12
+          - generic [ref=e77]:
+            - generic [ref=e78]: Best (to 100)
+            - generic [ref=e79]: ₹24.5 K
+            - generic [ref=e80]: 4% of corpus / 12
+          - generic [ref=e81]: The classic textbook rule — historically safe across 30-year US retirements. Same number for both horizons (rule doesn't depend on horizon).
+        - generic [ref=e82]:
+          - generic [ref=e83]: Annuity-Style
+          - generic [ref=e84]:
+            - generic [ref=e85]: Short (to 60)
+            - generic [ref=e86]: ₹59.0 K
+            - generic [ref=e87]: 32 yr @ 9.50%
+          - generic [ref=e88]:
+            - generic [ref=e89]: Good (to 80)
+            - generic [ref=e90]: ₹56.3 K
+            - generic [ref=e91]: 52 yr @ 9.50%
+          - generic [ref=e92]:
+            - generic [ref=e93]: Best (to 100)
+            - generic [ref=e94]: ₹55.9 K
+            - generic [ref=e95]: 72 yr @ 9.50%
+          - generic [ref=e96]: Maximum equal monthly withdrawal that fully drains corpus by end of horizon, given your post-retirement blended return.
+        - generic [ref=e97]:
+          - generic [ref=e98]: 3-Bucket Strategy
+          - generic [ref=e99]:
+            - generic [ref=e100]: Short (to 60)
+            - generic [ref=e101]: ₹17.1 K
+            - generic [ref=e102]:
+              - generic "2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%" [ref=e103]: "B1: ₹24.00 L"
+              - text: ·
+              - generic "5 yrs of expenses, in debt funds/bonds @ ~8%" [ref=e104]: "B2: ₹49.50 L"
+              - text: ·
+              - generic "Whatever's left, in equity at your full annual return" [ref=e105]: "B3: ₹0"
+          - generic [ref=e106]:
+            - generic [ref=e107]: Good (to 80)
+            - generic [ref=e108]: ₹10.7 K
+            - generic [ref=e109]:
+              - generic "2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%" [ref=e110]: "B1: ₹24.00 L"
+              - text: ·
+              - generic "5 yrs of expenses, in debt funds/bonds @ ~8%" [ref=e111]: "B2: ₹49.50 L"
+              - text: ·
+              - generic "Whatever's left, in equity at your full annual return" [ref=e112]: "B3: ₹0"
+          - generic [ref=e113]:
+            - generic [ref=e114]: Best (to 100)
+            - generic [ref=e115]: ₹8.2 K
+            - generic [ref=e116]:
+              - generic "2 yrs of expenses, kept in cash/FD/liquid funds @ ~5%" [ref=e117]: "B1: ₹24.00 L"
+              - text: ·
+              - generic "5 yrs of expenses, in debt funds/bonds @ ~8%" [ref=e118]: "B2: ₹49.50 L"
+              - text: ·
+              - generic "Whatever's left, in equity at your full annual return" [ref=e119]: "B3: ₹0"
+          - generic [ref=e120]: Bucket 1 (cash, 5%) holds 2 yrs of expenses. Bucket 2 (debt, 8%) holds 5 yrs. Bucket 3 (equity, ~your blended) holds the rest. Refill cycle protects against sequence-of-returns risk — survives a bad first decade.
+      - heading "How long will my money last?" [level=3] [ref=e121]
+      - paragraph [ref=e122]: Three views of how many months your corpus survives at your CURRENT monthly expense (above). Capped at the horizon.
+      - generic [ref=e123]:
+        - generic [ref=e124]:
+          - generic [ref=e125]: Deterministic
+          - generic [ref=e126]:
+            - generic [ref=e127]: Short (to 60)
+            - generic [ref=e128]: 84 mo
+            - generic [ref=e129]: 7.0 years
+          - generic [ref=e130]:
+            - generic [ref=e131]: Good (to 80)
+            - generic [ref=e132]: 84 mo
+            - generic [ref=e133]: 7.0 years
+          - generic [ref=e134]:
+            - generic [ref=e135]: Best (to 100)
+            - generic [ref=e136]: 84 mo
+            - generic [ref=e137]: 7.0 years
+          - generic [ref=e138]: Assumes the corpus earns your annual return every year, no variance. Best-guess "average" answer.
+        - generic [ref=e139]:
+          - generic [ref=e140]: Monte Carlo Median
+          - generic [ref=e141]:
+            - generic [ref=e142]: Short (to 60)
+            - generic [ref=e143]: 81 mo
+            - generic [ref=e144]: 6.8 years
+          - generic [ref=e145]:
+            - generic [ref=e146]: Good (to 80)
+            - generic [ref=e147]: 80 mo
+            - generic [ref=e148]: 6.7 years
+          - generic [ref=e149]:
+            - generic [ref=e150]: Best (to 100)
+            - generic [ref=e151]: 81 mo
+            - generic [ref=e152]: 6.8 years
+          - generic [ref=e153]: Middle outcome across thousands of randomized return paths. Half of futures last longer, half shorter.
+        - generic [ref=e154]:
+          - generic [ref=e155]: Monte Carlo Worst-10%
+          - generic [ref=e156]:
+            - generic [ref=e157]: Short (to 60)
+            - generic [ref=e158]: 61 mo
+            - generic [ref=e159]: 5.1 years
+          - generic [ref=e160]:
+            - generic [ref=e161]: Good (to 80)
+            - generic [ref=e162]: 61 mo
+            - generic [ref=e163]: 5.1 years
+          - generic [ref=e164]:
+            - generic [ref=e165]: Best (to 100)
+            - generic [ref=e166]: 61 mo
+            - generic [ref=e167]: 5.1 years
+          - generic [ref=e168]: The 10th-percentile bad outcome. Plan for THIS number if you want to be cautious — only 1 in 10 futures is worse.
+      - paragraph [ref=e169]: Monte Carlo numbers above use 5,000 simulated retirement paths each time you change an input. Both horizons computed in parallel — may take a moment after a big change.
+    - contentinfo [ref=e170]:
+      - paragraph [ref=e171]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e172]:
+        - link "Home" [ref=e173] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e174] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e175]:
+    - button "Corpus @ Retirement ₹4.77 Cr" [ref=e176] [cursor=pointer]:
+      - generic [ref=e177]: Corpus @ Retirement
+      - generic [ref=e178]: ₹4.77 Cr
+    - button "Money lasts until Lifetime" [ref=e179] [cursor=pointer]:
+      - generic [ref=e180]: Money lasts until
+      - generic [ref=e181]: Lifetime
+    - button "Savings Rate 60.0%" [ref=e182] [cursor=pointer]:
+      - generic [ref=e183]: Savings Rate
+      - generic [ref=e184]: 60.0%

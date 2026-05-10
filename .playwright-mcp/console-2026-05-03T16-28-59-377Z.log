@@ -1,0 +1,3 @@
+[     115ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503215846:599
+[     163ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503215846:603
+[     228ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ http://localhost:8765/js/chart.js?v=20260503215846:459

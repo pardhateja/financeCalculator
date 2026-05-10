@@ -1,0 +1,95 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Profiles" [ref=e16] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e17]:
+      - button "Projections" [ref=e18] [cursor=pointer]
+      - button "What-If" [ref=e19] [cursor=pointer]
+      - button "Milestones" [ref=e20] [cursor=pointer]
+      - button "Goals" [ref=e21] [cursor=pointer]
+    - generic [ref=e23]:
+      - heading "Year-by-Year Projections" [level=2] [ref=e24]
+      - tablist "Projection view" [ref=e25]:
+        - tab "Ideal Scenario" [ref=e26] [cursor=pointer]
+        - tab "Stress Test" [selected] [ref=e27] [cursor=pointer]
+      - tabpanel "Stress Test" [ref=e28]:
+        - paragraph [ref=e29]:
+          - strong [ref=e30]: What is this?
+          - text: The Ideal Scenario assumes your investments earn the same return every year. In reality, markets swing — some years are 2008, some are 2017. The Stress Test re-runs your plan thousands of times against
+          - strong [ref=e31]: 35 years of real Indian market history (NIFTY, debt, CPI 1991-2025)
+          - text: ", picking a different sequence of years each time. The chart shows what fraction of those simulated lives still had money at each age."
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - heading "Inputs being simulated — click any value to change" [level=3] [ref=e34]
+            - button "Reset to Setup values" [ref=e35] [cursor=pointer]
+          - generic [ref=e36]:
+            - generic [ref=e37]:
+              - generic [ref=e38]: Current age
+              - generic [ref=e39]:
+                - spinbutton "Current age yrs" [ref=e40]: "28"
+                - generic [ref=e41]: yrs
+            - generic [ref=e42]:
+              - generic [ref=e43]: Retirement age
+              - generic [ref=e44]:
+                - spinbutton "Retirement age yrs" [ref=e45]: "35"
+                - generic [ref=e46]: yrs
+            - generic [ref=e47]:
+              - generic [ref=e48]: Life expectancy
+              - generic [ref=e49]:
+                - spinbutton "Life expectancy yrs" [ref=e50]: "100"
+                - generic [ref=e51]: yrs
+            - generic [ref=e52]:
+              - generic [ref=e53]: Current corpus
+              - generic [ref=e54]:
+                - generic [ref=e55]: ₹
+                - spinbutton "Current corpus ₹" [ref=e56]: "7256143"
+            - generic [ref=e57]:
+              - generic [ref=e58]: Monthly investment
+              - generic [ref=e59]:
+                - generic [ref=e60]: ₹
+                - spinbutton "Monthly investment ₹ / month" [ref=e61]: "210000"
+                - generic [ref=e62]: / month
+            - generic [ref=e63]:
+              - generic [ref=e64]: Stock allocation
+              - generic [ref=e65]:
+                - spinbutton "Stock allocation % (Safe = 100 − Stock)" [ref=e66]: "72"
+                - generic [ref=e67]: "% (Safe = 100 − Stock)"
+            - generic [ref=e68]:
+              - generic [ref=e69]: Post-retirement monthly expense (today's value)
+              - generic [ref=e70]:
+                - generic [ref=e71]: ₹
+                - spinbutton "Post-retirement monthly expense (today's value) ₹ / month" [ref=e72]: "100000"
+                - generic [ref=e73]: / month
+          - group [ref=e74]:
+            - generic "Realism — taxes, fees, glide-down (defaults are typical India values)" [ref=e75] [cursor=pointer]
+        - generic [ref=e76]:
+          - paragraph [ref=e77]: One or more required inputs are missing. Fill in your age, retirement age, life expectancy, monthly investment and post-retirement expense in the Setup tab to run a Stress Test.
+          - button "Go to Setup → Financial Plan" [ref=e78] [cursor=pointer]
+    - contentinfo [ref=e79]:
+      - paragraph [ref=e80]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e81]:
+        - link "Home" [ref=e82] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e83] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e84]:
+    - button "Corpus @ Retirement ₹4.56 Cr" [ref=e85] [cursor=pointer]:
+      - generic [ref=e86]: Corpus @ Retirement
+      - generic [ref=e87]: ₹4.56 Cr
+    - button "Money lasts until Lifetime" [ref=e88] [cursor=pointer]:
+      - generic [ref=e89]: Money lasts until
+      - generic [ref=e90]: Lifetime
+    - button "Savings Rate 60.0%" [ref=e91] [cursor=pointer]:
+      - generic [ref=e92]: Savings Rate
+      - generic [ref=e93]: 60.0%

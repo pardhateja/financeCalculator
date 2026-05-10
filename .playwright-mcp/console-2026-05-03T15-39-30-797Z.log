@@ -1,0 +1,18 @@
+[      92ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503205040:358
+[     134ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503205040:362
+[     329ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ http://localhost:8765/js/chart.js?v=20260503205040:459
+[    7709ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503210920:358
+[    7710ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503210920:362
+[    7729ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0
+[    7922ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ http://localhost:8765/js/chart.js?v=20260503210920:459
+[  177230ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503210920:358
+[  177231ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503210920:362
+[  178701ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503210920:358
+[  178723ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503210920:362
+[  183905ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503210920:358
+[  183906ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503210920:362
+[  183907ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:8765/favicon.ico:0
+[  676676ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503212038:358
+[  676699ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503212038:362
+[  677784ms] [INFO] [persistence] SDK ready, project: https://xjyebiztvfxgkounymfh.supabase.co hash present: true @ http://localhost:8765/js/persistence.js?v=20260503212038:358
+[  677806ms] [INFO] [persistence] getSession result: no session @ http://localhost:8765/js/persistence.js?v=20260503212038:362

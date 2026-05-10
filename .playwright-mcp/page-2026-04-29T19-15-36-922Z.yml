@@ -1,0 +1,46 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Profiles" [ref=e16] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e17]:
+      - button "Projections" [ref=e18] [cursor=pointer]
+      - button "What-If" [ref=e19] [cursor=pointer]
+      - button "Milestones" [ref=e20] [cursor=pointer]
+      - button "Goals" [ref=e21] [cursor=pointer]
+    - generic [ref=e23]:
+      - heading "Year-by-Year Projections" [level=2] [ref=e24]
+      - tablist "Projection view" [ref=e25]:
+        - tab "Ideal Scenario" [ref=e26] [cursor=pointer]
+        - tab "Stress Test (Monte Carlo)" [selected] [ref=e27] [cursor=pointer]
+      - tabpanel "Stress Test (Monte Carlo)" [ref=e28]:
+        - generic [ref=e29]:
+          - paragraph [ref=e30]: Set your retirement age in the Calculator tab to run Monte Carlo analysis.
+          - button "Go to Calculator" [ref=e31] [cursor=pointer]
+    - contentinfo [ref=e32]:
+      - paragraph [ref=e33]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e34]:
+        - link "Home" [ref=e35] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e36] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e37]:
+    - button "Corpus @ Retirement ₹4.56 Cr" [ref=e38] [cursor=pointer]:
+      - generic [ref=e39]: Corpus @ Retirement
+      - generic [ref=e40]: ₹4.56 Cr
+    - button "Money lasts until Lifetime" [ref=e41] [cursor=pointer]:
+      - generic [ref=e42]: Money lasts until
+      - generic [ref=e43]: Lifetime
+    - button "Savings Rate 60.0%" [ref=e44] [cursor=pointer]:
+      - generic [ref=e45]: Savings Rate
+      - generic [ref=e46]: 60.0%

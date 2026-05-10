@@ -1,0 +1,1 @@
+[    1563ms] [ERROR] Transition Rejection($id: 1 type: 2, message: The transition has been superseded by a different transition, detail: Transition#2( ''{} -> 'support.landing.download'{"objectId":"05acbc36dbba4519a4972b7ddce31810","platform":"Mac OS X"} )) @ https://jslibs.blackmagicdesign.com/bundles/js/angular-bundle-1.4.14.js?_v=1606705995:383

@@ -1,0 +1,439 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Profiles" [ref=e16] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e17]:
+      - button "Dashboard" [ref=e18] [cursor=pointer]
+      - button "Tracker" [ref=e19] [cursor=pointer]
+      - button "Net Worth" [ref=e20] [cursor=pointer]
+      - button "Expense Log" [ref=e21] [cursor=pointer]
+    - generic [ref=e23]:
+      - heading "Investment Tracker" [level=2] [ref=e24]
+      - generic [ref=e25]:
+        - heading "Track Your Monthly Investments" [level=3] [ref=e26]
+        - generic [ref=e29]: 3 / 84 months completed (4%)
+      - generic [ref=e30]:
+        - button "Default (Flat)" [ref=e31] [cursor=pointer]
+        - button "Upgrading (Step-Up)" [ref=e32] [cursor=pointer]
+        - button "Custom" [ref=e33] [cursor=pointer]
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: Total Planned
+          - generic [ref=e37]: ₹1.76 Cr
+        - generic [ref=e38]:
+          - generic [ref=e39]: Total Invested
+          - generic [ref=e40]: ₹2.26 L
+        - generic [ref=e41]:
+          - generic [ref=e42]: Remaining
+          - generic [ref=e43]: ₹1.74 Cr
+        - generic [ref=e44]:
+          - generic [ref=e45]: Need Higher SIP
+          - generic [ref=e46]: ₹2,14,988
+          - generic [ref=e47]: to stay on timeline
+        - generic [ref=e48]:
+          - generic [ref=e49]: Or Extra Months
+          - generic [ref=e50]: +2 months
+          - generic [ref=e51]: at current SIP
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54] [cursor=pointer]:
+            - generic [ref=e55]: Year 1 (Age 28-29)
+            - generic [ref=e56]: 3/12 done · ₹2.26 L / ₹25.20 L
+          - generic [ref=e57]:
+            - generic [ref=e58] [cursor=pointer]:
+              - generic [ref=e59]: ⚠
+              - generic [ref=e60]: May 2026
+              - generic [ref=e61]: ₹2,10,000
+              - generic [ref=e62]: "Actual: ₹1,00,000"
+            - generic [ref=e63] [cursor=pointer]:
+              - generic [ref=e64]: ⚠
+              - generic [ref=e65]: Jun 2026
+              - generic [ref=e66]: ₹2,10,000
+              - generic [ref=e67]: "Actual: ₹50,000"
+            - generic [ref=e68] [cursor=pointer]:
+              - generic [ref=e69]: ⚠
+              - generic [ref=e70]: Jul 2026
+              - generic [ref=e71]: ₹2,10,000
+              - generic [ref=e72]: "Actual: ₹76,000"
+            - generic [ref=e73] [cursor=pointer]:
+              - generic [ref=e74]: ○
+              - generic [ref=e75]: Aug 2026
+              - generic [ref=e76]: ₹2,10,000
+            - generic [ref=e77] [cursor=pointer]:
+              - generic [ref=e78]: ○
+              - generic [ref=e79]: Sep 2026
+              - generic [ref=e80]: ₹2,10,000
+            - generic [ref=e81] [cursor=pointer]:
+              - generic [ref=e82]: ○
+              - generic [ref=e83]: Oct 2026
+              - generic [ref=e84]: ₹2,10,000
+            - generic [ref=e85] [cursor=pointer]:
+              - generic [ref=e86]: ○
+              - generic [ref=e87]: Nov 2026
+              - generic [ref=e88]: ₹2,10,000
+            - generic [ref=e89] [cursor=pointer]:
+              - generic [ref=e90]: ○
+              - generic [ref=e91]: Dec 2026
+              - generic [ref=e92]: ₹2,10,000
+            - generic [ref=e93] [cursor=pointer]:
+              - generic [ref=e94]: ○
+              - generic [ref=e95]: Jan 2027
+              - generic [ref=e96]: ₹2,10,000
+            - generic [ref=e97] [cursor=pointer]:
+              - generic [ref=e98]: ○
+              - generic [ref=e99]: Feb 2027
+              - generic [ref=e100]: ₹2,10,000
+            - generic [ref=e101] [cursor=pointer]:
+              - generic [ref=e102]: ○
+              - generic [ref=e103]: Mar 2027
+              - generic [ref=e104]: ₹2,10,000
+            - generic [ref=e105] [cursor=pointer]:
+              - generic [ref=e106]: ○
+              - generic [ref=e107]: Apr 2027
+              - generic [ref=e108]: ₹2,10,000
+        - generic [ref=e109]:
+          - generic [ref=e110] [cursor=pointer]:
+            - generic [ref=e111]: Year 2 (Age 29-30)
+            - generic [ref=e112]: 0/12 done · ₹0 / ₹25.20 L
+          - generic [ref=e113]:
+            - generic [ref=e114] [cursor=pointer]:
+              - generic [ref=e115]: ○
+              - generic [ref=e116]: May 2027
+              - generic [ref=e117]: ₹2,10,000
+            - generic [ref=e118] [cursor=pointer]:
+              - generic [ref=e119]: ○
+              - generic [ref=e120]: Jun 2027
+              - generic [ref=e121]: ₹2,10,000
+            - generic [ref=e122] [cursor=pointer]:
+              - generic [ref=e123]: ○
+              - generic [ref=e124]: Jul 2027
+              - generic [ref=e125]: ₹2,10,000
+            - generic [ref=e126] [cursor=pointer]:
+              - generic [ref=e127]: ○
+              - generic [ref=e128]: Aug 2027
+              - generic [ref=e129]: ₹2,10,000
+            - generic [ref=e130] [cursor=pointer]:
+              - generic [ref=e131]: ○
+              - generic [ref=e132]: Sep 2027
+              - generic [ref=e133]: ₹2,10,000
+            - generic [ref=e134] [cursor=pointer]:
+              - generic [ref=e135]: ○
+              - generic [ref=e136]: Oct 2027
+              - generic [ref=e137]: ₹2,10,000
+            - generic [ref=e138] [cursor=pointer]:
+              - generic [ref=e139]: ○
+              - generic [ref=e140]: Nov 2027
+              - generic [ref=e141]: ₹2,10,000
+            - generic [ref=e142] [cursor=pointer]:
+              - generic [ref=e143]: ○
+              - generic [ref=e144]: Dec 2027
+              - generic [ref=e145]: ₹2,10,000
+            - generic [ref=e146] [cursor=pointer]:
+              - generic [ref=e147]: ○
+              - generic [ref=e148]: Jan 2028
+              - generic [ref=e149]: ₹2,10,000
+            - generic [ref=e150] [cursor=pointer]:
+              - generic [ref=e151]: ○
+              - generic [ref=e152]: Feb 2028
+              - generic [ref=e153]: ₹2,10,000
+            - generic [ref=e154] [cursor=pointer]:
+              - generic [ref=e155]: ○
+              - generic [ref=e156]: Mar 2028
+              - generic [ref=e157]: ₹2,10,000
+            - generic [ref=e158] [cursor=pointer]:
+              - generic [ref=e159]: ○
+              - generic [ref=e160]: Apr 2028
+              - generic [ref=e161]: ₹2,10,000
+        - generic [ref=e162]:
+          - generic [ref=e163] [cursor=pointer]:
+            - generic [ref=e164]: Year 3 (Age 30-31)
+            - generic [ref=e165]: 0/12 done · ₹0 / ₹25.20 L
+          - generic [ref=e166]:
+            - generic [ref=e167] [cursor=pointer]:
+              - generic [ref=e168]: ○
+              - generic [ref=e169]: May 2028
+              - generic [ref=e170]: ₹2,10,000
+            - generic [ref=e171] [cursor=pointer]:
+              - generic [ref=e172]: ○
+              - generic [ref=e173]: Jun 2028
+              - generic [ref=e174]: ₹2,10,000
+            - generic [ref=e175] [cursor=pointer]:
+              - generic [ref=e176]: ○
+              - generic [ref=e177]: Jul 2028
+              - generic [ref=e178]: ₹2,10,000
+            - generic [ref=e179] [cursor=pointer]:
+              - generic [ref=e180]: ○
+              - generic [ref=e181]: Aug 2028
+              - generic [ref=e182]: ₹2,10,000
+            - generic [ref=e183] [cursor=pointer]:
+              - generic [ref=e184]: ○
+              - generic [ref=e185]: Sep 2028
+              - generic [ref=e186]: ₹2,10,000
+            - generic [ref=e187] [cursor=pointer]:
+              - generic [ref=e188]: ○
+              - generic [ref=e189]: Oct 2028
+              - generic [ref=e190]: ₹2,10,000
+            - generic [ref=e191] [cursor=pointer]:
+              - generic [ref=e192]: ○
+              - generic [ref=e193]: Nov 2028
+              - generic [ref=e194]: ₹2,10,000
+            - generic [ref=e195] [cursor=pointer]:
+              - generic [ref=e196]: ○
+              - generic [ref=e197]: Dec 2028
+              - generic [ref=e198]: ₹2,10,000
+            - generic [ref=e199] [cursor=pointer]:
+              - generic [ref=e200]: ○
+              - generic [ref=e201]: Jan 2029
+              - generic [ref=e202]: ₹2,10,000
+            - generic [ref=e203] [cursor=pointer]:
+              - generic [ref=e204]: ○
+              - generic [ref=e205]: Feb 2029
+              - generic [ref=e206]: ₹2,10,000
+            - generic [ref=e207] [cursor=pointer]:
+              - generic [ref=e208]: ○
+              - generic [ref=e209]: Mar 2029
+              - generic [ref=e210]: ₹2,10,000
+            - generic [ref=e211] [cursor=pointer]:
+              - generic [ref=e212]: ○
+              - generic [ref=e213]: Apr 2029
+              - generic [ref=e214]: ₹2,10,000
+        - generic [ref=e215]:
+          - generic [ref=e216] [cursor=pointer]:
+            - generic [ref=e217]: Year 4 (Age 31-32)
+            - generic [ref=e218]: 0/12 done · ₹0 / ₹25.20 L
+          - generic [ref=e219]:
+            - generic [ref=e220] [cursor=pointer]:
+              - generic [ref=e221]: ○
+              - generic [ref=e222]: May 2029
+              - generic [ref=e223]: ₹2,10,000
+            - generic [ref=e224] [cursor=pointer]:
+              - generic [ref=e225]: ○
+              - generic [ref=e226]: Jun 2029
+              - generic [ref=e227]: ₹2,10,000
+            - generic [ref=e228] [cursor=pointer]:
+              - generic [ref=e229]: ○
+              - generic [ref=e230]: Jul 2029
+              - generic [ref=e231]: ₹2,10,000
+            - generic [ref=e232] [cursor=pointer]:
+              - generic [ref=e233]: ○
+              - generic [ref=e234]: Aug 2029
+              - generic [ref=e235]: ₹2,10,000
+            - generic [ref=e236] [cursor=pointer]:
+              - generic [ref=e237]: ○
+              - generic [ref=e238]: Sep 2029
+              - generic [ref=e239]: ₹2,10,000
+            - generic [ref=e240] [cursor=pointer]:
+              - generic [ref=e241]: ○
+              - generic [ref=e242]: Oct 2029
+              - generic [ref=e243]: ₹2,10,000
+            - generic [ref=e244] [cursor=pointer]:
+              - generic [ref=e245]: ○
+              - generic [ref=e246]: Nov 2029
+              - generic [ref=e247]: ₹2,10,000
+            - generic [ref=e248] [cursor=pointer]:
+              - generic [ref=e249]: ○
+              - generic [ref=e250]: Dec 2029
+              - generic [ref=e251]: ₹2,10,000
+            - generic [ref=e252] [cursor=pointer]:
+              - generic [ref=e253]: ○
+              - generic [ref=e254]: Jan 2030
+              - generic [ref=e255]: ₹2,10,000
+            - generic [ref=e256] [cursor=pointer]:
+              - generic [ref=e257]: ○
+              - generic [ref=e258]: Feb 2030
+              - generic [ref=e259]: ₹2,10,000
+            - generic [ref=e260] [cursor=pointer]:
+              - generic [ref=e261]: ○
+              - generic [ref=e262]: Mar 2030
+              - generic [ref=e263]: ₹2,10,000
+            - generic [ref=e264] [cursor=pointer]:
+              - generic [ref=e265]: ○
+              - generic [ref=e266]: Apr 2030
+              - generic [ref=e267]: ₹2,10,000
+        - generic [ref=e268]:
+          - generic [ref=e269] [cursor=pointer]:
+            - generic [ref=e270]: Year 5 (Age 32-33)
+            - generic [ref=e271]: 0/12 done · ₹0 / ₹25.20 L
+          - generic [ref=e272]:
+            - generic [ref=e273] [cursor=pointer]:
+              - generic [ref=e274]: ○
+              - generic [ref=e275]: May 2030
+              - generic [ref=e276]: ₹2,10,000
+            - generic [ref=e277] [cursor=pointer]:
+              - generic [ref=e278]: ○
+              - generic [ref=e279]: Jun 2030
+              - generic [ref=e280]: ₹2,10,000
+            - generic [ref=e281] [cursor=pointer]:
+              - generic [ref=e282]: ○
+              - generic [ref=e283]: Jul 2030
+              - generic [ref=e284]: ₹2,10,000
+            - generic [ref=e285] [cursor=pointer]:
+              - generic [ref=e286]: ○
+              - generic [ref=e287]: Aug 2030
+              - generic [ref=e288]: ₹2,10,000
+            - generic [ref=e289] [cursor=pointer]:
+              - generic [ref=e290]: ○
+              - generic [ref=e291]: Sep 2030
+              - generic [ref=e292]: ₹2,10,000
+            - generic [ref=e293] [cursor=pointer]:
+              - generic [ref=e294]: ○
+              - generic [ref=e295]: Oct 2030
+              - generic [ref=e296]: ₹2,10,000
+            - generic [ref=e297] [cursor=pointer]:
+              - generic [ref=e298]: ○
+              - generic [ref=e299]: Nov 2030
+              - generic [ref=e300]: ₹2,10,000
+            - generic [ref=e301] [cursor=pointer]:
+              - generic [ref=e302]: ○
+              - generic [ref=e303]: Dec 2030
+              - generic [ref=e304]: ₹2,10,000
+            - generic [ref=e305] [cursor=pointer]:
+              - generic [ref=e306]: ○
+              - generic [ref=e307]: Jan 2031
+              - generic [ref=e308]: ₹2,10,000
+            - generic [ref=e309] [cursor=pointer]:
+              - generic [ref=e310]: ○
+              - generic [ref=e311]: Feb 2031
+              - generic [ref=e312]: ₹2,10,000
+            - generic [ref=e313] [cursor=pointer]:
+              - generic [ref=e314]: ○
+              - generic [ref=e315]: Mar 2031
+              - generic [ref=e316]: ₹2,10,000
+            - generic [ref=e317] [cursor=pointer]:
+              - generic [ref=e318]: ○
+              - generic [ref=e319]: Apr 2031
+              - generic [ref=e320]: ₹2,10,000
+        - generic [ref=e321]:
+          - generic [ref=e322] [cursor=pointer]:
+            - generic [ref=e323]: Year 6 (Age 33-34)
+            - generic [ref=e324]: 0/12 done · ₹0 / ₹25.20 L
+          - generic [ref=e325]:
+            - generic [ref=e326] [cursor=pointer]:
+              - generic [ref=e327]: ○
+              - generic [ref=e328]: May 2031
+              - generic [ref=e329]: ₹2,10,000
+            - generic [ref=e330] [cursor=pointer]:
+              - generic [ref=e331]: ○
+              - generic [ref=e332]: Jun 2031
+              - generic [ref=e333]: ₹2,10,000
+            - generic [ref=e334] [cursor=pointer]:
+              - generic [ref=e335]: ○
+              - generic [ref=e336]: Jul 2031
+              - generic [ref=e337]: ₹2,10,000
+            - generic [ref=e338] [cursor=pointer]:
+              - generic [ref=e339]: ○
+              - generic [ref=e340]: Aug 2031
+              - generic [ref=e341]: ₹2,10,000
+            - generic [ref=e342] [cursor=pointer]:
+              - generic [ref=e343]: ○
+              - generic [ref=e344]: Sep 2031
+              - generic [ref=e345]: ₹2,10,000
+            - generic [ref=e346] [cursor=pointer]:
+              - generic [ref=e347]: ○
+              - generic [ref=e348]: Oct 2031
+              - generic [ref=e349]: ₹2,10,000
+            - generic [ref=e350] [cursor=pointer]:
+              - generic [ref=e351]: ○
+              - generic [ref=e352]: Nov 2031
+              - generic [ref=e353]: ₹2,10,000
+            - generic [ref=e354] [cursor=pointer]:
+              - generic [ref=e355]: ○
+              - generic [ref=e356]: Dec 2031
+              - generic [ref=e357]: ₹2,10,000
+            - generic [ref=e358] [cursor=pointer]:
+              - generic [ref=e359]: ○
+              - generic [ref=e360]: Jan 2032
+              - generic [ref=e361]: ₹2,10,000
+            - generic [ref=e362] [cursor=pointer]:
+              - generic [ref=e363]: ○
+              - generic [ref=e364]: Feb 2032
+              - generic [ref=e365]: ₹2,10,000
+            - generic [ref=e366] [cursor=pointer]:
+              - generic [ref=e367]: ○
+              - generic [ref=e368]: Mar 2032
+              - generic [ref=e369]: ₹2,10,000
+            - generic [ref=e370] [cursor=pointer]:
+              - generic [ref=e371]: ○
+              - generic [ref=e372]: Apr 2032
+              - generic [ref=e373]: ₹2,10,000
+        - generic [ref=e374]:
+          - generic [ref=e375] [cursor=pointer]:
+            - generic [ref=e376]: Year 7 (Age 34-35)
+            - generic [ref=e377]: 0/12 done · ₹0 / ₹25.20 L
+          - generic [ref=e378]:
+            - generic [ref=e379] [cursor=pointer]:
+              - generic [ref=e380]: ○
+              - generic [ref=e381]: May 2032
+              - generic [ref=e382]: ₹2,10,000
+            - generic [ref=e383] [cursor=pointer]:
+              - generic [ref=e384]: ○
+              - generic [ref=e385]: Jun 2032
+              - generic [ref=e386]: ₹2,10,000
+            - generic [ref=e387] [cursor=pointer]:
+              - generic [ref=e388]: ○
+              - generic [ref=e389]: Jul 2032
+              - generic [ref=e390]: ₹2,10,000
+            - generic [ref=e391] [cursor=pointer]:
+              - generic [ref=e392]: ○
+              - generic [ref=e393]: Aug 2032
+              - generic [ref=e394]: ₹2,10,000
+            - generic [ref=e395] [cursor=pointer]:
+              - generic [ref=e396]: ○
+              - generic [ref=e397]: Sep 2032
+              - generic [ref=e398]: ₹2,10,000
+            - generic [ref=e399] [cursor=pointer]:
+              - generic [ref=e400]: ○
+              - generic [ref=e401]: Oct 2032
+              - generic [ref=e402]: ₹2,10,000
+            - generic [ref=e403] [cursor=pointer]:
+              - generic [ref=e404]: ○
+              - generic [ref=e405]: Nov 2032
+              - generic [ref=e406]: ₹2,10,000
+            - generic [ref=e407] [cursor=pointer]:
+              - generic [ref=e408]: ○
+              - generic [ref=e409]: Dec 2032
+              - generic [ref=e410]: ₹2,10,000
+            - generic [ref=e411] [cursor=pointer]:
+              - generic [ref=e412]: ○
+              - generic [ref=e413]: Jan 2033
+              - generic [ref=e414]: ₹2,10,000
+            - generic [ref=e415] [cursor=pointer]:
+              - generic [ref=e416]: ○
+              - generic [ref=e417]: Feb 2033
+              - generic [ref=e418]: ₹2,10,000
+            - generic [ref=e419] [cursor=pointer]:
+              - generic [ref=e420]: ○
+              - generic [ref=e421]: Mar 2033
+              - generic [ref=e422]: ₹2,10,000
+            - generic [ref=e423] [cursor=pointer]:
+              - generic [ref=e424]: ○
+              - generic [ref=e425]: Apr 2033
+              - generic [ref=e426]: ₹2,10,000
+    - contentinfo [ref=e427]:
+      - paragraph [ref=e428]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e429]:
+        - link "Home" [ref=e430] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e431] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e432]:
+    - button "Corpus @ Retirement ₹4.50 Cr" [ref=e433] [cursor=pointer]:
+      - generic [ref=e434]: Corpus @ Retirement
+      - generic [ref=e435]: ₹4.50 Cr
+    - button "Money lasts until Age 98" [ref=e436] [cursor=pointer]:
+      - generic [ref=e437]: Money lasts until
+      - generic [ref=e438]: Age 98
+    - button "Savings Rate 60.0%" [ref=e439] [cursor=pointer]:
+      - generic [ref=e440]: Savings Rate
+      - generic [ref=e441]: 60.0%

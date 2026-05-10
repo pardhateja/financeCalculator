@@ -1,0 +1,102 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - heading "Retirement Financial Planner" [level=1] [ref=e6]
+          - paragraph [ref=e7]: Comprehensive Income, Expense, Investment & Projection Planning
+        - button "Settings" [ref=e9] [cursor=pointer]: ⚙
+    - tablist "Sections" [ref=e10]:
+      - button "Setup" [ref=e11] [cursor=pointer]
+      - button "Plan" [ref=e12] [cursor=pointer]
+      - button "Project" [ref=e13] [cursor=pointer]
+      - button "Track" [ref=e14] [cursor=pointer]
+      - button "Tools" [ref=e15] [cursor=pointer]
+      - button "Retire Today" [active] [ref=e16] [cursor=pointer]
+      - button "Profiles" [ref=e17] [cursor=pointer]
+    - tablist "Sub-sections" [ref=e18]:
+      - button "Retire Today" [ref=e4863] [cursor=pointer]
+    - text: Now
+    - generic [ref=e4865]:
+      - heading "Retire Today" [level=2] [ref=e4866]
+      - paragraph [ref=e4867]: "If you retired right now, how much can you safely withdraw each month, and how long would your money last? This tab uses your current corpus (live from the Projection chain) and asks the inverse question to your main plan: not \"when can I retire?\" but \"what if today?\"."
+      - generic [ref=e4868]:
+        - generic [ref=e4869]:
+          - generic "Your live running balance from the Projection chain. Editable here for what-if; changes don't propagate back." [ref=e4870]: Current Corpus (today)
+          - generic [ref=e4871]:
+            - generic [ref=e4872]: ₹
+            - spinbutton "Current Corpus (today)" [ref=e4873]: "7347270"
+        - generic [ref=e4874]:
+          - generic "Your monthly retirement expense in TODAY's rupees (no inflation applied here — that's done internally by year)." [ref=e4875]: Monthly Expense (today)
+          - generic [ref=e4876]:
+            - generic [ref=e4877]: ₹
+            - spinbutton "Monthly Expense (today)" [ref=e4878]: "100000"
+        - generic [ref=e4879]:
+          - generic "Annual return assumed for the corpus during retirement. Defaults to your Post-Retirement Blended return from Financial Plan." [ref=e4880]: Annual Return
+          - generic [ref=e4881]:
+            - spinbutton "Annual Return" [ref=e4882]: "9.5"
+            - generic [ref=e4883]: "%"
+        - generic [ref=e4884]:
+          - generic "Annual inflation applied to expenses each year of retirement. Defaults to your Inflation Rate from Basics." [ref=e4885]: Expense Inflation
+          - generic [ref=e4886]:
+            - spinbutton "Expense Inflation" [ref=e4887]: "6"
+            - generic [ref=e4888]: "%"
+        - generic [ref=e4889]:
+          - generic "How many years of retirement to plan for. Defaults to (life expectancy − current age)." [ref=e4890]: Years to Plan For
+          - generic [ref=e4891]:
+            - spinbutton "Years to Plan For" [ref=e4892]: "72"
+            - generic [ref=e4893]: yrs
+      - heading "How much can I withdraw?" [level=3] [ref=e4894]
+      - paragraph [ref=e4895]: Three different ways to size a safe monthly withdrawal from today's corpus.
+      - generic [ref=e4896]:
+        - generic [ref=e4897]:
+          - generic [ref=e4898]: Monte Carlo 85% Safe
+          - generic [ref=e4899]: ₹7.7 K
+          - generic [ref=e4900]: / month for 72 yrs
+          - generic [ref=e4901]: Largest monthly withdrawal where 85% of randomized return scenarios still leave money at end of horizon. Most realistic.
+        - generic [ref=e4902]:
+          - generic [ref=e4903]: 4% Rule (Bengen)
+          - generic [ref=e4904]: ₹24.5 K
+          - generic [ref=e4905]: / month — 4% of corpus / 12
+          - generic [ref=e4906]: The classic textbook rule — historically safe across 30-year US retirements. Simple and conservative.
+        - generic [ref=e4907]:
+          - generic [ref=e4908]: Annuity-Style
+          - generic [ref=e4909]: ₹55.9 K
+          - generic [ref=e4910]: / month at 9.50% for 72 yrs
+          - generic [ref=e4911]: Maximum equal monthly withdrawal that fully drains corpus by end of horizon, given your post-retirement blended return.
+      - heading "How long will my money last?" [level=3] [ref=e4912]
+      - paragraph [ref=e4913]: Three views of how many months your corpus survives at your CURRENT monthly expense (above).
+      - generic [ref=e4914]:
+        - generic [ref=e4915]:
+          - generic [ref=e4916]: Deterministic
+          - generic [ref=e4917]: 84 mo
+          - generic [ref=e4918]: 7.0 years
+          - generic [ref=e4919]: Assumes the corpus earns your annual return every year, no variance. Best-guess "average" answer.
+        - generic [ref=e4920]:
+          - generic [ref=e4921]: Monte Carlo Median
+          - generic [ref=e4922]: 81 mo
+          - generic [ref=e4923]: 6.8 years
+          - generic [ref=e4924]: Middle outcome across thousands of randomized return paths. Half of futures last longer, half shorter.
+        - generic [ref=e4925]:
+          - generic [ref=e4926]: Monte Carlo Worst-10%
+          - generic [ref=e4927]: 61 mo
+          - generic [ref=e4928]: 5.1 years
+          - generic [ref=e4929]: The 10th-percentile bad outcome. Plan for THIS number if you want to be cautious — only 1 in 10 futures is worse.
+      - paragraph [ref=e4930]: Monte Carlo numbers above use 5,000 simulated retirement paths each time you change an input. May take a moment after a big change.
+    - contentinfo [ref=e1656]:
+      - paragraph [ref=e1657]: Retirement Financial Planner — Plan your financial future with confidence
+      - generic [ref=e1658]:
+        - link "Home" [ref=e1659] [cursor=pointer]:
+          - /url: ../index.html
+        - link "Multi-Method Calculator" [ref=e1660] [cursor=pointer]:
+          - /url: ../multi-method-calculator.html
+  - status "Live financial summary" [ref=e1661]:
+    - button "Corpus @ Retirement ₹4.77 Cr" [ref=e1662] [cursor=pointer]:
+      - generic [ref=e1663]: Corpus @ Retirement
+      - generic [ref=e1664]: ₹4.77 Cr
+    - button "Money lasts until Lifetime" [ref=e1665] [cursor=pointer]:
+      - generic [ref=e1666]: Money lasts until
+      - generic [ref=e1667]: Lifetime
+    - button "Savings Rate 60.0%" [ref=e1668] [cursor=pointer]:
+      - generic [ref=e1669]: Savings Rate
+      - generic [ref=e1670]: 60.0%
